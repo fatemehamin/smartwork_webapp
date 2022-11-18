@@ -1,0 +1,21 @@
+.login {
+  background-color: #269dd850;
+}
+.Logo {
+  width: 80%;
+  margin: 20px;
+}
+.login_body {
+  background-color: #fff;
+  width: 100%;
+  border-top-right-radius: 60px;
+  border-top-left-radius: 60px;
+  padding-top: 5px;
+}
+.forgotPassword_btn {
+  text-align: right;
+  width: 80%;
+  margin: auto;
+  color: #777;
+  padding: 15px 0px;
+}

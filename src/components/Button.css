@@ -1,0 +1,30 @@
+.Btn_container {
+  width: 80%;
+  border-radius: 5px;
+  border-width: 0px;
+  margin: 10px auto;
+  height: 45px;
+  cursor: pointer;
+}
+.Btn_container_PRIMARY {
+  background-color: #269dd8;
+  box-shadow: 0px 2px 5px 0px #00000050;
+}
+.Btn_container_SECONDARY {
+  border-color: #269dd8;
+  border-width: 1px;
+  background-color: transparent;
+}
+.Btn_container_DISABLE {
+  background-color: #269dd860;
+}
+.Btn_text {
+  font-size: 16px;
+  text-align: center;
+  font-weight: bold;
+}
+.Btn_loading {
+  height: 29px;
+  width: 50px;
+  align-self: center;
+}

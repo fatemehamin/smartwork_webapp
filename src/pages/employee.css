@@ -1,0 +1,65 @@
+.filter {
+  width: 50%;
+  display: inline-block;
+  background-color: #269dd8;
+  height: 50px;
+}
+.activeFilter {
+  background-color: #176085;
+}
+.filterText {
+  color: #fff;
+}
+.employee {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-evenly;
+  padding-bottom: 20px;
+}
+.map {
+  width: 100%;
+  /* height: Dimensions.get("window").height / 1.75, */
+}
+.exitEntry {
+  width: 100%;
+  height: 50px;
+  justify-content: center;
+  align-items: center;
+}
+.exitEntryText {
+  font-weight: bold;
+  font-size: 23px;
+  padding-bottom: 5px;
+}
+.error {
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+.text {
+  margin-top: 30px;
+  color: #777;
+}
+.labelModal {
+  font-weight: bold;
+  color: #000;
+  margin: 10px 0px;
+  font-size: 20px;
+}
+.reportModal {
+  align-self: flex-start;
+  margin: 0px 10px;
+  width: 95%;
+  color: #000;
+}
+.buttonsContainer {
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-self: stretch;
+}
+.loadingButton {
+  height: 29px;
+  width: 180px;
+  align-self: center;
+}
