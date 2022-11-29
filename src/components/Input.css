@@ -23,6 +23,7 @@
   color: #000;
   border: none;
   display: block;
+  caret-color: #f6921e;
 }
 .msgError {
   color: #990f02;

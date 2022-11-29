@@ -1,8 +1,9 @@
 import React, { useEffect, useCallback, useState } from "react";
 // import { useSelector, useDispatch } from "react-redux";
 import Task from "../components/Task";
-import "./employee.css";
-import Grid from "@mui/material/Grid";
+import "./myTask.css";
+import AppBar from "../components/AppBar";
+
 // import {
 //   getProject,
 //   dailyReport,
@@ -11,7 +12,7 @@ import Grid from "@mui/material/Grid";
 //   location,
 // } from "../redux/action/employeeAction";
 // import { getEmployee } from "../redux/action/managerAction";
-// import FloatingButton from "../components/floatingButton";
+import FloatingButton from "../components/floatingButton";
 // import Modal from "../components/modal";
 // import Button from "../components/customButton";
 // import Geolocation from "react-native-geolocation-service";
@@ -19,7 +20,6 @@ import Grid from "@mui/material/Grid";
 // import Permission, { PERMISSIONS_TYPE } from "../utils/AppPermissions";
 // import checkLocation from "../utils/checkLocation";
 // import Spinner from "../components/spinner";
-
 export default () => {
   //   const employeeState = useSelector((state) => state.employeeReducer);
   //   const phoneNumber = useSelector(
@@ -151,8 +151,13 @@ export default () => {
     //     </Text>
     //   );
   };
+  const position = "boss";
   return (
     <>
+      <AppBar
+        label={position == "boss" ? "My Tasks" : "Smart Work"}
+        position={position}
+      />
       <div
         className={`filter ${activeFilter == "Tasks" && "activeFilter"}`}
         //   onPress={() => setActiveFilter("Tasks")}
@@ -229,6 +234,7 @@ export default () => {
               //  lastEntry={employeeState.lastEntry}
             />
           </div>
+          <FloatingButton type="DailyReport" />
           {/* <FloatingButton isReport setModalVisibleProject={setModalVisible} /> */}
           {/* <Modal modalVisible={modalVisible} setModalVisible={setModalVisible}>
             <Text style={styles.labelModal}>Today Report</Text>

@@ -3,6 +3,9 @@ import Logo from "../assets/images/Logo.png";
 import "./login.css";
 import Button from "../components/Button";
 import Input from "../components/Input";
+import { Link, useNavigate } from "react-router-dom";
+import { LockOutlined } from "@mui/icons-material";
+
 // import { useDispatch, useSelector } from "react-redux";
 // import { login } from "../redux/action/authAction";
 
@@ -14,7 +17,7 @@ export default () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const ref_input2 = useRef();
-  // const navigation = useNavigation();
+  const navigation = useNavigate();
   return (
     <div className="login">
       <img src={Logo} className="Logo" alt="Logo" />
@@ -40,18 +43,14 @@ export default () => {
           label="Password"
           placeholder="Password"
           type="password"
+          Icon={LockOutlined}
           // nameIcon="lock"
           // returnKeyType="done"
           // ref={ref_input2}
         />
-        <p
-          className="forgotPassword_btn"
-          // onPress={() => {
-          //   navigation.navigate("ForgotPassword");
-          // }}
-        >
+        <Link to="/forgotPassword" className="forgotPassword_btn">
           Forgot password?
-        </p>
+        </Link>
         <Button
           label="Login"
           onClick={() => {
@@ -65,8 +64,7 @@ export default () => {
         <Button
           label="Signup"
           type="SECONDARY"
-          onClick={() => console.log("Signup")}
-          //   onClick={() => navigation.navigate('Signup')}
+          onClick={() => navigation("/signup")}
         />
       </div>
     </div>

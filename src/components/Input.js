@@ -1,11 +1,8 @@
 import React, { useState, forwardRef } from "react";
 import "./Input.css";
-import * as Icon from "@mui/icons-material";
 import { Input, InputAdornment } from "@mui/material";
 import MuiPhoneNumber from "material-ui-phone-number";
-// import Icon from "react-native-vector-icons/Feather";
-// import CountryCodePicker from "./countryCodePicker";
-// import InputUI from "@material-ui/core/Input";
+import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 
 export default forwardRef(
   (
@@ -18,16 +15,13 @@ export default forwardRef(
       setCountry,
       callingCode,
       setCallingCode,
+      Icon,
       ...props
     },
     ref
   ) => {
     const [visiblePassword, setVisiblePassword] = useState(false);
-    const [isFocus, setIsFocus] = useState(false);
-    const style = {
-      div: { borderColor: isFocus ? "#442C2E" : "#aaa" },
-      IconSize: { fontSize: 18 },
-    };
+    // const [isFocus, setIsFocus] = useState(false);
     return (
       <div className="container">
         <p className="titleInputContainer">{label}</p>
@@ -43,15 +37,12 @@ export default forwardRef(
           <MuiPhoneNumber
             defaultCountry={country.toLowerCase()}
             onChange={setCallingCode}
-            // className="input"
             error={msgError ? true : false}
-            // secureTextEntry={secureTextEntry && !visiblePassword}
-            onFocus={() => setIsFocus(true)}
-            onBlur={() => setIsFocus(false)}
+            // onFocus={() => setIsFocus(true)}
+            // onBlur={() => setIsFocus(false)}
             // maxLength={callingCode == "+98" ? 10 : undefined}
             {...props}
             ref={ref}
-            // selectionColor="#f
           />
         ) : (
           <Input
@@ -60,22 +51,22 @@ export default forwardRef(
             onChange={(event) => setValue(event.target.value)}
             startAdornment={
               <InputAdornment position="start">
-                <Icon.LockOutlined className="icon" style={style.IconSize} />
+                <Icon className="icon" style={styles.IconSize} />
               </InputAdornment>
             }
             endAdornment={
               type == "password" && (
                 <InputAdornment position="end">
                   {visiblePassword ? (
-                    <Icon.VisibilityOffOutlined
+                    <VisibilityOffOutlined
                       className="icon"
-                      style={style.IconSize}
+                      style={styles.IconSize}
                       onClick={() => setVisiblePassword(!visiblePassword)}
                     />
                   ) : (
-                    <Icon.VisibilityOutlined
+                    <VisibilityOutlined
                       className="icon"
-                      style={style.IconSize}
+                      style={styles.IconSize}
                       onClick={() => setVisiblePassword(!visiblePassword)}
                     />
                   )}
@@ -84,12 +75,11 @@ export default forwardRef(
             }
             type={visiblePassword ? "text" : type}
             // secureTextEntry={secureTextEntry && !visiblePassword}
-            onFocus={() => setIsFocus(true)}
-            onBlur={() => setIsFocus(false)}
+            // onFocus={() => setIsFocus(true)}
+            // onBlur={() => setIsFocus(false)}
             // maxLength={callingCode == "+98" ? 10 : undefined}
             {...props}
             ref={ref}
-            // selectionColor="#f6921e"
           />
         )}
         {msgError ? <p className="msgError">{msgError}</p> : null}
@@ -97,3 +87,7 @@ export default forwardRef(
     );
   }
 );
+const styles = {
+  // div: { borderColor: isFocus ? "#442C2E" : "#aaa" },
+  IconSize: { fontSize: 18 },
+};
