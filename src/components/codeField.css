@@ -1,0 +1,17 @@
+.codeField {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+}
+.codeField_input {
+  border-bottom: 1px #949494 solid;
+  margin: 10px;
+  width: 50px;
+  font-size: 30px;
+  font-weight: bold;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

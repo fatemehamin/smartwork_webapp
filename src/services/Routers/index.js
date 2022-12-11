@@ -20,7 +20,7 @@ export default () => (
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgotPassword" element={<ForgotPassword />} />
-      <Route path="/verifyCode" element={<VerifyCode />} />
+      <Route path="/verifyCode/:phoneNumber/:type" element={<VerifyCode />} />
       <Route path="/changePassword" element={<ChangePassword />} />
       <Route path="/" element={<Manager />} />
       <Route path="/myTasks" element={<MyTask />} />

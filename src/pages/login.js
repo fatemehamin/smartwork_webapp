@@ -29,9 +29,9 @@ export default () => {
           label="Phone Number"
           placeholder="Phone Number"
           country={country}
-          // setCountry={setCountry}
+          setCountry={setCountry}
           callingCode={callingCode}
-          // setCallingCode={setCallingCode}
+          setCallingCode={setCallingCode}
           // returnKeyType="next"
           // keyboardType="numeric"
           // inputRef={(el) => (ref_input2.current = el)}
@@ -44,7 +44,6 @@ export default () => {
           placeholder="Password"
           type="password"
           Icon={LockOutlined}
-          // nameIcon="lock"
           // returnKeyType="done"
           // ref={ref_input2}
         />

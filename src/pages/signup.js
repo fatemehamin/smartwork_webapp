@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import AppBar from "../components/AppBar";
 import Input from "../components/Input";
 import Button from "../components/Button";
+import msgError from "../utils/msgError";
 import {
   PersonOutlineOutlined,
   WorkOutlineOutlined,
@@ -32,15 +33,6 @@ export default () => {
   //   //check phoneNumber realtime
   //   dispatch(phoneNumberCheck(callingCode + phoneNumber));
   // }, [phoneNumber]);
-  console.log(
-    password,
-    rePassword,
-    companyName,
-    email,
-    phoneNumber,
-    firstName,
-    lastName
-  );
   return (
     <>
       <AppBar label="Signup" type="AUTH" />
@@ -74,9 +66,9 @@ export default () => {
         label="Phone Number"
         placeholder="Phone Number"
         country={country}
-        // setCountry={setCountry}
+        setCountry={setCountry}
         callingCode={callingCode}
-        // setCallingCode={setCallingCode}
+        setCallingCode={setCallingCode}
         // returnKeyType="next"
         // keyboardType="numeric"
         // inputRef={(el) => (ref_input2.current = el)}
@@ -89,7 +81,7 @@ export default () => {
         setValue={setEmail}
         label="Email"
         placeholder="Email"
-        // msgError={isPress && msgError.email(email)}
+        msgError={isPress && msgError.email(email)}
         Icon={EmailOutlined}
       />
       <Input
@@ -98,7 +90,7 @@ export default () => {
         label="Password"
         placeholder="Password"
         type="password"
-        // msgError={isPress && msgError.password(password)}
+        msgError={isPress && msgError.password(password)}
         Icon={LockOutlined}
       />
       <Input
@@ -107,7 +99,7 @@ export default () => {
         label="Repeat Password"
         placeholder="Repeat Password"
         type="password"
-        // msgError={isPress && msgError.rePassword(rePassword, password)}
+        msgError={isPress && msgError.rePassword(rePassword, password)}
         Icon={LockOutlined}
       />
       <Button
@@ -118,14 +110,14 @@ export default () => {
             rePassword &&
             companyName &&
             email &&
-            // phoneNumber &&
+            phoneNumber &&
             firstName &&
             lastName
           )
         }
         onClick={() => {
           console.log("Signup");
-          //   setIsPress(true);
+          setIsPress(true);
           //   !(
           //     msgError.email(email) ||
           //     msgError.password(password) ||
@@ -145,7 +137,6 @@ export default () => {
           //         navigation,
           //       ),
           //     );
-          //   Keyboard.dismiss();
         }}
 
         // isLoading={state.isLoading}

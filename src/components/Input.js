@@ -7,6 +7,7 @@ import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 export default forwardRef(
   (
     {
+      value,
       setValue,
       label,
       type,
@@ -21,26 +22,18 @@ export default forwardRef(
     ref
   ) => {
     const [visiblePassword, setVisiblePassword] = useState(false);
-    // const [isFocus, setIsFocus] = useState(false);
     return (
       <div className="container">
         <p className="titleInputContainer">{label}</p>
-        {/* <div className="container_div" style={style.div}> */}
-        {/* {callingCode && (
-            <CountryCodePicker
-              setCallingCode={setCallingCode}
-              country={country}
-              setCountry={setCountry}
-            />
-          )} */}
         {callingCode ? (
           <MuiPhoneNumber
             defaultCountry={country.toLowerCase()}
-            onChange={setCallingCode}
+            onChange={(phoneNumber, details) => {
+              setCallingCode(`+${details.dialCode}`);
+              setValue(phoneNumber);
+              setCountry(details.countryCode);
+            }}
             error={msgError ? true : false}
-            // onFocus={() => setIsFocus(true)}
-            // onBlur={() => setIsFocus(false)}
-            // maxLength={callingCode == "+98" ? 10 : undefined}
             {...props}
             ref={ref}
           />
@@ -74,10 +67,6 @@ export default forwardRef(
               )
             }
             type={visiblePassword ? "text" : type}
-            // secureTextEntry={secureTextEntry && !visiblePassword}
-            // onFocus={() => setIsFocus(true)}
-            // onBlur={() => setIsFocus(false)}
-            // maxLength={callingCode == "+98" ? 10 : undefined}
             {...props}
             ref={ref}
           />
@@ -88,6 +77,5 @@ export default forwardRef(
   }
 );
 const styles = {
-  // div: { borderColor: isFocus ? "#442C2E" : "#aaa" },
   IconSize: { fontSize: 18 },
 };

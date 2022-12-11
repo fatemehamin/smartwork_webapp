@@ -1,0 +1,10 @@
+.Verify_description {
+  margin: 20px;
+}
+.Verify_timer {
+  margin: 30px;
+  font-weight: bold;
+}
+.Verify_textTimeout {
+  color: #bd10e0;
+}
