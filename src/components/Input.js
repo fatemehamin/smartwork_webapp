@@ -33,6 +33,7 @@ export default forwardRef(
               setValue(phoneNumber);
               setCountry(details.countryCode);
             }}
+            className="input"
             error={msgError ? true : false}
             {...props}
             ref={ref}
@@ -43,9 +44,11 @@ export default forwardRef(
             error={msgError ? true : false}
             onChange={(event) => setValue(event.target.value)}
             startAdornment={
-              <InputAdornment position="start">
-                <Icon className="icon" style={styles.IconSize} />
-              </InputAdornment>
+              Icon && (
+                <InputAdornment position="start">
+                  <Icon className="icon" style={styles.IconSize} />
+                </InputAdornment>
+              )
             }
             endAdornment={
               type == "password" && (

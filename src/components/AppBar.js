@@ -9,7 +9,7 @@ export default ({ label, type = "Menu", position }) => {
   const navigate = useNavigate();
   return (
     <>
-      <styles.AppBarStyle position="static">
+      <styles.AppBarStyle position="sticky">
         <Toolbar>
           <IconButton
             size="large"
@@ -22,7 +22,7 @@ export default ({ label, type = "Menu", position }) => {
           >
             {type == "Menu" ? <Menu /> : <ArrowBackIos />}
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, mr: 5 }}>
+          <Typography variant="h6" component="div" sx={styles.label}>
             {label}
           </Typography>
         </Toolbar>
@@ -40,4 +40,5 @@ const styles = {
   AppBarStyle: styled(AppBar)({
     backgroundColor: "#269dd8",
   }),
+  label: { flexGrow: 1, mr: 5 },
 };

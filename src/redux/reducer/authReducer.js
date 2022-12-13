@@ -2,18 +2,20 @@ import {
   LOADING,
   LOADED,
   ERROR,
+  PHONE_NUMBER_ERROR,
   CREATE_USER_LOADING,
+  CREATE_USER_ERROR,
   UPDATE_USER,
   LOGIN,
   LOGOUT,
   ACCESS_TOKEN,
-} from '../action/actionType';
+} from "../action/actionType";
 
 const initialState = {
   type: null,
   accessToken: null,
   refreshToken: null,
-  isLoading: true,
+  isLoading: false,
   isAuthentication: false,
   user: null,
   isError: false,
@@ -23,7 +25,7 @@ const initialState = {
 export default (preState = initialState, action) => {
   switch (action.type) {
     case LOADING: {
-      return {...preState, isLoading: true};
+      return { ...preState, isLoading: true, isError: false, error: null };
     }
     case LOADED: {
       return {
@@ -39,14 +41,33 @@ export default (preState = initialState, action) => {
         ...preState,
         isError: true,
         isLoading: false,
-        error: {
-          ...preState.error,
-          ...action.payload,
-        },
+        error: action.payload,
+      };
+    }
+    case PHONE_NUMBER_ERROR: {
+      return {
+        ...preState,
+        isLoading: false,
+        isError: true,
+        error: action.payload,
       };
     }
     case CREATE_USER_LOADING: {
-      return {...preState, user: action.payload, isLoading: false};
+      return {
+        ...preState,
+        user: action.payload,
+        isLoading: false,
+        isError: false,
+        error: null,
+      };
+    }
+    case CREATE_USER_ERROR: {
+      return {
+        ...preState,
+        isLoading: false,
+        isError: true,
+        error: action.payload,
+      };
     }
     case UPDATE_USER: {
       return {
@@ -56,6 +77,8 @@ export default (preState = initialState, action) => {
           ...action.payload,
         },
         isLoading: false,
+        isError: false,
+        error: null,
       };
     }
     case LOGIN: {
@@ -65,15 +88,23 @@ export default (preState = initialState, action) => {
         refreshToken: action.payload.refreshToken,
         isLoading: false,
         isAuthentication: true,
-        user: {...preState.user, ...action.payload.user},
+        user: { ...preState.user, ...action.payload.user },
         type: action.payload.type,
+        isError: false,
+        error: null,
       };
     }
     case LOGOUT: {
-      return {...initialState, user: preState.user, isLoading: false};
+      return { ...initialState, user: preState.user, isLoading: false };
     }
     case ACCESS_TOKEN: {
-      return {...preState, accessToken: action.payload, isLoading: false};
+      return {
+        ...preState,
+        accessToken: action.payload,
+        isLoading: false,
+        isError: false,
+        error: null,
+      };
     }
     default: {
       return preState;

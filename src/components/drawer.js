@@ -21,6 +21,8 @@ import {
   Dns,
   Home,
 } from "@mui/icons-material";
+import { useDispatch } from "react-redux";
+import { logout } from "../redux/action/authAction";
 
 export default ({
   openDrawer,
@@ -28,7 +30,11 @@ export default ({
   position = "boss",
   CurrentLabel = "Smart Work",
 }) => {
+  const iOS =
+    typeof navigator !== "undefined" &&
+    /iPad|iPhone|iPod/.test(navigator.userAgent);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const toggleDrawer = (open) => (event) => {
     if (
       event &&
@@ -47,9 +53,7 @@ export default ({
           style={{
             backgroundColor: CurrentLabel == label && "#f6921e20",
             color: CurrentLabel == label ? "#f6921e" : "#777777",
-            borderRadius: 5,
-            width: 230,
-            marginLeft: 10,
+            ...styles.list,
           }}
         >
           <ListItemButton onClick={onClick}>
@@ -115,7 +119,7 @@ export default ({
           <Item
             label="Logout"
             Icon={Logout}
-            onClick={() => console.log("logout")}
+            onClick={() => dispatch(logout(navigate))}
           />
         </List>
       </Box>
@@ -127,6 +131,8 @@ export default ({
       open={openDrawer}
       onClose={toggleDrawer(false)}
       onOpen={toggleDrawer(true)}
+      disableBackdropTransition={!iOS}
+      disableDiscovery={iOS}
     >
       {list()}
     </SwipeableDrawer>
@@ -145,4 +151,5 @@ const styles = {
     paddingLeft: 10,
   },
   text: { color: "#fff", lineHeight: 0.25 },
+  list: { borderRadius: 5, width: 230, marginLeft: 10 },
 };

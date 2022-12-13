@@ -1,20 +1,30 @@
 import React, { useState, useEffect } from "react";
 import AppBar from "../components/AppBar";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button";
 import CodeField from "../components/codeField";
 import "./verifyCode.css";
+import { useDispatch, useSelector } from "react-redux";
+import { useSnackbar } from "react-simple-snackbar";
+import {
+  createUserLoading,
+  forgotPassword,
+  verifyCode,
+} from "../redux/action/authAction";
 
 export default () => {
   const { phoneNumber, type } = useParams();
   const [code, setCode] = useState("");
   const [time, setTime] = useState(120);
   const [startTime, setStartTime] = useState(new Date().getTime());
-  // const state = useSelector(state => state.authReducer);
-  // const navigation = useNavigation();
-  // const dispatch = useDispatch();
+  const stateAuth = useSelector((state) => state.authReducer);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [openSnackbar, closeSnackbar] = useSnackbar();
+
   useEffect(() => {
-    //--------------------- timer--------------------//
+    stateAuth.isError && openSnackbar(stateAuth.error);
+    //---------------------------- timer ----------------------------//
     if (time >= 0) {
       const intervalId = setInterval(() => {
         const now = new Date().getTime();
@@ -22,7 +32,7 @@ export default () => {
       }, 1000);
       return () => clearInterval(intervalId);
     }
-  }, [time]);
+  }, [time, stateAuth.isError]);
   return (
     <>
       <AppBar label="Verification Code" type="back" />
@@ -32,7 +42,7 @@ export default () => {
       <CodeField code={code} setCode={setCode} cellCount={5} />
       <div className="Verify_timer">
         {time >= 0 ? (
-          <span style={{ color: "#777" }}>
+          <span style={styles.textResend}>
             Re-send the code in {time} seconds{" "}
           </span>
         ) : (
@@ -40,20 +50,20 @@ export default () => {
             onClick={() => {
               setStartTime(() => new Date().getTime());
               setTime(120);
-              // type == 'forgotPassword'
-              //   ? dispatch(forgotPassword(state.user.username))
-              //   : dispatch(
-              //       createUserLoading(
-              //         state.user.firstName,
-              //         state.user.lastName,
-              //         state.user.companyName,
-              //         state.user.country,
-              //         state.user.callingCode,
-              //         state.user.phoneNumber,
-              //         state.user.email,
-              //         state.user.password,
-              //       ),
-              //     );
+              type == "forgotPassword"
+                ? dispatch(forgotPassword(stateAuth.user.username))
+                : dispatch(
+                    createUserLoading(
+                      stateAuth.user.firstName,
+                      stateAuth.user.lastName,
+                      stateAuth.user.companyName,
+                      stateAuth.user.country,
+                      stateAuth.user.callingCode,
+                      stateAuth.user.phoneNumber,
+                      stateAuth.user.email,
+                      stateAuth.user.password
+                    )
+                  );
             }}
           >
             <span className="Verify_textTimeout">Re-send code</span>
@@ -61,27 +71,28 @@ export default () => {
         )}
       </div>
       <Button
-        // isLoading={state.isLoading}
+        isLoading={stateAuth.isLoading}
         label="Verify"
-        // onClick={() => {
-        //   dispatch(
-        //     verifyCode(
-        //       code,
-        //       state.user.email,
-        //       state.user.firstName,
-        //       state.user.lastName,
-        //       state.user.companyName,
-        //       state.user.password,
-        //       state.user.country,
-        //       state.user.callingCode,
-        //       state.user.phoneNumber,
-        //       navigation,
-        //       type
-        //     )
-        //   );
-        // }}
+        onClick={() => {
+          dispatch(
+            verifyCode(
+              code,
+              stateAuth.user.email,
+              stateAuth.user.firstName,
+              stateAuth.user.lastName,
+              stateAuth.user.companyName,
+              stateAuth.user.password,
+              stateAuth.user.country,
+              stateAuth.user.callingCode,
+              stateAuth.user.phoneNumber,
+              navigate,
+              type
+            )
+          );
+        }}
         disabled={code.length < 5}
       />
     </>
   );
 };
+const styles = { textResend: { color: "#777" } };

@@ -3,40 +3,47 @@ import AppBar from "../components/AppBar";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import msgError from "../utils/msgError";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "react-simple-snackbar";
 import {
   PersonOutlineOutlined,
   WorkOutlineOutlined,
   EmailOutlined,
   LockOutlined,
 } from "@mui/icons-material";
+import {
+  createUserLoading,
+  phoneNumberCheck,
+} from "../redux/action/authAction";
+
 export default () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [companyName, setCompanyName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("+98");
   const [country, setCountry] = useState("IR");
   const [callingCode, setCallingCode] = useState("+98");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rePassword, setRePassword] = useState("");
   const [isPress, setIsPress] = useState(false);
-  // const navigation = useNavigation();
-  // const dispatch = useDispatch();
-  // const state = useSelector(state => state.authReducer);
-  // const ref_LnameInput = useRef();
-  // const ref_companyInput = useRef();
-  // const ref_phoneInput = useRef();
-  // const ref_emailInput = useRef();
-  // const ref_passwordInput = useRef();
-  // const ref_rePasswordInput = useRef();
-  // useEffect(() => {
-  //   //check phoneNumber realtime
-  //   dispatch(phoneNumberCheck(callingCode + phoneNumber));
-  // }, [phoneNumber]);
+  const [openSnackbar, closeSnackbar] = useSnackbar();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const stateAuth = useSelector((state) => state.authReducer);
+
+  useEffect(() => {
+    stateAuth.isError &&
+      stateAuth.error.existsCompanyError != undefined &&
+      openSnackbar(stateAuth.error.existsCompanyError);
+    // check phoneNumber realtime
+    callingCode != phoneNumber && dispatch(phoneNumberCheck(phoneNumber));
+  }, [phoneNumber, stateAuth.isError]);
   return (
     <>
       <AppBar label="Signup" type="AUTH" />
-
       <Input
         value={firstName}
         setValue={setFirstName}
@@ -44,7 +51,6 @@ export default () => {
         placeholder="First Name"
         Icon={PersonOutlineOutlined}
       />
-
       <Input
         value={lastName}
         setValue={setLastName}
@@ -62,20 +68,14 @@ export default () => {
       <Input
         value={phoneNumber}
         setValue={setPhoneNumber}
-        className="input"
         label="Phone Number"
         placeholder="Phone Number"
         country={country}
         setCountry={setCountry}
         callingCode={callingCode}
         setCallingCode={setCallingCode}
-        // returnKeyType="next"
-        // keyboardType="numeric"
-        // inputRef={(el) => (ref_input2.current = el)}
-        // onSubmitEditing={() => ref_input2.current.focus()}
-        // msgError={state.isError ? state.error.phoneNumberError : ''}
+        msgError={stateAuth.isError ? stateAuth.error.phoneNumberError : ""}
       />
-
       <Input
         value={email}
         setValue={setEmail}
@@ -116,30 +116,28 @@ export default () => {
           )
         }
         onClick={() => {
-          console.log("Signup");
           setIsPress(true);
-          //   !(
-          //     msgError.email(email) ||
-          //     msgError.password(password) ||
-          //     msgError.rePassword(rePassword, password) ||
-          //     state.isError
-          //   ) &&
-          //     dispatch(
-          //       createUserLoading(
-          //         firstName,
-          //         lastName,
-          //         companyName,
-          //         country,
-          //         callingCode,
-          //         callingCode + phoneNumber,
-          //         email,
-          //         password,
-          //         navigation,
-          //       ),
-          //     );
+          !(
+            msgError.email(email) ||
+            msgError.password(password) ||
+            msgError.rePassword(rePassword, password) ||
+            stateAuth.isError
+          ) &&
+            dispatch(
+              createUserLoading(
+                firstName,
+                lastName,
+                companyName,
+                country,
+                callingCode,
+                phoneNumber,
+                email,
+                password,
+                navigate
+              )
+            );
         }}
-
-        // isLoading={state.isLoading}
+        isLoading={stateAuth.isLoading}
       />
     </>
   );

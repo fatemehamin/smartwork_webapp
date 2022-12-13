@@ -2,7 +2,9 @@ import {
   LOADING,
   LOADED,
   ERROR,
+  PHONE_NUMBER_ERROR,
   CREATE_USER_LOADING,
+  CREATE_USER_ERROR,
   UPDATE_USER,
   LOGIN,
   LOGOUT,
@@ -37,17 +39,22 @@ export const phoneNumberCheck = (phoneNumber) => {
   return (dispatch) => {
     axios
       .post("/user_check_is_exists/", { username: phoneNumber })
-      // without log don't work
-      .then((res) => console.log(res.status))
+      .then((res) =>
+        dispatch({
+          type: LOADED,
+        })
+      )
       .catch((err) => {
         dispatch({
-          type: ERROR,
+          type: PHONE_NUMBER_ERROR,
           payload: {
-            phoneNumberError: "This phone number exists in the system.",
+            phoneNumberError:
+              err.response.status == 406
+                ? "This phone number exists in the system."
+                : `Error ${err.response.data}`,
           },
         });
       });
-    dispatch({ type: LOADED });
   };
 };
 // ------------------------------ create user loading ------------------------------ //
@@ -55,39 +62,46 @@ export const createUserLoading = (
   firstName,
   lastName,
   companyName,
+  country,
   callingCode,
   phoneNumber,
   email,
   password,
-  navigation
+  navigate
 ) => {
   return (dispatch) => {
     // when "send again code" pressed button don't go loading mode
-    navigation !== undefined && dispatch({ type: LOADING });
+    navigate !== undefined && dispatch({ type: LOADING });
     axios
-      .post("/send_email/", { company: companyName, email })
+      .post("/send_email/", { company: companyName, phone_number: phoneNumber })
       .then((res) => {
-        // without log don't work
-        console.log(res.status);
         dispatch({
           type: CREATE_USER_LOADING,
           payload: {
             firstName,
             lastName,
             companyName,
+            country,
             callingCode,
             phoneNumber,
             email,
             password,
           },
         });
-        //signup: when navigation is undefined, it's meaning button "send again code" pressed
-        navigation !== undefined &&
-          navigation.navigate("VerifyCode", { email, type: "createUser" });
+        //signup: when navigate is undefined, it's meaning button "send again code" pressed
+        navigate !== undefined &&
+          navigate(`/verifyCode/${phoneNumber}/createUser`);
       })
       .catch((err) => {
-        // snackbar.show({ text: "This company name exists in the system." });
-        dispatch({ type: LOADED });
+        dispatch({
+          type: CREATE_USER_ERROR,
+          payload: {
+            existsCompanyError:
+              err.response.status == 406
+                ? "This company name exists in the system."
+                : `Error ${err.response.data}`,
+          },
+        });
       });
   };
 };
@@ -99,18 +113,17 @@ export const verifyCode = (
   lastName,
   companyName,
   password,
+  country,
   callingCode,
   phoneNumber,
-  navigation,
+  navigate,
   type
 ) => {
   return (dispatch) => {
     dispatch({ type: LOADING });
     axios
-      .post("/verify_email/", { email, code })
+      .post("/verify_email/", { phone_number: phoneNumber, code })
       .then((res) => {
-        // without log don't work
-        console.log(res.status);
         // when signup: from verify code go to login screen
         if (type == "createUser") {
           axios
@@ -121,6 +134,7 @@ export const verifyCode = (
               email,
               password,
               phone_number: phoneNumber,
+              country_code: callingCode,
             })
             .then((resp) => {
               dispatch({
@@ -131,27 +145,38 @@ export const verifyCode = (
                   companyName,
                   email,
                   password,
+                  country,
                   callingCode,
                   phoneNumber,
                 },
               });
-              navigation.navigate("Login");
+              navigate("/login");
             })
-            .catch((error) => dispatch({ type: LOADED }));
+            .catch((error) =>
+              dispatch({
+                type: ERROR,
+                payload: `Error ${error.response.data}`,
+              })
+            );
           // when forgotPassword: from verify code go to changePassword screen
         } else {
           dispatch({ type: LOADED });
-          navigation.navigate("ChangePassword");
+          navigate("/changePassword");
         }
       })
       .catch((err) => {
-        // snackbar.show({ text: "verify code is incorrect." });
-        dispatch({ type: LOADED });
+        dispatch({
+          type: ERROR,
+          payload:
+            err.response.status == 401
+              ? "verify code is incorrect."
+              : `Error ${err.response.data}`,
+        });
       });
   };
 };
 // -------------------------------- forgot password -------------------------------- //
-export const forgotPassword = (username, navigation) => {
+export const forgotPassword = (username, navigate) => {
   return (dispatch) => {
     dispatch({ type: LOADING });
     axios
@@ -159,46 +184,50 @@ export const forgotPassword = (username, navigation) => {
       .then((res) => {
         dispatch({
           type: UPDATE_USER,
-          payload: { username, email: res.data.email },
+          payload: { username },
         });
-        //forgotPassword: when navigation is undefined, it's meaning button "send again code" pressed
-        navigation !== undefined &&
-          navigation.navigate("VerifyCode", {
-            email: res.data.email,
-            type: "forgotPassword",
-          });
+        //forgotPassword: when navigate is undefined, it's meaning button "send again code" pressed
+        navigate !== undefined &&
+          navigate(`/verifyCode/${username}/forgotPassword`);
       })
       .catch((err) => {
-        // snackbar.show({ text: "Phone number not exists." });
-        dispatch({ type: LOADED });
+        dispatch({
+          type: ERROR,
+          payload:
+            err.response.status == 404
+              ? "Phone number not exists."
+              : `Error ${err.response.data}`,
+        });
       });
   };
 };
 // -------------------------------- change password -------------------------------- //
-export const ChangePassword = (username, password, navigation) => {
+export const ChangePassword = (username, password, navigate) => {
   return (dispatch) => {
     dispatch({ type: LOADING });
     axios
       .patch("/forgot_password/", { username, password })
       .then((res) => {
         dispatch({ type: UPDATE_USER, payload: { password } });
-        navigation.navigate("Login");
+        navigate("/login");
       })
       .catch((err) => {
-        dispatch({ type: LOADED });
-        // snackbar.show({ text: "Password not changed. Please try again." });
+        dispatch({
+          type: ERROR,
+          payload: "Password not changed. Please try again.",
+        });
       });
   };
 };
 // ------------------------------------- login ------------------------------------- //
-export const login = (callingCode, phoneNumber, password) => {
+export const login = (country, callingCode, phoneNumber, password) => {
   return async (dispatch) => {
     try {
-      if (phoneNumber == "" && password == "") {
-        console.log("gg");
-        // snackbar.show({
-        //   text: "Please enter your username or password.",
-        // });
+      if (phoneNumber == callingCode && password == "") {
+        dispatch({
+          type: ERROR,
+          payload: "Please enter your username or password.",
+        });
       } else {
         dispatch({ type: LOADING });
         const res = await axios.post("/token/", {
@@ -220,19 +249,24 @@ export const login = (callingCode, phoneNumber, password) => {
           payload: {
             accessToken: access,
             refreshToken: refresh,
-            user: { callingCode, phoneNumber, password },
+            user: { country, callingCode, phoneNumber, password },
             type: type.data.place,
           },
         });
       }
     } catch (err) {
-      dispatch({ type: LOADED });
-      // snackbar.show({ text: "Username or password is incorrect." });
+      dispatch({
+        type: ERROR,
+        payload:
+          err.response.status == 401
+            ? "Username or password is incorrect."
+            : `Error ${err.response.data}`,
+      });
     }
   };
 };
 // ------------------------------------- logout ------------------------------------- //
-export const logout = () => {
+export const logout = (navigate) => {
   return async (dispatch) => {
     // await AsyncStorage.removeItem("accessToken");
     // await AsyncStorage.removeItem("refreshToken");
@@ -241,6 +275,7 @@ export const logout = () => {
     // await AsyncStorage.removeItem("startTime");
     // await AsyncStorage.removeItem("entry");
     dispatch({ type: LOGOUT });
+    navigate("/login");
   };
 };
 // ---------------------------------- access token ---------------------------------- //

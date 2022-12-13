@@ -3,14 +3,22 @@ import AppBar from "../components/AppBar";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { forgotPassword } from "../redux/action/authAction";
+import { useEffect } from "react";
+import { useSnackbar } from "react-simple-snackbar";
 
 export default () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [country, setCountry] = useState("IR");
   const [callingCode, setCallingCode] = useState("+98");
-  // const state = useSelector((state) => state.authReducer);
+  const [openSnackbar, closeSnackbar] = useSnackbar();
+  const stateAuth = useSelector((state) => state.authReducer);
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  useEffect(() => {
+    stateAuth.isError && openSnackbar(stateAuth.error);
+  }, [stateAuth.isError]);
   return (
     <>
       <AppBar label="Forgot password" type="back" />
@@ -20,28 +28,19 @@ export default () => {
       <Input
         value={phoneNumber}
         setValue={setPhoneNumber}
-        className="input"
         label="Phone Number"
         placeholder="Phone Number"
         country={country}
         setCountry={setCountry}
         callingCode={callingCode}
         setCallingCode={setCallingCode}
-        // returnKeyType="next"
-        // keyboardType="numeric"
-        // inputRef={(el) => (ref_input2.current = el)}
-        // onSubmitEditing={() => ref_input2.current.focus()}
-        // msgError={state.isError ? state.error.phoneNumberError : ''}
+        msgError={stateAuth.isError ? stateAuth.error.phoneNumberError : ""}
       />
       <Button
         label="Verify code"
         disabled={phoneNumber == ""}
-        onClick={() => {
-          console.log("Verify code");
-          navigate(`/verifyCode/${phoneNumber}/type`);
-          // dispatch(forgotPassword(callingCode + phoneNumber, navigation));
-        }}
-        // isLoading={state.isLoading}
+        onClick={() => dispatch(forgotPassword(phoneNumber, navigate))}
+        isLoading={stateAuth.isLoading}
       />
     </>
   );

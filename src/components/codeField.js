@@ -23,21 +23,10 @@ export default ({ cellCount, code, setCode }) => {
               event.keyCode == 8 && setCode(code.slice(0, -1))
             }
             variant="standard"
-            inputProps={{
-              maxLength: 1,
-              style: {
-                textAlign: "center",
-                fontWeight: "bold",
-                fontSize: 30,
-              },
-            }}
+            inputProps={{ maxLength: 1, style: styles.textInput }}
           />
         ) : (
-          <div
-            className="codeField_input"
-            key={index}
-            style={{ alignItems: "center", justifyContent: "center" }}
-          >
+          <div className="codeField_input" key={index} style={styles.text}>
             {code[index]}
           </div>
         )
@@ -59,4 +48,10 @@ const styles = {
       borderBottomColor: "#bd10e0",
     },
   }),
+  textInput: {
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 30,
+  },
+  text: { alignItems: "center", justifyContent: "center" },
 };

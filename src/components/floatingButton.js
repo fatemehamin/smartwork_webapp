@@ -14,16 +14,26 @@ import {
   Fab,
 } from "@mui/material";
 
-const actions = [
-  { icon: <PersonAddAltOutlined />, name: "Add member" },
-  { icon: <NoteAddOutlined />, name: "Add project" },
-];
-
-export default ({ type = "Add" }) => {
+export default ({
+  type = "Add",
+  setModalVisibleProject,
+  setModalVisibleEmployee,
+}) => {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
+  const actions = [
+    {
+      icon: <PersonAddAltOutlined />,
+      name: "Add member",
+      onClick: () => setModalVisibleEmployee(true),
+    },
+    {
+      icon: <NoteAddOutlined />,
+      name: "Add project",
+      onClick: () => setModalVisibleProject(true),
+    },
+  ];
   return type === "DailyReport" ? (
     <Box className="FBtn">
       <Fab
@@ -51,7 +61,7 @@ export default ({ type = "Add" }) => {
             icon={action.icon}
             tooltipTitle={action.name}
             tooltipOpen
-            onClick={handleClose}
+            onClick={() => (handleClose(), action.onClick())}
             FabProps={{ style: styles.btn }}
           />
         ))}
