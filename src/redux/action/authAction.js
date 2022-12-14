@@ -11,7 +11,6 @@ import {
   ACCESS_TOKEN,
 } from "./actionType";
 import axios from "../../services/API/index";
-// import snackbar from "react-native-snackbar";
 // import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // -------------------------------------- init -------------------------------------- //
@@ -117,7 +116,8 @@ export const verifyCode = (
   callingCode,
   phoneNumber,
   navigate,
-  type
+  type,
+  setIsPress
 ) => {
   return (dispatch) => {
     dispatch({ type: LOADING });
@@ -163,6 +163,7 @@ export const verifyCode = (
           dispatch({ type: LOADED });
           navigate("/changePassword");
         }
+        setIsPress(false);
       })
       .catch((err) => {
         dispatch({
@@ -172,23 +173,31 @@ export const verifyCode = (
               ? "verify code is incorrect."
               : `Error ${err.response.data}`,
         });
+        setIsPress(false);
       });
   };
 };
 // -------------------------------- forgot password -------------------------------- //
-export const forgotPassword = (username, navigate) => {
+export const forgotPassword = (
+  callingCode,
+  phoneNumber,
+  country,
+  navigate,
+  setIsPress
+) => {
   return (dispatch) => {
     dispatch({ type: LOADING });
     axios
-      .post("/forgot_password/", { username })
+      .post("/forgot_password/", { username: phoneNumber })
       .then((res) => {
         dispatch({
           type: UPDATE_USER,
-          payload: { username },
+          payload: { phoneNumber, callingCode, country },
         });
         //forgotPassword: when navigate is undefined, it's meaning button "send again code" pressed
         navigate !== undefined &&
-          navigate(`/verifyCode/${username}/forgotPassword`);
+          navigate(`/verifyCode/${phoneNumber}/forgotPassword`);
+        setIsPress(false);
       })
       .catch((err) => {
         dispatch({
@@ -198,6 +207,7 @@ export const forgotPassword = (username, navigate) => {
               ? "Phone number not exists."
               : `Error ${err.response.data}`,
         });
+        setIsPress(false);
       });
   };
 };
@@ -220,48 +230,51 @@ export const ChangePassword = (username, password, navigate) => {
   };
 };
 // ------------------------------------- login ------------------------------------- //
-export const login = (country, callingCode, phoneNumber, password) => {
+export const login = (
+  country,
+  callingCode,
+  phoneNumber,
+  password,
+  setIsPress
+) => {
   return async (dispatch) => {
     try {
-      if (phoneNumber == callingCode && password == "") {
-        dispatch({
-          type: ERROR,
-          payload: "Please enter your username or password.",
-        });
-      } else {
-        dispatch({ type: LOADING });
-        const res = await axios.post("/token/", {
-          username: phoneNumber,
-          password,
-        });
-        const { access, refresh } = res.data;
-        // await AsyncStorage.setItem('refreshToken', refresh);
-        // await AsyncStorage.setItem('accessToken', access);
-        // await AsyncStorage.setItem('phoneNumber', phoneNumber);
-        // await AsyncStorage.setItem('callingCode', callingCode);
-        // await AsyncStorage.setItem('password', password);
-        const type = await axios.get("/check_state/", {
-          headers: { Authorization: `Bearer ${access}` },
-        });
-        // await AsyncStorage.setItem("type", type.data.place);
-        dispatch({
-          type: LOGIN,
-          payload: {
-            accessToken: access,
-            refreshToken: refresh,
-            user: { country, callingCode, phoneNumber, password },
-            type: type.data.place,
-          },
-        });
-      }
+      dispatch({ type: LOADING });
+      const res = await axios.post("/token/", {
+        username: phoneNumber == callingCode ? "" : phoneNumber,
+        password,
+      });
+      const { access, refresh } = res.data;
+      // await AsyncStorage.setItem('refreshToken', refresh);
+      // await AsyncStorage.setItem('accessToken', access);
+      // await AsyncStorage.setItem('phoneNumber', phoneNumber);
+      // await AsyncStorage.setItem('callingCode', callingCode);
+      // await AsyncStorage.setItem('password', password);
+      const type = await axios.get("/check_state/", {
+        headers: { Authorization: `Bearer ${access}` },
+      });
+      // await AsyncStorage.setItem("type", type.data.place);
+      dispatch({
+        type: LOGIN,
+        payload: {
+          accessToken: access,
+          refreshToken: refresh,
+          user: { country, callingCode, phoneNumber, password },
+          type: type.data.place,
+        },
+      });
+      setIsPress(false);
     } catch (err) {
       dispatch({
         type: ERROR,
         payload:
           err.response.status == 401
             ? "Username or password is incorrect."
+            : err.response.status == 400
+            ? "Please enter your username or password."
             : `Error ${err.response.data}`,
       });
+      setIsPress(false);
     }
   };
 };

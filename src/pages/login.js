@@ -14,13 +14,14 @@ export default () => {
   const [callingCode, setCallingCode] = useState("+98");
   const [phoneNumber, setPhoneNumber] = useState("+98");
   const [password, setPassword] = useState("");
+  const [isPress, setIsPress] = useState(false);
   const navigation = useNavigate();
   const [openSnackbar, closeSnackbar] = useSnackbar();
   const dispatch = useDispatch();
   const stateAuth = useSelector((state) => state.authReducer);
 
   useEffect(() => {
-    stateAuth.isError && openSnackbar(stateAuth.error);
+    isPress && stateAuth.isError && openSnackbar(stateAuth.error);
   }, [stateAuth.isError]);
 
   return (
@@ -50,9 +51,12 @@ export default () => {
         </Link>
         <Button
           label="Login"
-          onClick={() =>
-            dispatch(login(country, callingCode, phoneNumber, password))
-          }
+          onClick={() => {
+            setIsPress(true);
+            dispatch(
+              login(country, callingCode, phoneNumber, password, setIsPress)
+            );
+          }}
           isLoading={stateAuth.isLoading}
         />
         <Button

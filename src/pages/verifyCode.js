@@ -16,6 +16,7 @@ export default () => {
   const { phoneNumber, type } = useParams();
   const [code, setCode] = useState("");
   const [time, setTime] = useState(120);
+  const [isPress, setIsPress] = useState(false);
   const [startTime, setStartTime] = useState(new Date().getTime());
   const stateAuth = useSelector((state) => state.authReducer);
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default () => {
   const [openSnackbar, closeSnackbar] = useSnackbar();
 
   useEffect(() => {
-    stateAuth.isError && openSnackbar(stateAuth.error);
+    isPress && stateAuth.isError && openSnackbar(stateAuth.error);
     //---------------------------- timer ----------------------------//
     if (time >= 0) {
       const intervalId = setInterval(() => {
@@ -32,7 +33,7 @@ export default () => {
       }, 1000);
       return () => clearInterval(intervalId);
     }
-  }, [time, stateAuth.isError]);
+  }, [time, stateAuth.isError, isPress]);
   return (
     <>
       <AppBar label="Verification Code" type="back" />
@@ -74,6 +75,7 @@ export default () => {
         isLoading={stateAuth.isLoading}
         label="Verify"
         onClick={() => {
+          setIsPress(true);
           dispatch(
             verifyCode(
               code,
@@ -86,7 +88,8 @@ export default () => {
               stateAuth.user.callingCode,
               stateAuth.user.phoneNumber,
               navigate,
-              type
+              type,
+              setIsPress
             )
           );
         }}
