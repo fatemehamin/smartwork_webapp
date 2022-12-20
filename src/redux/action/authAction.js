@@ -16,12 +16,12 @@ import axios from "../../services/API/index";
 // -------------------------------------- init -------------------------------------- //
 export const init = () => {
   return async (dispatch) => {
-    // const accessToken = await AsyncStorage.getItem("accessToken");
-    // const refreshToken = await AsyncStorage.getItem("refreshToken");
-    // const phoneNumber = await AsyncStorage.getItem("phoneNumber");
-    // const callingCode = await AsyncStorage.getItem("callingCode");
-    // const password = await AsyncStorage.getItem("password");
-    // const type = await AsyncStorage.getItem("type");
+    // const accessToken = localStorage.getItem("accessToken");
+    // const refreshToken = localStorage.getItem("refreshToken");
+    // const phoneNumber = localStorage.getItem("phoneNumber");
+    // const callingCode = localStorage.getItem("callingCode");
+    // const password = localStorage.getItem("password");
+    // const type = localStorage.getItem("type");
     // dispatch({
     //   type: LOGIN,
     //   payload: {
@@ -235,7 +235,8 @@ export const login = (
   callingCode,
   phoneNumber,
   password,
-  setIsPress
+  setIsPress,
+  navigate
 ) => {
   return async (dispatch) => {
     try {
@@ -245,15 +246,16 @@ export const login = (
         password,
       });
       const { access, refresh } = res.data;
-      // await AsyncStorage.setItem('refreshToken', refresh);
-      // await AsyncStorage.setItem('accessToken', access);
-      // await AsyncStorage.setItem('phoneNumber', phoneNumber);
-      // await AsyncStorage.setItem('callingCode', callingCode);
-      // await AsyncStorage.setItem('password', password);
+      localStorage.setItem("refreshToken", refresh);
+      localStorage.setItem("accessToken", access);
+      localStorage.setItem("phoneNumber", phoneNumber);
+      localStorage.setItem("callingCode", callingCode);
+      localStorage.setItem("password", password);
+
       const type = await axios.get("/check_state/", {
         headers: { Authorization: `Bearer ${access}` },
       });
-      // await AsyncStorage.setItem("type", type.data.place);
+      localStorage.setItem("type", type.data.place);
       dispatch({
         type: LOGIN,
         payload: {
@@ -264,6 +266,7 @@ export const login = (
         },
       });
       setIsPress(false);
+      navigate(type.data.place == "boss" ? "/" : "/myTasks");
     } catch (err) {
       dispatch({
         type: ERROR,
@@ -281,12 +284,12 @@ export const login = (
 // ------------------------------------- logout ------------------------------------- //
 export const logout = (navigate) => {
   return async (dispatch) => {
-    // await AsyncStorage.removeItem("accessToken");
-    // await AsyncStorage.removeItem("refreshToken");
-    // await AsyncStorage.removeItem("type");
-    // await AsyncStorage.removeItem("projectNow");
-    // await AsyncStorage.removeItem("startTime");
-    // await AsyncStorage.removeItem("entry");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("type");
+    localStorage.removeItem("projectNow");
+    localStorage.removeItem("startTime");
+    localStorage.removeItem("entry");
     dispatch({ type: LOGOUT });
     navigate("/login");
   };
@@ -294,7 +297,7 @@ export const logout = (navigate) => {
 // ---------------------------------- access token ---------------------------------- //
 export const accessToken = (accessToken) => {
   return async (dispatch) => {
-    // await AsyncStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("accessToken", accessToken);
     dispatch({ type: ACCESS_TOKEN, payload: accessToken });
   };
 };

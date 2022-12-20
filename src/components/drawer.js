@@ -126,8 +126,14 @@ export default ({
           title="Logout"
           description="Are you sure want to logout?"
           ButtonAction={[
-            <Button onClick={() => setIsAlert(false)}>No</Button>,
-            <Button onClick={() => dispatch(logout(navigate))} autoFocus>
+            <Button key="No" onClick={() => setIsAlert(false)}>
+              No
+            </Button>,
+            <Button
+              key="Yes"
+              onClick={() => dispatch(logout(navigate))}
+              autoFocus
+            >
               Yes
             </Button>,
           ]}

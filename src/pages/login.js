@@ -18,6 +18,7 @@ export default () => {
   const navigation = useNavigate();
   const [openSnackbar, closeSnackbar] = useSnackbar();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const stateAuth = useSelector((state) => state.authReducer);
 
   useEffect(() => {
@@ -54,7 +55,14 @@ export default () => {
           onClick={() => {
             setIsPress(true);
             dispatch(
-              login(country, callingCode, phoneNumber, password, setIsPress)
+              login(
+                country,
+                callingCode,
+                phoneNumber,
+                password,
+                setIsPress,
+                navigate
+              )
             );
           }}
           isLoading={stateAuth.isLoading}
