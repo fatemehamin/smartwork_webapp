@@ -1,8 +1,17 @@
+.filterContainer {
+  position: fixed;
+  width: 100%;
+  box-shadow: 0px 3px 5px 0px #00000050;
+  z-index: 3;
+}
 .filter {
   width: 50%;
   display: inline-block;
   background-color: #269dd8;
   height: 50px;
+  /* justify-content: center;
+  align-items: center; */
+  cursor: pointer;
 }
 .activeFilter {
   background-color: #176085;
@@ -16,9 +25,12 @@
   flex-direction: row;
   justify-content: space-evenly;
   padding-bottom: 20px;
+  margin: 50px 0px;
 }
 .map {
   width: 100%;
+  /* flex: 1, */
+  margin-top: 50px;
   /* height: Dimensions.get("window").height / 1.75, */
 }
 .exitEntry {
@@ -26,16 +38,21 @@
   height: 50px;
   justify-content: center;
   align-items: center;
+  display: flex;
+  /* margin-bottom: 15px; */
+  position: fixed;
+  bottom: 0px;
+  background-color: #fff;
 }
 .exitEntryText {
   font-weight: bold;
   font-size: 23px;
-  padding-bottom: 5px;
+  /* padding-bottom: 5px; */
 }
 .error {
-  justify-content: center;
+  /* justify-content: center;
   align-items: center;
-  flex: 1;
+  flex: 1; */
 }
 .text {
   margin-top: 30px;
@@ -46,20 +63,11 @@
   color: #000;
   margin: 10px 0px;
   font-size: 20px;
-}
-.reportModal {
-  align-self: flex-start;
-  margin: 0px 10px;
-  width: 95%;
-  color: #000;
+  text-align: center;
 }
 .buttonsContainer {
   flex-direction: row;
   justify-content: space-evenly;
   align-self: stretch;
-}
-.loadingButton {
-  height: 29px;
-  width: 180px;
-  align-self: center;
+  display: flex;
 }

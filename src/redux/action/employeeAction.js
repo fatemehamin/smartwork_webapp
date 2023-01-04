@@ -11,8 +11,7 @@ import {
   EXIT,
   LOCATION,
 } from "./actionType";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Snackbar from "react-native-snackbar";
+// import Snackbar from "react-native-snackbar";
 import jMoment from "moment-jalaali";
 
 //------------------------------------ get task project -----------------------------------//
@@ -24,8 +23,8 @@ export const getProject = () => {
       },
     });
     if (res.status) {
-      const startTime = await AsyncStorage.getItem("startTime");
-      const dailyReport = JSON.parse(await AsyncStorage.getItem("dailyReport"));
+      const startTime = localStorage.getItem("startTime");
+      const dailyReport = JSON.parse(localStorage.getItem("dailyReport"));
       dispatch({
         type: GET_TASKS_EMPLOYEE,
         payload: {
@@ -51,12 +50,12 @@ export const startTime = (project_name, time) => {
           },
         }
       );
-      res.status &&
-        (await AsyncStorage.setItem("startTime", time.toString()),
-        dispatch({
-          type: START_TIME,
-          payload: { project_name, startTime: time },
-        }));
+      // res.status &&
+      //   (localStorage.setItem("startTime", time.toString()),
+      //   dispatch({
+      //     type: START_TIME,
+      //     payload: { project_name, startTime: time },
+      //   }));
     } catch (err) {
       dispatch({
         type: ERROR_EMPLOYEE,
@@ -80,14 +79,14 @@ export const endTime = (project_name, time, start_Project_name) => {
           },
         }
       );
-      res.status &&
-        (await AsyncStorage.removeItem("startTime"),
-        dispatch({
-          type: END_TIME,
-          payload: { project_name, last_duration: res.data.last_duration },
-        }));
+      // res.status &&
+      //   (localStorage.removeItem("startTime"),
+      //   dispatch({
+      //     type: END_TIME,
+      //     payload: { project_name, last_duration: res.data.last_duration },
+      //   }));
       // when switch task (first end task then start another task)
-      if (start_Project_name != undefined) {
+      if (start_Project_name !== undefined) {
         const resStart = await axiosAPI.put(
           "/project_state/",
           { project_name: start_Project_name },
@@ -97,12 +96,12 @@ export const endTime = (project_name, time, start_Project_name) => {
             },
           }
         );
-        resStart.status &&
-          (await AsyncStorage.setItem("startTime", time.toString()),
-          dispatch({
-            type: START_TIME,
-            payload: { project_name: start_Project_name, startTime: time },
-          }));
+        // resStart.status &&
+        //   (localStorage.setItem("startTime", time.toString()),
+        //   dispatch({
+        //     type: START_TIME,
+        //     payload: { project_name: start_Project_name, startTime: time },
+        //   }));
       }
     } catch (err) {
       dispatch({
@@ -147,7 +146,7 @@ export const report = (year, month, daysInMonth) => {
               // find all projects in a month
               const AllProjects = res.data.report
                 .map((report) => report.project_name)
-                .filter((PN, index, array) => array.indexOf(PN) == index);
+                .filter((PN, index, array) => array.indexOf(PN) === index);
               // declare report in month and initial value
               let reportInMonth = [];
               AllProjects.forEach(
@@ -171,14 +170,14 @@ export const report = (year, month, daysInMonth) => {
                 const date = `${year}-${pad(month)}-${pad(day)}`;
                 // Separation by date
                 let reportDayDetails = ReportOfJalaaliDate.filter(
-                  (rep) => rep.date == date
+                  (rep) => rep.date === date
                 );
                 if (reportDayDetails.length > 0) {
                   reportDay = [];
                   for (let index = 0; index < AllProjects.length; index++) {
                     let duration = 0;
                     const sameProject = reportDayDetails.filter(
-                      (task) => AllProjects[index] == task.project_name
+                      (task) => AllProjects[index] === task.project_name
                     );
                     sameProject.forEach((element) => {
                       duration += element.duration
@@ -193,7 +192,7 @@ export const report = (year, month, daysInMonth) => {
                         date: date,
                         duration,
                         project_name:
-                          AllProjects[index] == "entry"
+                          AllProjects[index] === "entry"
                             ? "Total Work Time"
                             : AllProjects[index],
                       },
@@ -220,9 +219,9 @@ export const report = (year, month, daysInMonth) => {
               dispatch({ type: REPORT, payload: { reports, reportInMonth } });
             })
             .catch((err) => {
-              Snackbar.show({
-                text: "connection failed please try again.",
-              });
+              // Snackbar.show({
+              //   text: "connection failed please try again.",
+              // });
               dispatch({
                 type: ERROR_EMPLOYEE,
                 payload: "Report Error",
@@ -230,7 +229,7 @@ export const report = (year, month, daysInMonth) => {
               console.log("Report Error :", err);
             });
         } else {
-          Snackbar.show({ text: "Not exist report on this date." });
+          // Snackbar.show({ text: "Not exist report on this date." });
           dispatch({
             type: ERROR_EMPLOYEE,
             payload: "Not exist report on this date.",
@@ -238,9 +237,9 @@ export const report = (year, month, daysInMonth) => {
         }
       })
       .catch((err) => {
-        Snackbar.show({
-          text: "connection failed please try again.",
-        });
+        // Snackbar.show({
+        //   text: "connection failed please try again.",
+        // });
         dispatch({
           type: ERROR_EMPLOYEE,
           payload: "Report Error",
@@ -252,9 +251,10 @@ export const report = (year, month, daysInMonth) => {
 //---------------------------------- daily report ------------------------------------//
 export const dailyReport = (date, dailyReport, setToggle, isToggle, jDate) => {
   return async (dispatch, getState) => {
+    console.log(getState().authReducer.accessToken);
     dispatch({ type: LOADING_EMPLOYEE });
-    try {
-      const res = await axiosAPI.post(
+    axiosAPI
+      .post(
         `/daily_report/`,
         { date, report: dailyReport },
         {
@@ -262,34 +262,34 @@ export const dailyReport = (date, dailyReport, setToggle, isToggle, jDate) => {
             Authorization: `Bearer ${getState().authReducer.accessToken}`,
           },
         }
-      );
-      setToggle(isToggle);
-      if (new Date().toISOString().slice(0, 10) == date) {
-        res.status &&
-          (await AsyncStorage.setItem(
+      )
+      .then((res) => {
+        setToggle(isToggle);
+        if (new Date().toISOString().slice(0, 10) === date) {
+          localStorage.setItem(
             "dailyReport",
             JSON.stringify({ dailyReport, date })
-          ));
+          );
+          dispatch({
+            type: DAILY_REPORT,
+            payload: dailyReport,
+          });
+        } else {
+          const newReport = getState().employeeReducer.report.map((rep) =>
+            Object.keys(rep)[0] === jDate
+              ? { [jDate]: { ...rep[jDate], dailyReport } }
+              : rep
+          );
+          dispatch({ type: REPORT, payload: { reports: newReport } });
+        }
+      })
+      .catch((err) => {
         dispatch({
-          type: DAILY_REPORT,
-          payload: dailyReport,
+          type: ERROR_EMPLOYEE,
+          payload: "Daily report not save please try again.",
         });
-      } else {
-        const newReport = getState().employeeReducer.report.map((rep) =>
-          Object.keys(rep)[0] == jDate
-            ? { [jDate]: { ...rep[jDate], dailyReport } }
-            : rep
-        );
-        dispatch({ type: REPORT, payload: { reports: newReport } });
-      }
-    } catch (err) {
-      dispatch({
-        type: ERROR_EMPLOYEE,
-        payload: "Daily Report Error",
+        console.log("dailyReport", err);
       });
-      console.log("dailyReport", err);
-      Snackbar.show({ text: "Daily report not save please try again." });
-    }
   };
 };
 //-------------------------------------- entry ---------------------------------------//
@@ -306,17 +306,17 @@ export const entry = (time, setIsEntry, setIsLoading) => {
           },
         }
       );
-      res.status &&
-        (setIsEntry(true),
-        dispatch({
-          type: ENTRY,
-          payload: time,
-        }));
+      // res.status &&
+      //   (setIsEntry(true),
+      //   dispatch({
+      //     type: ENTRY,
+      //     payload: time,
+      //   }));
       setIsLoading(false);
     } catch (err) {
-      Snackbar.show({
-        text: "connection failed please try again.",
-      });
+      // Snackbar.show({
+      //   text: "connection failed please try again.",
+      // });
       dispatch({
         type: ERROR_EMPLOYEE,
         payload: "exit entry Error",
@@ -332,7 +332,7 @@ export const exit = (time, setIsEntry, end_Project_name, setIsLoading) => {
     dispatch({ type: LOADING_EMPLOYEE });
     try {
       // if have enable task first all task disable
-      if (end_Project_name != undefined) {
+      if (end_Project_name !== undefined) {
         const resEnd = await axiosAPI.patch(
           "/project_state/",
           { project_name: end_Project_name },
@@ -342,12 +342,12 @@ export const exit = (time, setIsEntry, end_Project_name, setIsLoading) => {
             },
           }
         );
-        resEnd.status &&
-          (await AsyncStorage.removeItem("startTime"),
-          dispatch({
-            type: END_TIME,
-            payload: { project_name: end_Project_name, endTime: time },
-          }));
+        // resEnd.status &&
+        //   (localStorage.removeItem("startTime"),
+        //   dispatch({
+        //     type: END_TIME,
+        //     payload: { project_name: end_Project_name, endTime: time },
+        //   }));
       }
       // then exit
       const res = await axiosAPI.patch(
@@ -359,12 +359,12 @@ export const exit = (time, setIsEntry, end_Project_name, setIsLoading) => {
           },
         }
       );
-      res.status && (setIsEntry(false), dispatch({ type: EXIT }));
+      // res.status && (setIsEntry(false), dispatch({ type: EXIT }));
       setIsLoading(false);
     } catch (err) {
-      Snackbar.show({
-        text: "connection failed please try again.",
-      });
+      // Snackbar.show({
+      //   text: "connection failed please try again.",
+      // });
       dispatch({
         type: ERROR_EMPLOYEE,
         payload: "exit entry Error",

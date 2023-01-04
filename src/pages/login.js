@@ -18,7 +18,7 @@ export default () => {
   const [openSnackbar, closeSnackbar] = useSnackbar();
   const dispatch = useDispatch();
   const stateAuth = useSelector((state) => state.authReducer);
-
+  const navigate = useNavigate();
   useEffect(() => {
     stateAuth.isError && openSnackbar(stateAuth.error);
   }, [stateAuth.isError]);
@@ -51,7 +51,9 @@ export default () => {
         <Button
           label="Login"
           onClick={() =>
-            dispatch(login(country, callingCode, phoneNumber, password))
+            dispatch(
+              login(country, callingCode, phoneNumber, password, navigate)
+            )
           }
           isLoading={stateAuth.isLoading}
         />

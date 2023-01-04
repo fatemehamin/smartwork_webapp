@@ -39,7 +39,7 @@ export default ({
       <Fab
         aria-label="edit"
         style={styles.btn}
-        onClick={() => console.log("open modal")}
+        onClick={() => setModalVisibleProject(true)}
       >
         <Edit />
       </Fab>

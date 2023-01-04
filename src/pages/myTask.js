@@ -1,32 +1,37 @@
 import React, { useEffect, useCallback, useState } from "react";
-// import { useSelector, useDispatch } from "react-redux";
 import Task from "../components/Task";
 import "./myTask.css";
 import AppBar from "../components/AppBar";
-
-// import {
-//   getProject,
-//   dailyReport,
-//   entry,
-//   exit,
-//   location,
-// } from "../redux/action/employeeAction";
+import {
+  getProject,
+  dailyReport,
+  entry,
+  exit,
+  location,
+} from "../redux/action/employeeAction";
 // import { getEmployee } from "../redux/action/managerAction";
 import FloatingButton from "../components/floatingButton";
-// import Modal from "../components/modal";
-// import Button from "../components/customButton";
+import Modal from "../components/modal";
+import Input from "../components/Input";
+import Button from "../components/Button";
+import { useSelector, useDispatch } from "react-redux";
+import { useSnackbar } from "react-simple-snackbar";
+
 // import Geolocation from "react-native-geolocation-service";
 // import MapView from "react-native-maps";
 // import Permission, { PERMISSIONS_TYPE } from "../utils/AppPermissions";
 // import checkLocation from "../utils/checkLocation";
 // import Spinner from "../components/spinner";
+// import NetInfo from '@react-native-community/netinfo';
+// import Icon from 'react-native-vector-icons/FontAwesome';
+
 export default () => {
-  //   const employeeState = useSelector((state) => state.employeeReducer);
-  //   const phoneNumber = useSelector(
-  //     (state) => state.authReducer.user.phoneNumber
-  //   );
-  //   const dispatch = useDispatch();
+  const employeeState = useSelector((state) => state.employeeReducer);
+  const authState = useSelector((state) => state.authReducer);
+  const dispatch = useDispatch();
+  const [openSnackbar, closeSnackbar] = useSnackbar();
   const [refreshing, setRefreshing] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const [isEntry, setIsEntry] = useState(false);
   const [isLoadingButton, setIsLoadingButton] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -35,9 +40,9 @@ export default () => {
     // entryExit: { borderTopColor: isEntry ? "red" : "#008800" },
     entryExitText: { color: isEntry ? "red" : "#008800" },
   };
-  //   const [dailyReportToday, setDailyReportToday] = useState(
-  //     employeeState.dailyReport
-  //   );
+  const [dailyReportToday, setDailyReportToday] = useState(
+    employeeState.dailyReport
+  );
   //   const isGrantedFunction = () => {
   //     Geolocation.getCurrentPosition(
   //       (position) => {
@@ -89,89 +94,98 @@ export default () => {
   const ExitEntry = () => (
     <div
       className="exitEntry"
-      //   style={styles.entryExit}
-      //   disabled={isLoadingButton}
-      //   onLongPress={() => {
-      //     setIsLoadingButton(true);
-      //     Permission(
-      //       PERMISSIONS_TYPE.location,
-      //       isGrantedFunction,
-      //       isDeniedFunction,
-      //       setIsLoadingButton
-      //     );
-      //   }}
+      // style={styles.entryExit}
+      // disabled={isLoadingButton}
+      // onLongPress={() => {
+      //   employeeState.locations.length > 0
+      //     ? (setIsLoadingButton(true),
+      //       exitEntryHandler,
+      //       Permission(
+      //         PERMISSIONS_TYPE.location,
+      //         isGrantedFunction,
+      //         isDeniedFunction,
+      //         setIsLoadingButton
+      //       ))
+      //     : exitEntryHandler();
+      // }}
     >
       <p className="exitEntryText" style={styles.entryExitText}>
         {isEntry ? "E     X     I     T" : "E    N    T    R    Y"}
       </p>
     </div>
   );
-  //   const onRefresh = useCallback(() => {
-  //     // setRefreshing(false);
-  //     dispatch(getProject());
-  //     dispatch(getEmployee());
-  //     dispatch(location(phoneNumber));
-  //   }, []);
-  //   useEffect(() => {
-  //     dispatch(getProject());
-  //     dispatch(getEmployee());
-  //     dispatch(location(phoneNumber));
-  //     setIsEntry(employeeState.lastEntry ? true : false);
-  //     setDailyReportToday(employeeState.dailyReport);
-  //   }, [employeeState.dailyReport, employeeState.lastEntry]);
+  // const onRefresh = useCallback(() => {
+  //   // setRefreshing(false);
+  //   dispatch(getProject());
+  //   dispatch(getEmployee());
+  //   dispatch(location(authState.user.phoneNumber));
+  //   NetInfo.fetch().then((netInfo) => {
+  //     setIsConnected(netInfo.isConnected);
+  //   });
+  // }, []);
+  useEffect(() => {
+    console.log(employeeState.isError, employeeState.error);
+    //   onRefresh();
+    //   setIsEntry(employeeState.lastEntry ? true : false);
+    setDailyReportToday(employeeState.dailyReport);
+    openSnackbar("u");
+    employeeState.isError && openSnackbar(employeeState.error);
+  }, [
+    employeeState.dailyReport,
+    employeeState.lastEntry,
+    employeeState.isError,
+  ]);
   const getTasks = () => {
-    return (
-      <Task
-        name={"ddd"}
-        initialDuration={0}
-        currentTask={{
-          name: "ddd",
-          start: 1668780042388,
-        }}
-        //  name={project.project_name}
-        //  initialDuration={project.duration}
-        //  currentTask={employeeState.currentTask}
-        //  key={index}
-        //  lastEntry={employeeState.lastEntry}
-      />
-    );
-    //   employeeState.projects !== null ? (
-    //     employeeState.projects.map((project, index) => (
-    //       <Task
-    //         name={project.project_name}
-    //         initialDuration={project.duration}
-    //         currentTask={employeeState.currentTask}
-    //         key={index}
-    //         lastEntry={employeeState.lastEntry}
-    //       />
-    //     ))
-    //   ) : (
-    //     <Text style={styles.text}>
-    //       The manager has not defined a project for you at this time.
-    //     </Text>
-    //   );
+    // return employeeState.projects !=== null ? (
+    //   employeeState.projects.map((project, index) => (
+    <Task
+      name={"ddd"}
+      initialDuration={0}
+      currentTask={{
+        name: "ddd",
+        start: 1668780042388,
+      }}
+      //  name={project.project_name}
+      //  initialDuration={project.duration}
+      //  currentTask={employeeState.currentTask}
+      //  key={index}
+      //  lastEntry={employeeState.lastEntry}
+    />;
+    // ))
+    // ) : (
+    // <Text className='text'>
+    //   The manager has not defined a project for you at this time.
+    // </Text>
+    // );
   };
-  const position = "boss";
   return (
     <>
-      <AppBar
-        label={position == "boss" ? "My Tasks" : "Smart Work"}
-        position={position}
-      />
-      <div
-        className={`filter ${activeFilter == "Tasks" && "activeFilter"}`}
-        //   onPress={() => setActiveFilter("Tasks")}
-      >
-        <p className="filterText">Tasks</p>
+      <AppBar label={authState.type === "boss" ? "My Tasks" : "Smart Work"} />
+      <div className="filterContainer">
+        <div
+          className={`filter ${activeFilter === "Tasks" && "activeFilter"}`}
+          onClick={() => setActiveFilter("Tasks")}
+        >
+          <p className="filterText">Tasks</p>
+        </div>
+        <div
+          className={`filter ${activeFilter === "Map" && "activeFilter"}`}
+          onClick={() => setActiveFilter("Map")}
+        >
+          <p className="filterText">Map</p>
+        </div>
       </div>
-      <div
-        className={`filter ${activeFilter == "Map" && "activeFilter"}`}
-        //   style={ activeFilter == "Map" && styles.activeFilter}
-        //   onPress={() => setActiveFilter("Map")}
-      >
-        <p className="filterText">Map</p>
-      </div>
-      {activeFilter == "Tasks" ? (
+      {activeFilter === "Tasks" ? (
+        // !isConnected ? (
+        //   <ScrollView
+        // className='error'
+        //     refreshControl={
+        //       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        //      }>
+        //      <Icon name="undo" size={30} onPress={onRefresh} />
+        //      <Text>connection failed</Text>
+        //   </ScrollView>
+        // ) : (
         <>
           <div
             className="employee"
@@ -188,11 +202,6 @@ export default () => {
                 name: "ddd",
                 start: 1668780042388,
               }}
-              //  name={project.project_name}
-              //  initialDuration={project.duration}
-              //  currentTask={employeeState.currentTask}
-              //  key={index}
-              //  lastEntry={employeeState.lastEntry}
             />
             <Task
               name={"dd"}
@@ -201,11 +210,6 @@ export default () => {
                 name: "ddd",
                 start: 1668780042388,
               }}
-              //  name={project.project_name}
-              //  initialDuration={project.duration}
-              //  currentTask={employeeState.currentTask}
-              //  key={index}
-              //  lastEntry={employeeState.lastEntry}
             />
             <Task
               name={"dd"}
@@ -214,11 +218,6 @@ export default () => {
                 name: "ddd",
                 start: 1668780042388,
               }}
-              //  name={project.project_name}
-              //  initialDuration={project.duration}
-              //  currentTask={employeeState.currentTask}
-              //  key={index}
-              //  lastEntry={employeeState.lastEntry}
             />
             <Task
               name={"dd"}
@@ -227,39 +226,83 @@ export default () => {
                 name: "ddd",
                 start: 1668780042388,
               }}
-              //  name={project.project_name}
-              //  initialDuration={project.duration}
-              //  currentTask={employeeState.currentTask}
-              //  key={index}
-              //  lastEntry={employeeState.lastEntry}
+            />
+            <Task
+              name={"dd"}
+              initialDuration={0}
+              currentTask={{
+                name: "ddd",
+                start: 1668780042388,
+              }}
+            />
+            <Task
+              name={"dd"}
+              initialDuration={0}
+              currentTask={{
+                name: "ddd",
+                start: 1668780042388,
+              }}
+            />
+            <Task
+              name={"dd"}
+              initialDuration={0}
+              currentTask={{
+                name: "ddd",
+                start: 1668780042388,
+              }}
+            />
+            <Task
+              name={"dd"}
+              initialDuration={0}
+              currentTask={{
+                name: "ddd",
+                start: 1668780042388,
+              }}
+            />
+            <Task
+              name={"dd"}
+              initialDuration={0}
+              currentTask={{
+                name: "ddd",
+                start: 1668780042388,
+              }}
+            />
+            <Task
+              name={"dd"}
+              initialDuration={0}
+              currentTask={{
+                name: "ddd",
+                start: 1668780042388,
+              }}
             />
           </div>
-          <FloatingButton type="DailyReport" />
-          {/* <FloatingButton isReport setModalVisibleProject={setModalVisible} /> */}
-          {/* <Modal modalVisible={modalVisible} setModalVisible={setModalVisible}>
-            <Text style={styles.labelModal}>Today Report</Text>
-            <TextInput
-              placeholder="what's doing today?"
-              multiline
-              style={styles.reportModal}
-              onChangeText={setDailyReportToday}
+          <FloatingButton
+            type="DailyReport"
+            setModalVisibleProject={setModalVisible}
+          />
+          <Modal modalVisible={modalVisible} setModalVisible={setModalVisible}>
+            <h2 className="labelModal">Today Report</h2>
+            <Input
               value={dailyReportToday}
-              placeholderTextColor="#999"
+              setValue={setDailyReportToday}
+              placeholder="what's doing today?"
+              autoFocus
+              multiline
             />
-            <View style={styles.buttonsContainer}>
+            <div className="buttonsContainer">
               <Button
-                customStyle={{ width: "40%" }}
                 label="Cancel"
-                type="SECONDARY"
-                onPress={() => {
+                customStyle={{ width: "40%" }}
+                onClick={() => {
                   setModalVisible(false);
                   setDailyReportToday(employeeState.dailyReport);
                 }}
+                type="SECONDARY"
               />
               <Button
-                customStyle={{ width: "40%" }}
                 label="OK"
-                onPress={() => {
+                customStyle={{ width: "40%" }}
+                onClick={() => {
                   dispatch(
                     dailyReport(
                       new Date().toISOString().slice(0, 10),
@@ -270,13 +313,13 @@ export default () => {
                   );
                 }}
               />
-            </View>
-          </Modal> */}
+            </div>
+          </Modal>
         </>
       ) : (
-        <div>map</div>
+        <div className="map">map</div>
         // <MapView
-        //   style={styles.map}
+        // className="map"
         //   initialRegion={{
         //     latitude: 35.720228,
         //     longitude: 51.39396,

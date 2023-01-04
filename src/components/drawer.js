@@ -21,20 +21,16 @@ import {
   Dns,
   Home,
 } from "@mui/icons-material";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/action/authAction";
 
-export default ({
-  openDrawer,
-  setOpenDrawer,
-  position = "boss",
-  CurrentLabel = "Smart Work",
-}) => {
+export default ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
   const iOS =
     typeof navigator !== "undefined" &&
     /iPad|iPhone|iPod/.test(navigator.userAgent);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const position = useSelector((state) => state.authReducer.type);
   const toggleDrawer = (open) => (event) => {
     if (
       event &&
@@ -79,7 +75,11 @@ export default ({
             <p style={styles.text}>v1.0.0</p>
           </div>
           {position === "boss" && (
-            <Item label="Home" Icon={Home} onClick={() => navigate("/")} />
+            <Item
+              label="Home"
+              Icon={Home}
+              onClick={() => navigate("/manager")}
+            />
           )}
           <Item
             label={position === "boss" ? "My Tasks" : "Home"}

@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import Init from "../../pages/init";
 import Login from "../../pages/login";
 import Signup from "../../pages/signup";
 import ForgotPassword from "../../pages/forgotPassword";
@@ -17,12 +18,13 @@ import StatusMember from "../../pages/statusMember";
 export default () => (
   <Router>
     <Routes>
+      <Route path="/" element={<Init />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgotPassword" element={<ForgotPassword />} />
       <Route path="/verifyCode/:phoneNumber/:type" element={<VerifyCode />} />
       <Route path="/changePassword" element={<ChangePassword />} />
-      <Route path="/" element={<Manager />} />
+      <Route path="/manager" element={<Manager />} />
       <Route path="/myTasks" element={<MyTask />} />
       <Route path="/myReport" element={<MyReport />} />
       <Route path="/listOfProjects" element={<ListOfProjects />} />

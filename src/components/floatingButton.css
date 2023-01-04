@@ -1,8 +1,8 @@
 .FBtn {
-  position: absolute;
   bottom: 20px;
   right: 20px;
   position: fixed;
+  z-index: 2;
 }
 .MuiSpeedDialAction-staticTooltipLabel {
   width: 100px;

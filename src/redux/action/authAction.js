@@ -11,27 +11,25 @@ import {
   ACCESS_TOKEN,
 } from "./actionType";
 import axios from "../../services/API/index";
-// import snackbar from "react-native-snackbar";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // -------------------------------------- init -------------------------------------- //
 export const init = () => {
   return async (dispatch) => {
-    // const accessToken = await AsyncStorage.getItem("accessToken");
-    // const refreshToken = await AsyncStorage.getItem("refreshToken");
-    // const phoneNumber = await AsyncStorage.getItem("phoneNumber");
-    // const callingCode = await AsyncStorage.getItem("callingCode");
-    // const password = await AsyncStorage.getItem("password");
-    // const type = await AsyncStorage.getItem("type");
-    // dispatch({
-    //   type: LOGIN,
-    //   payload: {
-    //     accessToken,
-    //     refreshToken,
-    //     user: { callingCode, phoneNumber, password },
-    //     type: type,
-    //   },
-    // });
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
+    const phoneNumber = localStorage.getItem("phoneNumber");
+    const callingCode = localStorage.getItem("callingCode");
+    const password = localStorage.getItem("password"); //password should be secure
+    const type = localStorage.getItem("type");
+    dispatch({
+      type: LOGIN,
+      payload: {
+        accessToken,
+        refreshToken,
+        user: { callingCode, phoneNumber, password },
+        type: type,
+      },
+    });
   };
 };
 // ------------------------------- phoneNumber check ------------------------------- //
@@ -49,7 +47,7 @@ export const phoneNumberCheck = (phoneNumber) => {
           type: PHONE_NUMBER_ERROR,
           payload: {
             phoneNumberError:
-              err.response.status == 406
+              err.response.status === 406
                 ? "This phone number exists in the system."
                 : `Error ${err.response.data}`,
           },
@@ -97,7 +95,7 @@ export const createUserLoading = (
           type: CREATE_USER_ERROR,
           payload: {
             existsCompanyError:
-              err.response.status == 406
+              err.response.status === 406
                 ? "This company name exists in the system."
                 : `Error ${err.response.data}`,
           },
@@ -125,7 +123,7 @@ export const verifyCode = (
       .post("/verify_email/", { phone_number: phoneNumber, code })
       .then((res) => {
         // when signup: from verify code go to login screen
-        if (type == "createUser") {
+        if (type === "createUser") {
           axios
             .post("/register/", {
               first_name: firstName,
@@ -168,7 +166,7 @@ export const verifyCode = (
         dispatch({
           type: ERROR,
           payload:
-            err.response.status == 401
+            err.response.status === 401
               ? "verify code is incorrect."
               : `Error ${err.response.data}`,
         });
@@ -194,7 +192,7 @@ export const forgotPassword = (username, navigate) => {
         dispatch({
           type: ERROR,
           payload:
-            err.response.status == 404
+            err.response.status === 404
               ? "Phone number not exists."
               : `Error ${err.response.data}`,
         });
@@ -220,10 +218,16 @@ export const ChangePassword = (username, password, navigate) => {
   };
 };
 // ------------------------------------- login ------------------------------------- //
-export const login = (country, callingCode, phoneNumber, password) => {
+export const login = (
+  country,
+  callingCode,
+  phoneNumber,
+  password,
+  navigate
+) => {
   return async (dispatch) => {
     try {
-      if (phoneNumber == callingCode && password == "") {
+      if (phoneNumber === callingCode && password === "") {
         dispatch({
           type: ERROR,
           payload: "Please enter your username or password.",
@@ -235,15 +239,15 @@ export const login = (country, callingCode, phoneNumber, password) => {
           password,
         });
         const { access, refresh } = res.data;
-        // await AsyncStorage.setItem('refreshToken', refresh);
-        // await AsyncStorage.setItem('accessToken', access);
-        // await AsyncStorage.setItem('phoneNumber', phoneNumber);
-        // await AsyncStorage.setItem('callingCode', callingCode);
-        // await AsyncStorage.setItem('password', password);
+        localStorage.setItem("refreshToken", refresh);
+        localStorage.setItem("accessToken", access);
+        localStorage.setItem("phoneNumber", phoneNumber);
+        localStorage.setItem("callingCode", callingCode);
+        localStorage.setItem("password", password); // password isn't secure
         const type = await axios.get("/check_state/", {
           headers: { Authorization: `Bearer ${access}` },
         });
-        // await AsyncStorage.setItem("type", type.data.place);
+        localStorage.setItem("type", type.data.place);
         dispatch({
           type: LOGIN,
           payload: {
@@ -253,12 +257,15 @@ export const login = (country, callingCode, phoneNumber, password) => {
             type: type.data.place,
           },
         });
+        type.data.place === "boss"
+          ? navigate("/manager")
+          : navigate("/myTasks");
       }
     } catch (err) {
       dispatch({
         type: ERROR,
         payload:
-          err.response.status == 401
+          err.response.status === 401
             ? "Username or password is incorrect."
             : `Error ${err.response.data}`,
       });
@@ -268,12 +275,12 @@ export const login = (country, callingCode, phoneNumber, password) => {
 // ------------------------------------- logout ------------------------------------- //
 export const logout = (navigate) => {
   return async (dispatch) => {
-    // await AsyncStorage.removeItem("accessToken");
-    // await AsyncStorage.removeItem("refreshToken");
-    // await AsyncStorage.removeItem("type");
-    // await AsyncStorage.removeItem("projectNow");
-    // await AsyncStorage.removeItem("startTime");
-    // await AsyncStorage.removeItem("entry");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("type");
+    localStorage.removeItem("projectNow");
+    localStorage.removeItem("startTime");
+    localStorage.removeItem("entry");
     dispatch({ type: LOGOUT });
     navigate("/login");
   };
@@ -281,7 +288,7 @@ export const logout = (navigate) => {
 // ---------------------------------- access token ---------------------------------- //
 export const accessToken = (accessToken) => {
   return async (dispatch) => {
-    // await AsyncStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("accessToken", accessToken);
     dispatch({ type: ACCESS_TOKEN, payload: accessToken });
   };
 };

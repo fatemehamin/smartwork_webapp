@@ -10,12 +10,12 @@ import {
   ENTRY,
   EXIT,
   LOCATION,
-} from '../action/actionType';
+} from "../action/actionType";
 
 const initialState = {
   projects: null,
   currentTask: {
-    name: '',
+    name: "",
     start: 0,
   },
   isError: false,
@@ -23,43 +23,44 @@ const initialState = {
   error: null,
   report: null,
   reportInMonth: null,
-  dailyReport: '',
+  dailyReport: "",
   lastEntry: 0,
   locations: [],
 };
 export default (preState = initialState, action) => {
   switch (action.type) {
     case LOADING_EMPLOYEE: {
-      return {...preState, isLoading: true, isError: false, error: null};
+      return { ...preState, isLoading: true, isError: false, error: null };
     }
     case LOADED_EMPLOYEE: {
-      return {...preState, isLoading: false, isError: false, error: null};
+      return { ...preState, isLoading: false, isError: false, error: null };
     }
     case ERROR_EMPLOYEE: {
       return {
         ...preState,
         isLoading: false,
         isError: true,
-        error: {...preState.error, ...action.payload},
+        error: action.payload,
+        // error: {...preState.error, ...action.payload},
       };
     }
     case GET_TASKS_EMPLOYEE: {
-      const {data, dailyReport, startTime} = action.payload;
+      const { data, dailyReport, startTime } = action.payload;
       let entry = 0;
       let newCurrentTask = {
-        name: '',
+        name: "",
         start: 0,
       };
       const newProject =
-        data == undefined
+        data === undefined
           ? null
           : data
-              .filter(project => {
+              .filter((project) => {
                 entry =
-                  project.project_name == 'entry' ? project.start_time : 0;
-                return project.project_name != 'entry';
+                  project.project_name === "entry" ? project.start_time : 0;
+                return project.project_name !== "entry";
               })
-              .map(project => {
+              .map((project) => {
                 if (project.start_time) {
                   newCurrentTask = {
                     name: project.project_name,
@@ -85,18 +86,18 @@ export default (preState = initialState, action) => {
         isLoading: false,
         error: null,
         dailyReport:
-          dailyReport != null && todayDate == dailyReport.date
+          dailyReport != null && todayDate === dailyReport.date
             ? dailyReport.dailyReport
-            : '',
+            : "",
         lastEntry: entry,
       };
     }
     case START_TIME: {
-      const {project_name, startTime} = action.payload;
-      const newProjects = preState.projects.map(project =>
-        project.project_name == project_name
-          ? {...project, startTime: startTime}
-          : project,
+      const { project_name, startTime } = action.payload;
+      const newProjects = preState.projects.map((project) =>
+        project.project_name === project_name
+          ? { ...project, startTime: startTime }
+          : project
       );
       return {
         ...preState,
@@ -111,14 +112,14 @@ export default (preState = initialState, action) => {
       };
     }
     case END_TIME: {
-      const {project_name, last_duration} = action.payload;
-      const newProjects = preState.projects.map(project =>
-        project.project_name == project_name
+      const { project_name, last_duration } = action.payload;
+      const newProjects = preState.projects.map((project) =>
+        project.project_name === project_name
           ? {
               ...project,
               duration: project.duration + parseInt(last_duration),
             }
-          : project,
+          : project
       );
       return {
         ...preState,
@@ -133,7 +134,7 @@ export default (preState = initialState, action) => {
       };
     }
     case REPORT: {
-      const {reports, reportInMonth} = action.payload;
+      const { reports, reportInMonth } = action.payload;
       return {
         ...preState,
         isError: false,
@@ -141,7 +142,7 @@ export default (preState = initialState, action) => {
         isLoading: false,
         report: reports,
         reportInMonth:
-          reportInMonth != undefined ? reportInMonth : preState.reportInMonth,
+          reportInMonth !== undefined ? reportInMonth : preState.reportInMonth,
       };
     }
     case DAILY_REPORT: {
@@ -181,7 +182,7 @@ export default (preState = initialState, action) => {
       };
     }
     default: {
-      return {...preState};
+      return { ...preState };
     }
   }
 };

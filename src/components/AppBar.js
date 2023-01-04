@@ -4,7 +4,7 @@ import { ArrowBackIos, Menu } from "@mui/icons-material/";
 import { useNavigate } from "react-router-dom";
 import Drawer from "./drawer";
 
-export default ({ label, type = "Menu", position }) => {
+export default ({ label, type = "Menu" }) => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const navigate = useNavigate();
   return (
@@ -31,7 +31,6 @@ export default ({ label, type = "Menu", position }) => {
         openDrawer={openDrawer}
         setOpenDrawer={setOpenDrawer}
         CurrentLabel={label == "Smart Work" ? "Home" : label}
-        position={position}
       />
     </>
   );
@@ -39,6 +38,7 @@ export default ({ label, type = "Menu", position }) => {
 const styles = {
   AppBarStyle: styled(AppBar)({
     backgroundColor: "#269dd8",
+    zIndex: 2,
   }),
   label: { flexGrow: 1, mr: 5 },
 };
