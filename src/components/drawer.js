@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import ImgDrawer from "../assets/images/texture.jpeg";
 import { useNavigate } from "react-router-dom";
+import { logout } from "../redux/action/authAction";
+import Alert from "./Alert";
 import {
   Box,
   SwipeableDrawer,
@@ -10,9 +12,9 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Button,
 } from "@mui/material";
 import {
-  Logout,
   Stars,
   LocationSearching,
   TaskAlt,
@@ -22,7 +24,6 @@ import {
   Home,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../redux/action/authAction";
 
 export default ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
   const iOS =
@@ -31,6 +32,7 @@ export default ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const position = useSelector((state) => state.authReducer.type);
+  const [isAlert, setIsAlert] = useState(false);
   const toggleDrawer = (open) => (event) => {
     if (
       event &&
@@ -116,12 +118,26 @@ export default ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
         </List>
         <Divider />
         <List>
-          <Item
-            label="Logout"
-            Icon={Logout}
-            onClick={() => dispatch(logout(navigate))}
-          />
+          <Item label="Logout" Icon={Alert} onClick={() => setIsAlert(true)} />
         </List>
+        <Alert
+          open={isAlert}
+          setOpen={setIsAlert}
+          title="Logout"
+          description="Are you sure want to logout?"
+          ButtonAction={[
+            <Button key="No" onClick={() => setIsAlert(false)}>
+              No
+            </Button>,
+            <Button
+              key="Yes"
+              onClick={() => dispatch(logout(navigate))}
+              autoFocus
+            >
+              Yes
+            </Button>,
+          ]}
+        />
       </Box>
     );
   };

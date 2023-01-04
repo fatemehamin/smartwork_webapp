@@ -11,9 +11,7 @@ const msgError = {
       : "Minimum 8 characters, at least one letter and one number.";
   },
   rePassword: (rePassword, password) => {
-    return password === rePassword
-      ? ""
-      : "Repeating the password is incorrect.";
+    return password === rePassword ? "" : "Repeat password is incorrect.";
   },
 };
 

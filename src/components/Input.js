@@ -29,6 +29,7 @@ export default ({
             setValue(phoneNumber);
             setCountry(details.countryCode);
           }}
+          inputProps={{ maxLength: callingCode == "+98" ? 13 : undefined }}
           className="input"
           error={msgError ? true : false}
           {...props}

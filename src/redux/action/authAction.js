@@ -115,7 +115,8 @@ export const verifyCode = (
   callingCode,
   phoneNumber,
   navigate,
-  type
+  type,
+  setIsPress
 ) => {
   return (dispatch) => {
     dispatch({ type: LOADING });
@@ -161,6 +162,7 @@ export const verifyCode = (
           dispatch({ type: LOADED });
           navigate("/changePassword");
         }
+        setIsPress(false);
       })
       .catch((err) => {
         dispatch({
@@ -170,23 +172,31 @@ export const verifyCode = (
               ? "verify code is incorrect."
               : `Error ${err.response.data}`,
         });
+        setIsPress(false);
       });
   };
 };
 // -------------------------------- forgot password -------------------------------- //
-export const forgotPassword = (username, navigate) => {
+export const forgotPassword = (
+  callingCode,
+  phoneNumber,
+  country,
+  navigate,
+  setIsPress
+) => {
   return (dispatch) => {
     dispatch({ type: LOADING });
     axios
-      .post("/forgot_password/", { username })
+      .post("/forgot_password/", { username: phoneNumber })
       .then((res) => {
         dispatch({
           type: UPDATE_USER,
-          payload: { username },
+          payload: { phoneNumber, callingCode, country },
         });
         //forgotPassword: when navigate is undefined, it's meaning button "send again code" pressed
         navigate !== undefined &&
-          navigate(`/verifyCode/${username}/forgotPassword`);
+          navigate(`/verifyCode/${phoneNumber}/forgotPassword`);
+        setIsPress(false);
       })
       .catch((err) => {
         dispatch({
@@ -196,6 +206,7 @@ export const forgotPassword = (username, navigate) => {
               ? "Phone number not exists."
               : `Error ${err.response.data}`,
         });
+        setIsPress(false);
       });
   };
 };
@@ -223,52 +234,49 @@ export const login = (
   callingCode,
   phoneNumber,
   password,
+  setIsPress,
   navigate
 ) => {
   return async (dispatch) => {
     try {
-      if (phoneNumber === callingCode && password === "") {
-        dispatch({
-          type: ERROR,
-          payload: "Please enter your username or password.",
-        });
-      } else {
-        dispatch({ type: LOADING });
-        const res = await axios.post("/token/", {
-          username: phoneNumber,
-          password,
-        });
-        const { access, refresh } = res.data;
-        localStorage.setItem("refreshToken", refresh);
-        localStorage.setItem("accessToken", access);
-        localStorage.setItem("phoneNumber", phoneNumber);
-        localStorage.setItem("callingCode", callingCode);
-        localStorage.setItem("password", password); // password isn't secure
-        const type = await axios.get("/check_state/", {
-          headers: { Authorization: `Bearer ${access}` },
-        });
-        localStorage.setItem("type", type.data.place);
-        dispatch({
-          type: LOGIN,
-          payload: {
-            accessToken: access,
-            refreshToken: refresh,
-            user: { country, callingCode, phoneNumber, password },
-            type: type.data.place,
-          },
-        });
-        type.data.place === "boss"
-          ? navigate("/manager")
-          : navigate("/myTasks");
-      }
+      dispatch({ type: LOADING });
+      const res = await axios.post("/token/", {
+        username: phoneNumber == callingCode ? "" : phoneNumber,
+        password,
+      });
+      const { access, refresh } = res.data;
+      localStorage.setItem("refreshToken", refresh);
+      localStorage.setItem("accessToken", access);
+      localStorage.setItem("phoneNumber", phoneNumber);
+      localStorage.setItem("callingCode", callingCode);
+      localStorage.setItem("password", password); // password isn't secure
+
+      const type = await axios.get("/check_state/", {
+        headers: { Authorization: `Bearer ${access}` },
+      });
+      localStorage.setItem("type", type.data.place);
+      dispatch({
+        type: LOGIN,
+        payload: {
+          accessToken: access,
+          refreshToken: refresh,
+          user: { country, callingCode, phoneNumber, password },
+          type: type.data.place,
+        },
+      });
+      setIsPress(false);
+      navigate(type.data.place === "boss" ? "/manager" : "/myTasks");
     } catch (err) {
       dispatch({
         type: ERROR,
         payload:
           err.response.status === 401
             ? "Username or password is incorrect."
+            : err.response.status == 400
+            ? "Please enter your username or password."
             : `Error ${err.response.data}`,
       });
+      setIsPress(false);
     }
   };
 };

@@ -9,15 +9,16 @@ import { useEffect } from "react";
 import { useSnackbar } from "react-simple-snackbar";
 
 export default () => {
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("+98");
   const [country, setCountry] = useState("IR");
   const [callingCode, setCallingCode] = useState("+98");
+  const [isPress, setIsPress] = useState(false);
   const [openSnackbar, closeSnackbar] = useSnackbar();
   const stateAuth = useSelector((state) => state.authReducer);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   useEffect(() => {
-    stateAuth.isError && openSnackbar(stateAuth.error);
+    isPress && stateAuth.isError && openSnackbar(stateAuth.error);
   }, [stateAuth.isError]);
   return (
     <>
@@ -38,8 +39,19 @@ export default () => {
       />
       <Button
         label="Verify code"
-        disabled={phoneNumber == ""}
-        onClick={() => dispatch(forgotPassword(phoneNumber, navigate))}
+        disabled={phoneNumber == callingCode}
+        onClick={() => {
+          setIsPress(true);
+          dispatch(
+            forgotPassword(
+              callingCode,
+              phoneNumber,
+              country,
+              navigate,
+              setIsPress
+            )
+          );
+        }}
         isLoading={stateAuth.isLoading}
       />
     </>
