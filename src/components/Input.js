@@ -8,18 +8,20 @@ export default ({
   value,
   setValue,
   label,
-  type,
+  type = "text",
   msgError,
   country,
   setCountry,
   callingCode,
   setCallingCode,
   Icon,
+  IconEnd,
+  customStyle,
   ...props
 }) => {
   const [visiblePassword, setVisiblePassword] = useState(false);
   return (
-    <div className="container">
+    <div className="input_container">
       <p className="titleInputContainer">{label}</p>
       {callingCode ? (
         <MuiPhoneNumber
@@ -29,6 +31,7 @@ export default ({
             setValue(phoneNumber);
             setCountry(details.countryCode);
           }}
+          style={customStyle}
           inputProps={{ maxLength: callingCode == "+98" ? 13 : undefined }}
           className="input"
           error={msgError ? true : false}
@@ -37,6 +40,7 @@ export default ({
       ) : (
         <Input
           className="input"
+          style={customStyle}
           error={msgError ? true : false}
           onChange={(event) => setValue(event.target.value)}
           startAdornment={
@@ -47,22 +51,28 @@ export default ({
             )
           }
           endAdornment={
-            type == "password" && (
+            IconEnd ? (
               <InputAdornment position="end">
-                {visiblePassword ? (
-                  <VisibilityOffOutlined
-                    className="icon"
-                    style={styles.IconSize}
-                    onClick={() => setVisiblePassword(!visiblePassword)}
-                  />
-                ) : (
-                  <VisibilityOutlined
-                    className="icon"
-                    style={styles.IconSize}
-                    onClick={() => setVisiblePassword(!visiblePassword)}
-                  />
-                )}
+                <IconEnd className="icon" style={styles.IconSize} />
               </InputAdornment>
+            ) : (
+              type == "password" && (
+                <InputAdornment position="end">
+                  {visiblePassword ? (
+                    <VisibilityOffOutlined
+                      className="icon"
+                      style={styles.IconSize}
+                      onClick={() => setVisiblePassword(!visiblePassword)}
+                    />
+                  ) : (
+                    <VisibilityOutlined
+                      className="icon"
+                      style={styles.IconSize}
+                      onClick={() => setVisiblePassword(!visiblePassword)}
+                    />
+                  )}
+                </InputAdornment>
+              )
             )
           }
           type={visiblePassword ? "text" : type}

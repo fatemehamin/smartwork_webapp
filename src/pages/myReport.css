@@ -1,0 +1,40 @@
+.MR_container {
+  margin-top: 20px;
+}
+.MR_report {
+  margin: 5px auto;
+  background-color: #269dd830;
+  padding: 10px 5%;
+  width: 85%;
+}
+.MR_date {
+  color: #000;
+  font-size: 15px;
+  font-weight: bold;
+  margin: 0px;
+  padding: 10px 0px;
+  text-align: left;
+}
+.MR_textReport {
+  color: #000;
+  margin: 5px 15px;
+  text-align: left;
+}
+.MR_filterContainer {
+  display: flex;
+}
+.MR_filter {
+  width: 50%;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #269dd870;
+}
+.MR_activeFilter {
+  background-color: #269dd8;
+}
+.MR_filterText {
+  color: #fff;
+  font-weight: bold;
+}

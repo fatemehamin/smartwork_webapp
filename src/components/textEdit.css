@@ -1,0 +1,29 @@
+.TE_container {
+  background-color: #17608520;
+  display: flex;
+  padding: 0px 15px;
+}
+.TE_textReportDefault {
+  color: #000;
+  width: 100%;
+  text-align: left;
+  caret-color: #f6921e;
+}
+.TE_textReportNotEditable {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.TE_textReportEditable {
+  min-height: 53px;
+}
+.TE_notSave {
+  border: 1px #990f02 solid;
+  background-color: #990f0230;
+}
+.TE_dailyReportEdit {
+  color: #000;
+  background-color: #ffffff99;
+  padding: 5px;
+  margin-right: 2px;
+}

@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -7,13 +8,7 @@ import {
   DialogTitle,
 } from "@mui/material";
 
-export default function AlertDialog({
-  title,
-  description,
-  open,
-  setOpen,
-  ButtonAction,
-}) {
+export default ({ title, description, open, setOpen, ButtonAction }) => {
   return (
     <Dialog
       open={open}
@@ -27,7 +22,21 @@ export default function AlertDialog({
           {description}
         </DialogContentText>
       </DialogContent>
-      <DialogActions>{ButtonAction}</DialogActions>
+      <DialogActions>
+        {ButtonAction != undefined &&
+          ButtonAction.map((action) => (
+            <Button
+              key={action.text}
+              onClick={() => {
+                setOpen(false);
+                action.onClick != undefined && action.onClick();
+              }}
+              autoFocus={action.autoFocus != undefined}
+            >
+              {action.text}
+            </Button>
+          ))}
+      </DialogActions>
     </Dialog>
   );
-}
+};
