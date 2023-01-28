@@ -13,7 +13,7 @@ import {
 import axios from "../../services/API/index";
 
 // -------------------------------------- init -------------------------------------- //
-export const init = () => {
+export const init = (navigate, page) => {
   return async (dispatch) => {
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
@@ -30,6 +30,15 @@ export const init = () => {
         type: type,
       },
     });
+    navigate(
+      accessToken === null
+        ? "/login"
+        : page == undefined
+        ? type === "boss"
+          ? "/manager"
+          : "/myTasks"
+        : page
+    );
   };
 };
 // ------------------------------- phoneNumber check ------------------------------- //
@@ -47,9 +56,11 @@ export const phoneNumberCheck = (phoneNumber) => {
           type: PHONE_NUMBER_ERROR,
           payload: {
             phoneNumberError:
-              err.response.status === 406
+              err.code == "ERR_NETWORK"
+                ? "connection failed please check your network."
+                : err.response.status === 406
                 ? "This phone number exists in the system."
-                : `Error ${err.response.data}`,
+                : err.response.data.details,
           },
         });
       });
@@ -95,9 +106,11 @@ export const createUserLoading = (
           type: CREATE_USER_ERROR,
           payload: {
             existsCompanyError:
-              err.response.status === 406
-                ? "This company name exists in the system."
-                : `Error ${err.response.data}`,
+              err.code == "ERR_NETWORK"
+                ? "connection failed please check your network."
+                : err.response.status === 406
+                ? "This business name exists in the system."
+                : err.response.data.details,
           },
         });
       });
@@ -154,7 +167,10 @@ export const verifyCode = (
             .catch((error) =>
               dispatch({
                 type: ERROR,
-                payload: `Error ${error.response.data}`,
+                payload:
+                  error.code == "ERR_NETWORK"
+                    ? "connection failed please check your network."
+                    : error.response.data.details,
               })
             );
           // when forgotPassword: from verify code go to changePassword screen
@@ -168,9 +184,11 @@ export const verifyCode = (
         dispatch({
           type: ERROR,
           payload:
-            err.response.status === 401
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.status === 401
               ? "verify code is incorrect."
-              : `Error ${err.response.data}`,
+              : err.response.data.details,
         });
         setIsPress(false);
       });
@@ -202,9 +220,11 @@ export const forgotPassword = (
         dispatch({
           type: ERROR,
           payload:
-            err.response.status === 404
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.status === 404
               ? "Phone number not exists."
-              : `Error ${err.response.data}`,
+              : err.response.data.details,
         });
         setIsPress(false);
       });
@@ -223,7 +243,10 @@ export const ChangePassword = (username, password, navigate) => {
       .catch((err) => {
         dispatch({
           type: ERROR,
-          payload: "Password not changed. Please try again.",
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : "Password not changed. Please try again.",
         });
       });
   };
@@ -270,11 +293,13 @@ export const login = (
       dispatch({
         type: ERROR,
         payload:
-          err.response.status === 401
+          err.code == "ERR_NETWORK"
+            ? "connection failed please check your network."
+            : err.response.status === 401
             ? "Username or password is incorrect."
             : err.response.status == 400
             ? "Please enter your username or password."
-            : `Error ${err.response.data}`,
+            : err.response.data.details,
       });
       setIsPress(false);
     }
@@ -289,6 +314,7 @@ export const logout = (navigate) => {
     localStorage.removeItem("projectNow");
     localStorage.removeItem("startTime");
     localStorage.removeItem("entry");
+    // localStorage.removeItem("persist:root");
     dispatch({ type: LOGOUT });
     navigate("/login");
   };

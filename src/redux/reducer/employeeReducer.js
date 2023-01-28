@@ -10,6 +10,7 @@ import {
   ENTRY,
   EXIT,
   LOCATION,
+  LOGOUT,
 } from "../action/actionType";
 
 const initialState = {
@@ -23,7 +24,7 @@ const initialState = {
   error: null,
   report: null,
   reportInMonth: null,
-  dailyReport: "",
+  dailyReport: { dailyReport: "", date: "" },
   lastEntry: 0,
   locations: [],
 };
@@ -41,7 +42,6 @@ export default (preState = initialState, action) => {
         isLoading: false,
         isError: true,
         error: action.payload,
-        // error: {...preState.error, ...action.payload},
       };
     }
     case GET_TASKS_EMPLOYEE: {
@@ -87,8 +87,8 @@ export default (preState = initialState, action) => {
         error: null,
         dailyReport:
           dailyReport != null && todayDate === dailyReport.date
-            ? dailyReport.dailyReport
-            : "",
+            ? dailyReport
+            : { dailyReport: "", date: "" },
         lastEntry: entry,
       };
     }
@@ -181,8 +181,11 @@ export default (preState = initialState, action) => {
         error: null,
       };
     }
+    case LOGOUT: {
+      return initialState;
+    }
     default: {
-      return { ...preState };
+      return preState;
     }
   }
 };

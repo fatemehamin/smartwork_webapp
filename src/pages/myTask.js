@@ -16,12 +16,14 @@ import Input from "../components/Input";
 import Button from "../components/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
-
-// import Geolocation from "react-native-geolocation-service";
+import { useNavigate } from "react-router-dom";
+import { init } from "../redux/action/authAction";
+import Alert from "../components/Alert";
 // import MapView from "react-native-maps";
 // import Permission, { PERMISSIONS_TYPE } from "../utils/AppPermissions";
-// import checkLocation from "../utils/checkLocation";
-// import Spinner from "../components/spinner";
+import checkLocation from "../utils/checkLocation";
+import useGeolocation from "../utils/useGeoLocation";
+import Spinner from "../components/spinner";
 // import NetInfo from '@react-native-community/netinfo';
 // import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -29,85 +31,92 @@ export default () => {
   const employeeState = useSelector((state) => state.employeeReducer);
   const authState = useSelector((state) => state.authReducer);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [openSnackbar, closeSnackbar] = useSnackbar();
   const [refreshing, setRefreshing] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [isEntry, setIsEntry] = useState(false);
-  const [isLoadingButton, setIsLoadingButton] = useState(false);
+  const [isPress, setIsPress] = useState(false);
+  const [isErrorAlert, setIsErrorAlert] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [activeFilter, setActiveFilter] = useState("Tasks");
-  const styles = {
-    // entryExit: { borderTopColor: isEntry ? "red" : "#008800" },
-    entryExitText: { color: isEntry ? "red" : "#008800" },
-  };
+  const [openAlert, setOpenAlert] = useState(false);
+  const styles = { entryExitText: { color: isEntry ? "red" : "#008800" } };
   const [dailyReportToday, setDailyReportToday] = useState(
-    employeeState.dailyReport
+    employeeState.dailyReport.dailyReport
   );
-  //   const isGrantedFunction = () => {
-  //     Geolocation.getCurrentPosition(
-  //       (position) => {
-  //         // when location add for each employee
-  //         employeeState.locations.length > 0
-  //           ? employeeState.locations.filter((location) =>
-  //               checkLocation(
-  //                 {
-  //                   latitude: position.coords.latitude,
-  //                   longitude: position.coords.longitude,
-  //                 },
-  //                 location,
-  //                 location.radius
-  //               )
-  //             ).length > 0
-  //             ? exitEntryHandler()
-  //             : (Alert.alert(
-  //                 "LOCATION",
-  //                 "You are not in a defined location. If you are in location, please restart your location."
-  //               ),
-  //               setIsLoadingButton(false))
-  //           : exitEntryHandler();
-  //       },
-  //       (err) => {
-  //         console.log("location check err", err);
-  //         setIsLoadingButton(false);
-  //       }
-  //     );
-  //   };
-  //   const isDeniedFunction = () => {
-  //     Alert.alert("location permission denied");
-  //     setIsLoadingButton(false);
-  //   };
-  //   const exitEntryHandler = () => {
-  //     const nowTime = new Date().getTime();
-  //     isEntry
-  //       ? employeeState.currentTask.start // when exit all task disable
-  //         ? dispatch(
-  //             exit(
-  //               nowTime,
-  //               setIsEntry,
-  //               employeeState.currentTask.name,
-  //               setIsLoadingButton
-  //             )
-  //           )
-  //         : dispatch(exit(nowTime, setIsEntry, undefined, setIsLoadingButton))
-  //       : dispatch(entry(nowTime, setIsEntry, setIsLoadingButton));
-  //   };
+  const isGrantedFunction = () => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        // when location add for each employee
+        employeeState.locations.filter((location) =>
+          checkLocation(
+            {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            },
+            location,
+            location.radius
+          )
+        ).length > 0 ? (
+          exitEntryHandler()
+        ) : (
+          <Alert
+            title="LOCATION"
+            description="You are not in a defined location. If you are in location, please restart your location."
+            open={isErrorAlert}
+            setOpen={setIsErrorAlert}
+          />
+        );
+      },
+      (err) => {
+        console.log("location check err", err);
+      }
+    );
+  };
+  const isDeniedFunction = () => {
+    <Alert
+      title="LOCATION DENIED"
+      description="location permission denied"
+      open={isErrorAlert}
+      setOpen={setIsErrorAlert}
+    />;
+  };
+
+  const exitEntryHandler = () => {
+    setIsPress(true);
+    const nowTime = new Date().getTime();
+    isEntry
+      ? employeeState.currentTask.start // when exit all task disable
+        ? dispatch(
+            exit(
+              nowTime,
+              setIsEntry,
+              employeeState.currentTask.name,
+              setIsPress
+            )
+          )
+        : dispatch(exit(nowTime, setIsEntry, undefined, setIsPress))
+      : dispatch(entry(nowTime, setIsEntry, setIsPress));
+  };
   const ExitEntry = () => (
     <div
       className="exitEntry"
-      // style={styles.entryExit}
       // disabled={isLoadingButton}
-      // onLongPress={() => {
-      //   employeeState.locations.length > 0
-      //     ? (setIsLoadingButton(true),
-      //       exitEntryHandler,
-      //       Permission(
-      //         PERMISSIONS_TYPE.location,
-      //         isGrantedFunction,
-      //         isDeniedFunction,
-      //         setIsLoadingButton
-      //       ))
-      //     : exitEntryHandler();
-      // }}
+      onClick={() => {
+        if (employeeState.locations.length > 0) {
+          navigator.geolocation.getCurrentPosition(onSuccess, onError);
+          // isGrantedFunction();
+          // Permission(
+          //   PERMISSIONS_TYPE.location,
+          //   isGrantedFunction,
+          //   isDeniedFunction,
+          //   setIsLoadingButton
+          // ))
+        } else {
+          exitEntryHandler();
+        }
+      }}
     >
       <p className="exitEntryText" style={styles.entryExitText}>
         {isEntry ? "E     X     I     T" : "E    N    T    R    Y"}
@@ -118,45 +127,77 @@ export default () => {
   //   // setRefreshing(false);
   //   dispatch(getProject());
   //   dispatch(getEmployee());
-  //   dispatch(location(authState.user.phoneNumber));
+  // dispatch(location(authState.user.phoneNumber));
   //   NetInfo.fetch().then((netInfo) => {
   //     setIsConnected(netInfo.isConnected);
   //   });
   // }, []);
+  const onSuccess = (position) => {
+    console.log("success", position);
+    employeeState.locations.filter((location) =>
+      checkLocation(
+        {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        },
+        location,
+        location.radius
+      )
+    ).length > 0 ? (
+      exitEntryHandler()
+    ) : (
+      <Alert
+        title="LOCATION"
+        description="You are not in a defined location. If you are in location, please restart your location."
+        open={isErrorAlert}
+        setOpen={setIsErrorAlert}
+      />
+    );
+  };
+  const onError = (error) => {
+    console.log("error", error.message);
+    return (
+      <Alert
+        title="LOCATION DENIED"
+        description={error.message}
+        open={isErrorAlert}
+        setOpen={setIsErrorAlert}
+      />
+    );
+  };
+
   useEffect(() => {
-    console.log(employeeState.isError, employeeState.error);
+    // dispatch(init(navigate));
     //   onRefresh();
-    //   setIsEntry(employeeState.lastEntry ? true : false);
-    setDailyReportToday(employeeState.dailyReport);
-    openSnackbar("u");
-    employeeState.isError && openSnackbar(employeeState.error);
+    setIsEntry(employeeState.lastEntry ? true : false);
+    // Permission();
+    // dispatch(location(authState.user.phoneNumber));
+    dispatch(getProject());
+    setDailyReportToday(employeeState.dailyReport.dailyReport);
+    isPress && employeeState.isError && openSnackbar(employeeState.error);
   }, [
-    employeeState.dailyReport,
+    employeeState.dailyReport.dailyReport,
     employeeState.lastEntry,
     employeeState.isError,
   ]);
   const getTasks = () => {
-    // return employeeState.projects !=== null ? (
-    //   employeeState.projects.map((project, index) => (
-    <Task
-      name={"ddd"}
-      initialDuration={0}
-      currentTask={{
-        name: "ddd",
-        start: 1668780042388,
-      }}
-      //  name={project.project_name}
-      //  initialDuration={project.duration}
-      //  currentTask={employeeState.currentTask}
-      //  key={index}
-      //  lastEntry={employeeState.lastEntry}
-    />;
-    // ))
-    // ) : (
-    // <Text className='text'>
-    //   The manager has not defined a project for you at this time.
-    // </Text>
-    // );
+    return employeeState.projects !== null ? (
+      employeeState.projects.map((project, index) => (
+        <Task
+          name={project.project_name}
+          initialDuration={project.duration}
+          currentTask={employeeState.currentTask}
+          key={index}
+          lastEntry={employeeState.lastEntry}
+          setOpenAlert={setOpenAlert}
+          setIsPress={setIsPress}
+        />
+      ))
+    ) : (
+      <div className="text">
+        The manager has not defined a project for you at this time.
+      </div>
+    );
   };
   return (
     <>
@@ -175,6 +216,7 @@ export default () => {
           <p className="filterText">Map</p>
         </div>
       </div>
+      {/* {useGeolocation()} */}
       {activeFilter === "Tasks" ? (
         // !isConnected ? (
         //   <ScrollView
@@ -195,86 +237,6 @@ export default () => {
             // }
           >
             {getTasks()}
-            <Task
-              name={"dd"}
-              initialDuration={0}
-              currentTask={{
-                name: "ddd",
-                start: 1668780042388,
-              }}
-            />
-            <Task
-              name={"dd"}
-              initialDuration={0}
-              currentTask={{
-                name: "ddd",
-                start: 1668780042388,
-              }}
-            />
-            <Task
-              name={"dd"}
-              initialDuration={0}
-              currentTask={{
-                name: "ddd",
-                start: 1668780042388,
-              }}
-            />
-            <Task
-              name={"dd"}
-              initialDuration={0}
-              currentTask={{
-                name: "ddd",
-                start: 1668780042388,
-              }}
-            />
-            <Task
-              name={"dd"}
-              initialDuration={0}
-              currentTask={{
-                name: "ddd",
-                start: 1668780042388,
-              }}
-            />
-            <Task
-              name={"dd"}
-              initialDuration={0}
-              currentTask={{
-                name: "ddd",
-                start: 1668780042388,
-              }}
-            />
-            <Task
-              name={"dd"}
-              initialDuration={0}
-              currentTask={{
-                name: "ddd",
-                start: 1668780042388,
-              }}
-            />
-            <Task
-              name={"dd"}
-              initialDuration={0}
-              currentTask={{
-                name: "ddd",
-                start: 1668780042388,
-              }}
-            />
-            <Task
-              name={"dd"}
-              initialDuration={0}
-              currentTask={{
-                name: "ddd",
-                start: 1668780042388,
-              }}
-            />
-            <Task
-              name={"dd"}
-              initialDuration={0}
-              currentTask={{
-                name: "ddd",
-                start: 1668780042388,
-              }}
-            />
           </div>
           <FloatingButton
             type="DailyReport"
@@ -295,7 +257,7 @@ export default () => {
                 customStyle={{ width: "40%" }}
                 onClick={() => {
                   setModalVisible(false);
-                  setDailyReportToday(employeeState.dailyReport);
+                  setDailyReportToday(employeeState.dailyReport.dailyReport);
                 }}
                 type="SECONDARY"
               />
@@ -303,12 +265,15 @@ export default () => {
                 label="OK"
                 customStyle={{ width: "40%" }}
                 onClick={() => {
+                  setIsPress(true);
                   dispatch(
                     dailyReport(
                       new Date().toISOString().slice(0, 10),
                       dailyReportToday,
                       setModalVisible,
-                      !modalVisible
+                      !modalVisible,
+                      undefined,
+                      setIsPress
                     )
                   );
                 }}
@@ -332,7 +297,17 @@ export default () => {
         // ></MapView>
       )}
       <ExitEntry />
-      {/* <Spinner isLoading={isLoadingButton ? true : employeeState.isLoading} /> */}
+      <Alert
+        title="ENTRY"
+        description="Please entry first and then start the task."
+        open={openAlert}
+        setOpen={setOpenAlert}
+        ButtonAction={[{ text: "Ok" }]}
+      />
+      {/* <Spinner
+        // isLoading={true}
+        isLoading={employeeState.isLoading ? true : employeeState.isLoading}
+      /> */}
     </>
   );
 };

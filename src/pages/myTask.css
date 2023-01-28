@@ -9,8 +9,6 @@
   display: inline-block;
   background-color: #269dd8;
   height: 50px;
-  /* justify-content: center;
-  align-items: center; */
   cursor: pointer;
 }
 .activeFilter {

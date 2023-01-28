@@ -12,7 +12,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Button,
 } from "@mui/material";
 import {
   Stars,
@@ -126,16 +125,12 @@ export default ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
           title="Logout"
           description="Are you sure want to logout?"
           ButtonAction={[
-            <Button key="No" onClick={() => setIsAlert(false)}>
-              No
-            </Button>,
-            <Button
-              key="Yes"
-              onClick={() => dispatch(logout(navigate))}
-              autoFocus
-            >
-              Yes
-            </Button>,
+            { text: "No" },
+            {
+              text: "Yes",
+              onClick: () => dispatch(logout(navigate)),
+              autoFocus: true,
+            },
           ]}
         />
       </Box>

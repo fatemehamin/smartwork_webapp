@@ -1,11 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import moment from "moment";
-// import { useDispatch } from "react-redux";
-// import { endTime, startTime } from "../redux/action/employeeAction";
+import { useDispatch } from "react-redux";
+import { endTime, startTime } from "../redux/action/employeeAction";
 import "./Task.css";
 
-export default ({ name, currentTask, initialDuration, lastEntry }) => {
-  //   const dispatch = useDispatch();
+export default ({
+  name,
+  currentTask,
+  initialDuration,
+  lastEntry,
+  setOpenAlert,
+  setIsPress,
+}) => {
+  const dispatch = useDispatch();
   const [isEnable, setIsEnable] = useState(false);
   const [duration, setDuration] = useState(initialDuration);
   //   // animation
@@ -46,13 +53,11 @@ export default ({ name, currentTask, initialDuration, lastEntry }) => {
   //       outputRange: [0, 0, 1, 1],
   //     }),
   //   };
-
   useEffect(() => {
     (name != currentTask.name || currentTask.start == 0) && setIsEnable(false);
     currentTask.start != 0 && name == currentTask.name && setIsEnable(true);
-    let id;
     if (isEnable) {
-      id = setInterval(() => {
+      const id = setInterval(() => {
         setDuration(
           () => new Date().getTime() - currentTask.start + initialDuration
         );
@@ -71,6 +76,7 @@ export default ({ name, currentTask, initialDuration, lastEntry }) => {
   }, [
     currentTask,
     isEnable,
+    // duration,
     // progress,
     //  startLoading
   ]);
@@ -88,30 +94,31 @@ export default ({ name, currentTask, initialDuration, lastEntry }) => {
       </p>
     );
   };
-  //   const onClickHandler = () => {
-  //     const nowTime = new Date().getTime();
-  //     // برای زمانی که روی خود تسک دوباره کلیک می کنی تا غیر فعال و یا دوباره فعال بشود
-  //     currentTask.name == name
-  //       ? currentTask.start
-  //         ? dispatch(endTime(name, nowTime))
-  //         : dispatch(startTime(name, nowTime))
-  //       : // برای زمانی که از تسکی به تسک دیگه پرس می کنیم
-  //       currentTask.start
-  //       ? dispatch(endTime(currentTask.name, nowTime, name))
-  //       : lastEntry
-  //       ? dispatch(startTime(name, nowTime))
-  //       : Alert.alert("ENTRY", "Please entry first and then start the task.");
-  //   };
+  const onClickHandler = () => {
+    setIsPress(true);
+    const nowTime = new Date().getTime();
+    // برای زمانی که روی خود تسک دوباره کلیک می کنی تا غیر فعال و یا دوباره فعال بشود
+    currentTask.name == name
+      ? currentTask.start
+        ? dispatch(endTime(name, nowTime, undefined, setIsPress))
+        : dispatch(startTime(name, nowTime, setIsPress))
+      : // برای زمانی که از تسکی به تسک دیگه پرس می کنیم
+      currentTask.start
+      ? dispatch(endTime(currentTask.name, nowTime, name, setIsPress))
+      : lastEntry
+      ? dispatch(startTime(name, nowTime, setIsPress))
+      : (() => setOpenAlert(true), setIsPress(false))();
+  };
   return (
     <div
-    //   onClick={onClickHandler}
-    //   onPressIn={() => setStartLoading(true)}
-    //   onPressOut={() => setStartLoading(false)}
-    //   onLongPress={() => {
-    //     onPressHandler();
-    //     Vibration.vibrate(40);
-    //   }}
-    //   delayLongPress={550}
+      onClick={onClickHandler}
+      //   onPressIn={() => setStartLoading(true)}
+      //   onPressOut={() => setStartLoading(false)}
+      //   onLongPress={() => {
+      //     onPressHandler();
+      //     Vibration.vibrate(40);
+      //   }}
+      //   delayLongPress={550}
     >
       <div
         className="circleBase"
@@ -139,3 +146,29 @@ export default ({ name, currentTask, initialDuration, lastEntry }) => {
     </div>
   );
 };
+
+//   container: {
+//     width: 150,
+//     height: 150,
+//     borderRadius: 150 / 2,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     transform: [{rotate: '45deg'}],
+//   },
+//   indicator: {
+//     borderTopColor: '#176085',
+//     borderLeftColor: '#176085',
+//     borderBottomColor: 'transparent',
+//     borderRightColor: 'transparent',
+//     borderWidth: 5,
+//     position: 'absolute',
+//   },
+//   coverIndicator: {
+//     borderTopColor: '#f5f5f5',
+//     borderLeftColor: '#f5f5f5',
+//     borderBottomColor: 'transparent',
+//     borderRightColor: 'transparent',
+//     borderWidth: 5,
+//     position: 'absolute',
+//     // transform: [{rotate: '45deg'}],
+//   },

@@ -1,7 +1,6 @@
 .input_container {
   width: 80%;
   justify-content: center;
-  /* align-items: center; */
   margin: auto;
 }
 .container_div {
@@ -10,7 +9,6 @@
   margin: 5px 0px 15px 0px;
   flex-direction: row;
   text-align: left;
-  /* align-items: center; */
 }
 .titleInputContainer {
   text-align: left;
