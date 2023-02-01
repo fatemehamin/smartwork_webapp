@@ -36,7 +36,10 @@ export default () => {
   });
   const goldIcon = L.icon({
     iconUrl: Icon,
+    shadowUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png",
     iconSize: [27, 44],
+    shadowSize: [50, 50],
+    shadowAnchor: [15, 50],
     iconAnchor: [13, 41], // point of the icon which will correspond to marker's location
     popupAnchor: [0, -35], // point from which the popup should open relative to the iconAnchor
   });
