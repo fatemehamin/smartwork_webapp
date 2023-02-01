@@ -31,7 +31,6 @@ export default ({ title, description, open, setOpen, ButtonAction }) => {
                 setOpen(false);
                 action.onClick != undefined && action.onClick();
               }}
-              autoFocus={action.autoFocus != undefined}
             >
               {action.text}
             </Button>

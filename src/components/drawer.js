@@ -129,7 +129,6 @@ export default ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
             {
               text: "Yes",
               onClick: () => dispatch(logout(navigate)),
-              autoFocus: true,
             },
           ]}
         />

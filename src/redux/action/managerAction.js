@@ -1,4 +1,4 @@
-import Snackbar from "react-native-snackbar";
+// import Snackbar from "react-native-snackbar";
 import axiosAPI from "../../services/API/index";
 import {
   ADD_EMPLOYEE,
@@ -118,11 +118,11 @@ export const deleteEmployee = (phoneNumber) => {
   return (dispatch, getState) => {
     dispatch({ type: LOADING_MANAGER });
     getState().authReducer.user.phoneNumber == phoneNumber
-      ? (dispatch({ type: LOADED_MANAGER }),
-        Snackbar.show({
-          text: "This employee is the manager and it is not possible to remove it.",
-        }))
-      : axiosAPI
+      ? dispatch({ type: LOADED_MANAGER })
+      : // Snackbar.show({
+        //   text: "This employee is the manager and it is not possible to remove it.",
+        // })
+        axiosAPI
           .delete(`/employee_register/${phoneNumber}/`, {
             headers: {
               Authorization: `Bearer ${getState().authReducer.accessToken}`,
@@ -132,8 +132,8 @@ export const deleteEmployee = (phoneNumber) => {
             dispatch({ type: DELETE_EMPLOYEE, payload: phoneNumber })
           )
           .catch((err) => {
-            dispatch({ type: LOADED_MANAGER }),
-              Snackbar.show({ text: "Employee not deleted Please try again." });
+            dispatch({ type: LOADED_MANAGER });
+            // Snackbar.show({ text: "Employee not deleted Please try again." });
           });
   };
 };
@@ -173,7 +173,7 @@ export const addProject = (project_name, setProjectName) => {
       )
       .then((res) => {
         console.log(res.status);
-        Snackbar.show({ text: "Add project successfully" });
+        // Snackbar.show({ text: "Add project successfully" });
         dispatch({
           type: ADD_PROJECT,
           payload: { project_name, sum_duration: 0 },
@@ -185,7 +185,7 @@ export const addProject = (project_name, setProjectName) => {
           type: ERROR_MANAGER,
           payload: { addProject: "Project not added, please try again." },
         });
-        Snackbar.show({ text: "Project not added, please try again." });
+        // Snackbar.show({ text: "Project not added, please try again." });
       });
   };
 };
@@ -203,40 +203,40 @@ export const deleteProject = (project_name) => {
       .then((res) => dispatch({ type: DELETE_PROJECT, payload: project_name }))
       .catch((err) => {
         console.log("delete error", err);
-        Snackbar.show({ text: "Project not deleted, please try again." });
+        // Snackbar.show({ text: "Project not deleted, please try again." });
       });
   };
 };
 //--------------------------------- add project to employee ---------------------------------//
 export const addProjectToEmployee = (phone_number, project_name) => {
   return (dispatch, getState) => {
-    dispatch({ type: LOADING_MANAGER }),
-      axiosAPI
-        .post(
-          "/project_register/",
-          { phone_number, project_name },
-          {
-            headers: {
-              Authorization: `Bearer ${getState().authReducer.accessToken}`,
-            },
-          }
-        )
-        .then((res) => {
-          dispatch({
-            type: ADD_PROJECT_TO_EMPLOYEE,
-            payload: { phone_number, project_name },
-          });
-        })
-        .catch((err) => {
-          console.log("error add project to employee", err);
-          dispatch({
-            type: ERROR_MANAGER,
-            payload: "Project not added to employee, please try again.",
-          });
-          Snackbar.show({
-            text: "Project not added to employee, please try again.",
-          });
+    dispatch({ type: LOADING_MANAGER });
+    axiosAPI
+      .post(
+        "/project_register/",
+        { phone_number, project_name },
+        {
+          headers: {
+            Authorization: `Bearer ${getState().authReducer.accessToken}`,
+          },
+        }
+      )
+      .then((res) => {
+        dispatch({
+          type: ADD_PROJECT_TO_EMPLOYEE,
+          payload: { phone_number, project_name },
         });
+      })
+      .catch((err) => {
+        console.log("error add project to employee", err);
+        dispatch({
+          type: ERROR_MANAGER,
+          payload: "Project not added to employee, please try again.",
+        });
+        // Snackbar.show({
+        //   text: "Project not added to employee, please try again.",
+        // });
+      });
   };
 };
 //------------------------------- delete project from employee -------------------------------//
@@ -580,14 +580,14 @@ export const exportExcelReport = (
                 payload: "Report Error",
               });
               console.log("Report Error :", err);
-              Snackbar.show({
-                text: "connection failed please try again.",
-              });
+              // Snackbar.show({
+              //   text: "connection failed please try again.",
+              // });
             });
         } else {
-          Snackbar.show({
-            text: "Not exist report on this date for employee.",
-          });
+          // Snackbar.show({
+          //   text: "Not exist report on this date for employee.",
+          // });
           dispatch({
             type: ERROR_MANAGER,
             payload: "Not exist report on this date.",
@@ -600,9 +600,9 @@ export const exportExcelReport = (
           payload: "Report Error",
         });
         console.log("Report Error :", err);
-        Snackbar.show({
-          text: "connection failed please try again.",
-        });
+        // Snackbar.show({
+        //   text: "connection failed please try again.",
+        // });
       });
   };
 };
@@ -637,8 +637,8 @@ export const addLocation = (
   longitude,
   location_name,
   radius,
-  setIsError,
-  setShowButton
+  setModalVisible,
+  setIsPress
 ) => {
   return (dispatch, getState) => {
     dispatch({ type: LOADING_MANAGER });
@@ -659,43 +659,52 @@ export const addLocation = (
         }
       )
       .then((res) => {
-        console.log(res.status);
-        setIsError(false);
-        setShowButton(true);
-        Snackbar.show({ text: "Add Location successfully" });
         dispatch({
           type: ADD_LOCATION,
           payload: { latitude, longitude, location_name, radius },
         });
+        setModalVisible(false);
+        setIsPress(false);
       })
       .catch((err) => {
-        console.log("error Add location:", err);
-        dispatch({ type: ERROR_MANAGER });
-        Snackbar.show({ text: "Location not added, please try again." });
+        dispatch({
+          type: ERROR_MANAGER,
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
+        });
+        setIsPress(false);
       });
   };
 };
 //------------------------------------ delete location -------------------------------------//
-export const DeleteLocation = (location_name) => {
+export const DeleteLocation = (location_name, setIsPress) => {
   return (dispatch, getState) => {
     dispatch({ type: LOADING_MANAGER });
     axiosAPI
-      .delete(`/location/`, {
+      .delete("/location/", {
         headers: {
           Authorization: `Bearer ${getState().authReducer.accessToken}`,
         },
         data: { location_name },
       })
       .then((res) => {
-        console.log(res.status);
         dispatch({
           type: DELETE_LOCATION,
           payload: location_name,
         });
+        setIsPress(false);
       })
       .catch((err) => {
-        console.log("error delete location:", err);
-        dispatch({ type: ERROR_MANAGER });
+        dispatch({
+          type: ERROR_MANAGER,
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
+        });
+        setIsPress(false);
       });
   };
 };
@@ -759,9 +768,9 @@ export const addLocationToEmployee = (
       .catch((err) => {
         console.log("error Add location to employee:", err);
         dispatch({ type: ERROR_MANAGER });
-        Snackbar.show({
-          text: "Location not added to employee, please try again.",
-        });
+        // Snackbar.show({
+        //   text: "Location not added to employee, please try again.",
+        // });
       });
   };
 };

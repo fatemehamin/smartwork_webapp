@@ -1,49 +1,96 @@
 import React, { useState, useEffect } from "react";
 import AppBar from "../components/AppBar";
-import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
-import { useMap } from "react-leaflet/hooks";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Circle,
+  useMap,
+} from "react-leaflet";
 import Button from "../components/Button";
 import Modal from "../components//modal";
 import { Room, Delete, RadioButtonUnchecked } from "@mui/icons-material";
+import { useSnackbar } from "react-simple-snackbar";
 import { useDispatch, useSelector } from "react-redux";
 import { addLocation, DeleteLocation } from "../redux/action/managerAction";
 import Alert from "../components/Alert";
 import Input from "../components/Input";
-// import pin from "../../src/assets/images/marker-icon-2x-gold.png";
-// import L from "leaflet";
+import Icon from "../assets/images/marker-icon-2x-gold.png";
+import L from "leaflet";
+
 export default () => {
   const stateManager = useSelector((state) => state.managerReducer);
   const dispatch = useDispatch();
+  const [openSnackbar, closeSnackbar] = useSnackbar();
   const [locations, setLocations] = useState([]);
-  const [isError, setIsError] = useState(true);
+  const [isPress, setIsPress] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
+  const [deleteLocation, setDeleteLocation] = useState("");
   const [currentCoordinate, setCurrentCoordinate] = useState({
     latitude: 35.720228,
     longitude: 51.39396,
     location_name: "",
     radius: "",
   });
+  const goldIcon = L.icon({
+    iconUrl: Icon,
+    iconSize: [27, 44],
+    iconAnchor: [13, 41], // point of the icon which will correspond to marker's location
+    popupAnchor: [0, -35], // point from which the popup should open relative to the iconAnchor
+  });
+  const SettingMap = () => {
+    const map = useMap();
+    map.on("click", (e) => {
+      setCurrentCoordinate({
+        latitude: e.latlng.lat,
+        longitude: e.latlng.lng,
+        location_name: "",
+        radius: "",
+      });
+    });
+    map.flyTo({
+      lat: currentCoordinate.latitude,
+      lng: currentCoordinate.longitude,
+    });
 
-  // const iconPerson = new L.Icon({
-  //   iconUrl: require("../../src/assets/images/marker-icon-2x-gold.png"),
-  //   iconRetinaUrl: require("../../src/assets/images/marker-icon-2x-gold.png"),
-  //   iconAnchor: null,
-  //   popupAnchor: null,
-  //   shadowUrl: null,
-  //   shadowSize: null,
-  //   shadowAnchor: null,
-  //   // iconSize: new L.Point(60, 75),
-  //   // className: "leaflet-div-icon",
-  // });
+    return (
+      <>
+        <Marker
+          position={{
+            lat: currentCoordinate.latitude,
+            lng: currentCoordinate.longitude,
+          }}
+          icon={goldIcon}
+          autoPanOnFocus
+        >
+          <Popup>{currentCoordinate.location_name}</Popup>
+        </Marker>
+        <Circle
+          center={{
+            lat: currentCoordinate.latitude,
+            lng: currentCoordinate.longitude,
+          }}
+          radius={currentCoordinate.radius ? currentCoordinate.radius : 0}
+          pathOptions={{ color: "#f6921e", fillColor: "#f6921e" }}
+        />
+      </>
+    );
+  };
   const LocationList = () =>
     locations.length > 0 &&
     locations.map((location, index) => (
-      <div key={index} style={styles.containerLocationList}>
-        <span
-          style={styles.nameLocation}
-          onClick={() => setCurrentCoordinate(location)}
-        >
+      <div
+        key={index}
+        style={{
+          ...styles.containerLocationList,
+          backgroundColor:
+            location.location_name == currentCoordinate.location_name &&
+            "#f6921e30",
+        }}
+      >
+        <span onClick={() => setCurrentCoordinate(location)}>
           <Room size={20} color="secondary" />
           <span style={{ color: "#000", fontSize: 15 }}>
             {location.location_name}
@@ -52,31 +99,32 @@ export default () => {
         <Delete
           size={20}
           color="secondary"
-          onClick={() => setOpenAlert(true)}
-        />
-        <Alert
-          title="Delete Location"
-          description="Are you sure you want to delete this location?"
-          open={openAlert}
-          setOpen={setOpenAlert}
-          ButtonAction={[
-            {
-              text: "No",
-            },
-            {
-              text: "Yes",
-              onClick: () => dispatch(DeleteLocation(location.location_name)),
-              autoFocus: true,
-            },
-          ]}
+          onClick={() => {
+            setDeleteLocation(location.location_name);
+            setOpenAlert(true);
+          }}
         />
       </div>
     ));
+
   useEffect(() => {
+    // navigator.geolocation.getCurrentPosition(
+    //   (position) => {
+    //     setCurrentCoordinate({
+    //       ...currentCoordinate,
+    //       latitude: position.coords.latitude,
+    //       longitude: position.coords.longitude,
+    //     });
+
+    //     // setCurrentCoordinate({})
+    //   },
+    //   (err) => {
+    //     console.log("location check err", err);
+    //   }
+    // );
+    isPress && stateManager.isError && openSnackbar(stateManager.error);
     setLocations(stateManager.locations);
-    !isError && setLocations([...locations, currentCoordinate]);
-    setIsError(true);
-  }, [stateManager.locations, isError]);
+  }, [stateManager.locations, stateManager.isError]);
 
   return (
     <>
@@ -91,14 +139,8 @@ export default () => {
         style={styles.map}
         // showsUserLocation={true}
         // showsMyLocationButton={true}
-        // focusable={true}
-        // onPress={e => {
-        //   setCurrentCoordinate({
-        //     ...currentCoordinate,
-        //     ...e.nativeEvent.coordinate,
-        //   });
-        // }}
       >
+        <SettingMap />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -111,39 +153,15 @@ export default () => {
                 lng: coordinate.longitude,
               }}
               key={index}
-              // pinColor="violet"
-              // icon={pin}
             >
-              <Popup>{coordinate.name}</Popup>
+              <Popup>{coordinate.location_name}</Popup>
             </Marker>
           ))}
-        <Marker
-          position={{
-            lat: currentCoordinate.latitude,
-            lng: currentCoordinate.longitude,
-          }}
-          autoPanOnFocus
-          // icon={iconPerson}
-          // pinColor="gold"
-        >
-          <Popup>{currentCoordinate.name}</Popup>
-        </Marker>
-
-        <Circle
-          center={{
-            lat: currentCoordinate.latitude,
-            lng: currentCoordinate.longitude,
-          }}
-          radius={currentCoordinate.radius ? currentCoordinate.radius : 0}
-          // strokeColor="#f6921e"
-          // fillColor="#f6921e20"
-          pathOptions={{ color: "#f6921e", fillColor: "#f6921e" }}
-        />
       </MapContainer>
       <Button label="Add New Location" onClick={() => setModalVisible(true)} />
       <Modal modalVisible={modalVisible} setModalVisible={setModalVisible}>
-        <h2 style={styles.text}>Add New Location</h2>
-        {/* two text input */}
+        <h2 style={styles.textAddLocation}>Add New Location</h2>
+        {/*********************** two text input ***********************/}
         <div style={styles.containerTextInputBar}>
           <div style={styles.containerTextInput}>
             <Input
@@ -184,7 +202,7 @@ export default () => {
             />
           </div>
         </div>
-        {/* two button */}
+        {/*********************** two button ***********************/}
         <div style={styles.containerButton}>
           <Button
             label="Cancel"
@@ -197,20 +215,39 @@ export default () => {
             customStyle={{ width: "40%" }}
             isLoading={stateManager.isLoading}
             onClick={() => {
+              setIsPress(true);
               dispatch(
                 addLocation(
                   currentCoordinate.latitude,
                   currentCoordinate.longitude,
                   currentCoordinate.location_name,
                   currentCoordinate.radius,
-                  setIsError,
-                  setModalVisible
+                  setModalVisible,
+                  setIsPress
                 )
               );
             }}
           />
         </div>
       </Modal>
+      <Alert
+        title="Delete Location"
+        description="Are you sure you want to delete this location?"
+        open={openAlert}
+        setOpen={setOpenAlert}
+        ButtonAction={[
+          {
+            text: "No",
+          },
+          {
+            text: "Yes",
+            onClick: () => {
+              setIsPress(true);
+              dispatch(DeleteLocation(deleteLocation, setIsPress));
+            },
+          },
+        ]}
+      />
       <LocationList />
     </>
   );
@@ -242,22 +279,15 @@ const styles = {
   },
   containerLocationList: {
     flexDirection: "row",
-    alignItems: "baseline",
+    alignItems: "center",
     alignSelf: "stretch",
     justifyContent: "space-between",
-    marginLeft: 20,
-    marginRight: 20,
+    margin: 10,
+    padding: 10,
     display: "flex",
+    borderRadius: 5,
   },
-  nameLocation: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    paddingTop: 5,
-    paddingBottom: 5,
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  text: {
+  textAddLocation: {
     color: "#000",
     fontSize: 20,
     marginTop: 5,

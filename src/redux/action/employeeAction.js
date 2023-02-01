@@ -16,7 +16,6 @@ import jMoment from "moment-jalaali";
 //------------------------------------ get task project -----------------------------------//
 export const getProject = () => {
   return (dispatch, getState) => {
-    console.log("get");
     axiosAPI
       .get("/project_state/", {
         headers: {

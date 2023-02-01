@@ -18,7 +18,7 @@ import {
   ADD_LOCATION_TO_EMPLOYEE,
   GET_EMPLOYEE_LOCATION,
   DELETE_LOCATION_FROM_EMPLOYEE,
-} from '../action/actionType';
+} from "../action/actionType";
 
 const initialState = {
   employees: [],
@@ -34,55 +34,18 @@ const initialState = {
 export default (preState = initialState, action) => {
   switch (action.type) {
     case LOADING_MANAGER: {
-      return action.payload != null
-        ? {
-            ...preState,
-            isLoading: true,
-            isError: false,
-            error: null,
-            // report: null,
-            ['isLoading' + action.payload.typeError]: true,
-          }
-        : {
-            ...preState,
-            isLoading: true,
-            isError: false,
-            error: null,
-          };
+      return { ...preState, isLoading: true, isError: false, error: null };
     }
     case LOADED_MANAGER: {
-      return action.payload != null
-        ? {
-            ...preState,
-            isLoading: false,
-            isError: false,
-            error: null,
-            ['isLoading' + action.payload.typeError]: false,
-          }
-        : {
-            ...preState,
-            isLoading: false,
-            isError: false,
-            error: null,
-          };
+      return { ...preState, isLoading: false, isError: false, error: null };
     }
     case ERROR_MANAGER: {
-      return action.payload != null
-        ? {
-            ...preState,
-            isLoading: false,
-            isError: true,
-            report: null,
-            error: {...preState.error, ...action.payload},
-            ['isLoading' + action.payload.typeError]: false,
-          }
-        : {
-            ...preState,
-            isLoading: false,
-            isError: true,
-            report: null,
-            error: {...preState.error, ...action.payload},
-          };
+      return {
+        ...preState,
+        isLoading: false,
+        isError: true,
+        error: action.payload,
+      };
     }
     case GET_EMPLOYEE: {
       return {
@@ -101,7 +64,7 @@ export default (preState = initialState, action) => {
           {
             ...action.payload,
             deactive_project: [],
-            now_active_project: 'nothing',
+            now_active_project: "nothing",
             project_list: [],
           },
         ],
@@ -112,7 +75,7 @@ export default (preState = initialState, action) => {
     }
     case DELETE_EMPLOYEE: {
       const newEmployee = preState.employees.filter(
-        employee => employee.phone_number != action.payload,
+        (employee) => employee.phone_number != action.payload
       );
       return {
         ...preState,
@@ -125,7 +88,7 @@ export default (preState = initialState, action) => {
     case GET_PROJECT: {
       return {
         ...preState,
-        projects: action.payload == 'pdne' ? [] : action.payload,
+        projects: action.payload == "pdne" ? [] : action.payload,
         isLoading: false,
         isError: false,
         error: null,
@@ -142,13 +105,13 @@ export default (preState = initialState, action) => {
     }
     case DELETE_PROJECT: {
       const newProjects = preState.projects.filter(
-        project => project.project_name !== action.payload,
+        (project) => project.project_name !== action.payload
       );
-      const newEmployees = preState.employees.map(employee => {
+      const newEmployees = preState.employees.map((employee) => {
         return {
           ...employee,
           project_list: employee.project_list.filter(
-            pro => pro.project_name != action.payload,
+            (pro) => pro.project_name != action.payload
           ),
         };
       });
@@ -162,16 +125,16 @@ export default (preState = initialState, action) => {
       };
     }
     case ADD_PROJECT_TO_EMPLOYEE: {
-      const newEmployee = preState.employees.map(employee =>
+      const newEmployee = preState.employees.map((employee) =>
         employee.phone_number == action.payload.phone_number
           ? {
               ...employee,
               project_list: [
                 ...employee.project_list,
-                {project_name: action.payload.project_name, sum_duration: ''},
+                { project_name: action.payload.project_name, sum_duration: "" },
               ],
             }
-          : employee,
+          : employee
       );
       return {
         ...preState,
@@ -182,23 +145,23 @@ export default (preState = initialState, action) => {
       };
     }
     case DELETE_PROJECT_FROM_EMPLOYEE: {
-      const newEmployee = preState.employees.map(employee => {
+      const newEmployee = preState.employees.map((employee) => {
         if (employee.phone_number == action.payload.phone_number) {
           const newProjectList = employee.project_list.filter(
-            project => project.project_name != action.payload.project_name,
+            (project) => project.project_name != action.payload.project_name
           );
-          return {...employee, project_list: newProjectList};
+          return { ...employee, project_list: newProjectList };
         } else {
           return employee;
         }
       });
-      return {...preState, employees: newEmployee};
+      return { ...preState, employees: newEmployee };
     }
     case TOGGLE_EXCEL: {
-      const newEmployee = preState.employees.map(employee =>
+      const newEmployee = preState.employees.map((employee) =>
         employee.phone_number == action.payload.phoneNumber
-          ? {...employee, financial_group: action.payload.toggleExcel}
-          : employee,
+          ? { ...employee, financial_group: action.payload.toggleExcel }
+          : employee
       );
       return {
         ...preState,
@@ -206,66 +169,104 @@ export default (preState = initialState, action) => {
         isLoading: false,
         isError: false,
         error: null,
-        ['isLoading' + action.payload.typeError]: false,
+        ["isLoading" + action.payload.typeError]: false,
       };
     }
     case EXPORT_EXCEL_REPORT: {
-      return {...preState, report: action.payload, isLoading: false};
+      return {
+        ...preState,
+        report: action.payload,
+        isLoading: false,
+        isError: false,
+        error: null,
+      };
     }
     case GET_LOCATION: {
-      return {...preState, locations: action.payload, isLoading: false};
+      return {
+        ...preState,
+        locations: action.payload,
+        isLoading: false,
+        isError: false,
+        error: null,
+      };
     }
     case ADD_LOCATION: {
       return {
         ...preState,
         locations: [...preState.locations, action.payload],
         isLoading: false,
+        isError: false,
+        error: null,
       };
     }
     case DELETE_LOCATION: {
       const newLocations = preState.locations.filter(
-        location => location.location_name != action.payload,
+        (location) => location.location_name != action.payload
       );
-      return {...preState, locations: newLocations, isLoading: false};
+      return {
+        ...preState,
+        locations: newLocations,
+        isLoading: false,
+        isError: false,
+        error: null,
+      };
     }
     case GET_EMPLOYEE_LOCATION: {
-      const newEmployees = preState.employees.map(employee =>
+      const newEmployees = preState.employees.map((employee) =>
         employee.phone_number == action.payload.phone_number
           ? {
               ...employee,
               location: action.payload.locations,
             }
-          : employee,
+          : employee
       );
-      return {...preState, employees: newEmployees, isLoading: false};
+      return {
+        ...preState,
+        employees: newEmployees,
+        isLoading: false,
+        isError: false,
+        error: null,
+      };
     }
     case ADD_LOCATION_TO_EMPLOYEE: {
       const location = preState.locations.filter(
-        location => location.location_name === action.payload.location_name,
+        (location) => location.location_name === action.payload.location_name
       );
-      const newEmployees = preState.employees.map(employee =>
+      const newEmployees = preState.employees.map((employee) =>
         employee.phone_number == action.payload.phone_number
           ? {
               ...employee,
               location: [...employee.location, location],
             }
-          : employee,
+          : employee
       );
-      return {...preState, employees: newEmployees, isLoading: false};
+      return {
+        ...preState,
+        employees: newEmployees,
+        isLoading: false,
+        isError: false,
+        error: null,
+      };
     }
     case DELETE_LOCATION_FROM_EMPLOYEE: {
-      const newEmployees = preState.employees.map(employee =>
+      const newEmployees = preState.employees.map((employee) =>
         employee.phone_number == action.payload.phone_number
           ? {
               ...employee,
               location: employee.location.filter(
-                location =>
-                  location.location_name != action.payload.location_name,
+                (location) =>
+                  location.location_name != action.payload.location_name
               ),
             }
-          : employee,
+          : employee
       );
-      return {...preState, employees: newEmployees, isLoading: false};
+      return {
+        ...preState,
+        employees: newEmployees,
+        isLoading: false,
+        isError: false,
+        error: null,
+      };
     }
     default: {
       return preState;
