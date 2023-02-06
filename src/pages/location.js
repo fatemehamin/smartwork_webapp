@@ -18,6 +18,7 @@ import Alert from "../components/Alert";
 import Input from "../components/Input";
 import Icon from "../assets/images/marker-icon-2x-gold.png";
 import L from "leaflet";
+import LocateControl from "../utils/locatecontrol";
 
 export default () => {
   const stateManager = useSelector((state) => state.managerReducer);
@@ -101,7 +102,7 @@ export default () => {
         </span>
         <Delete
           size={20}
-          color="secondary"
+          color={!stateManager.isLoading ? "secondary" : "secondary80"}
           onClick={() => {
             setDeleteLocation(location.location_name);
             setOpenAlert(true);
@@ -111,23 +112,19 @@ export default () => {
     ));
 
   useEffect(() => {
-    // navigator.geolocation.getCurrentPosition(
-    //   (position) => {
-    //     setCurrentCoordinate({
-    //       ...currentCoordinate,
-    //       latitude: position.coords.latitude,
-    //       longitude: position.coords.longitude,
-    //     });
-
-    //     // setCurrentCoordinate({})
-    //   },
-    //   (err) => {
-    //     console.log("location check err", err);
-    //   }
-    // );
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCurrentCoordinate({
+          ...currentCoordinate,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      (err) => openSnackbar(err)
+    );
     isPress && stateManager.isError && openSnackbar(stateManager.error);
     setLocations(stateManager.locations);
-  }, [stateManager.locations, stateManager.isError]);
+  }, [stateManager.locations, stateManager.isError, navigator.geolocation]);
 
   return (
     <>
@@ -140,10 +137,9 @@ export default () => {
         zoom={13}
         scrollWheelZoom={false}
         style={styles.map}
-        // showsUserLocation={true}
-        // showsMyLocationButton={true}
       >
         <SettingMap />
+        <LocateControl />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
