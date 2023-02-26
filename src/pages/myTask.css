@@ -27,9 +27,7 @@
 }
 .map {
   width: 100%;
-  /* flex: 1, */
   margin-top: 50px;
-  /* height: Dimensions.get("window").height / 1.75, */
 }
 .exitEntry {
   width: 100%;

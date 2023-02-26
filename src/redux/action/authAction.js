@@ -13,7 +13,7 @@ import {
 import axios from "../../services/API/index";
 
 // -------------------------------------- init -------------------------------------- //
-export const init = (navigate, page) => {
+export const init = (navigate) => {
   return async (dispatch) => {
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
@@ -33,11 +33,9 @@ export const init = (navigate, page) => {
     navigate(
       accessToken === null
         ? "/login"
-        : page == undefined
-        ? type === "boss"
-          ? "/manager"
-          : "/myTasks"
-        : page
+        : type === "boss"
+        ? "/manager"
+        : "/myTasks"
     );
   };
 };
@@ -60,7 +58,7 @@ export const phoneNumberCheck = (phoneNumber) => {
                 ? "connection failed please check your network."
                 : err.response.status === 406
                 ? "This phone number exists in the system."
-                : err.response.data.details,
+                : err.response.data.detail,
           },
         });
       });
@@ -110,7 +108,7 @@ export const createUserLoading = (
                 ? "connection failed please check your network."
                 : err.response.status === 406
                 ? "This business name exists in the system."
-                : err.response.data.details,
+                : err.response.data.detail,
           },
         });
       });
@@ -170,7 +168,7 @@ export const verifyCode = (
                 payload:
                   error.code == "ERR_NETWORK"
                     ? "connection failed please check your network."
-                    : error.response.data.details,
+                    : error.response.data.detail,
               })
             );
           // when forgotPassword: from verify code go to changePassword screen
@@ -188,7 +186,7 @@ export const verifyCode = (
               ? "connection failed please check your network."
               : err.response.status === 401
               ? "verify code is incorrect."
-              : err.response.data.details,
+              : err.response.data.detail,
         });
         setIsPress(false);
       });
@@ -224,7 +222,7 @@ export const forgotPassword = (
               ? "connection failed please check your network."
               : err.response.status === 404
               ? "Phone number not exists."
-              : err.response.data.details,
+              : err.response.data.detail,
         });
         setIsPress(false);
       });
@@ -299,7 +297,7 @@ export const login = (
             ? "Username or password is incorrect."
             : err.response.status == 400
             ? "Please enter your username or password."
-            : err.response.data.details,
+            : err.response.data.detail,
       });
       setIsPress(false);
     }

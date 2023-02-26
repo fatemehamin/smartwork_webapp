@@ -33,7 +33,6 @@ export default () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const stateAuth = useSelector((state) => state.authReducer);
-
   useEffect(() => {
     stateAuth.isError &&
       stateAuth.error.existsCompanyError != undefined &&

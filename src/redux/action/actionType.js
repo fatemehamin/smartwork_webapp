@@ -9,6 +9,9 @@ export const UPDATE_USER = "UPDATE_USER";
 export const LOGIN = "LOGIN";
 export const LOGOUT = "LOGOUT";
 export const ACCESS_TOKEN = "ACCESS_TOKEN";
+// export const VIP_PLAN = 'VIP_PLAN';
+// export const SET_ACTIVE_PLAN = 'SET_ACTIVE_PLAN';
+// export const GET_ACTIVE_PLAN = 'GET_ACTIVE_PLAN';
 
 //-------------------------------- manager type --------------------------------//
 export const LOADING_MANAGER = "LOADING_MANAGER";
@@ -16,9 +19,11 @@ export const LOADED_MANAGER = "LOADED_MANAGER";
 export const ERROR_MANAGER = "ERROR_MANAGER";
 export const GET_EMPLOYEE = "GET_EMPLOYEE";
 export const ADD_EMPLOYEE = "ADD_EMPLOYEE";
+export const EDIT_EMPLOYEE = "EDIT_EMPLOYEE";
 export const DELETE_EMPLOYEE = "DELETE_EMPLOYEE";
 export const GET_PROJECT = "GET_PROJECT";
 export const ADD_PROJECT = "ADD_PROJECT";
+export const EDIT_PROJECT = "EDIT_PROJECT";
 export const DELETE_PROJECT = "DELETE_PROJECT";
 export const ADD_PROJECT_TO_EMPLOYEE = "ADD_PROJECT_TO_EMPLOYEE";
 export const DELETE_PROJECT_FROM_EMPLOYEE = "DELETE_PROJECT_FROM_EMPLOYEE";

@@ -1,17 +1,14 @@
 import React from "react";
 import { MenuItem, FormControl, Select, InputLabel } from "@mui/material";
-// import {WheelPicker} from 'react-native-wheel-picker-android';
 import jMoment from "moment-jalaali";
-// import {Picker} from '@react-native-picker/picker';
 
 export default ({
   month,
   setMonth,
   year,
   setYear,
-  // isCalendar,
-  // onePicker,
-  // customStyle,
+  isCalendar,
+  onePicker,
   label,
 }) => {
   const JMonth = [
@@ -35,7 +32,26 @@ export default ({
     }
     return Years;
   };
-  return (
+  return !isCalendar ? (
+    <div style={styles.onePickerContainer}>
+      <div style={styles.text}>{label}</div>
+      <FormControl sx={{ m: 1, minWidth: 150 }}>
+        <InputLabel id="demo-simple-select-helper-label">Member</InputLabel>
+        <Select
+          value={onePicker.init}
+          onChange={(event) => onePicker.onSelect(event.target.value)}
+          displayEmpty
+          label="Member"
+        >
+          {onePicker.data.map((info, index) => (
+            <MenuItem key={index} value={index}>
+              {info}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </div>
+  ) : (
     <>
       <FormControl sx={{ m: 1, minWidth: 150 }} key="Year">
         <InputLabel id="demo-simple-select-helper-label">Year</InputLabel>
@@ -68,71 +84,10 @@ export default ({
         </Select>
       </FormControl>
     </>
-    //   {/*
-    //   <View style={styles.selectDate}>
-    //   {!isCalendar ? (
-    //     <View style={styles.onePickerContainer}>
-    //       <Text style={styles.text}>{label}</Text>
-    //       <Picker
-    //         style={styles.onePicker}
-    //         itemStyle={{fontSize: 15}}
-    //         selectedValue={onePicker.init}
-    //         onValueChange={(itemValue, itemIndex) =>
-    //           onePicker.onSelect(itemValue)
-    //         }>
-    //         {onePicker.data.map((info, index) => (
-    //           <Picker.Item label={info} value={index} key={index} />
-    //         ))}
-    //       </Picker>
-    //     </View>
-    //   ) : Platform.OS == 'android' ? (
-    //     <>
-    //       <WheelPicker
-    //         data={getYears()}
-    //         onItemSelected={selectedYear => setYear(getYears()[selectedYear])}
-    //         initPosition={getYears().findIndex(y => y == year)}
-    //         style={customStyle}
-    //       />
-    //       <WheelPicker
-    //         data={JMonth}
-    //         onItemSelected={selectedItem => setMonth(selectedItem)}
-    //         initPosition={month}
-    //         style={customStyle}
-    //       />
-    //     </>
-    //   ) : (
-    //     <>
-    //       <Picker
-    //         style={{width: isCalendar ? '24%' : '50%'}}
-    //         itemStyle={{fontSize: isCalendar ? 15 : 21}}
-    //         selectedValue={year}
-    //         onValueChange={(itemValue, itemIndex) => setYear(itemValue)}>
-    //         {getYears().map((y, index) => (
-    //           <Picker.Item label={y} value={y} key={index} />
-    //         ))}
-    //       </Picker>
-    //       <Picker
-    //         style={{width: isCalendar ? '32%' : '50%'}}
-    //         itemStyle={{fontSize: isCalendar ? 15 : 21}}
-    //         selectedValue={month}
-    //         onValueChange={(itemValue, itemIndex) => setMonth(itemValue)}>
-    //         {JMonth.map((jMonth, index) => (
-    //           <Picker.Item label={jMonth} value={index} key={index} />
-    //         ))}
-    //       </Picker>
-    //     </>
-    //   )}
-    // </View> */}
   );
 };
 
 const styles = {
-  selectDate: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginVertical: 10,
-    width: "100%",
-  },
   text: {
     color: "#000",
     fontWeight: "400",
@@ -142,8 +97,7 @@ const styles = {
   },
   onePickerContainer: {
     flexDirection: "row",
+    display: "flex",
     alignItems: "center",
-    flex: 1,
   },
-  onePicker: { width: "60%", backgroundColor: "#17608510" },
 };

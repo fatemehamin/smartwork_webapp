@@ -1,4 +1,3 @@
-// import Snackbar from "react-native-snackbar";
 import axiosAPI from "../../services/API/index";
 import {
   ADD_EMPLOYEE,
@@ -20,6 +19,11 @@ import {
   GET_EMPLOYEE_LOCATION,
   ADD_LOCATION_TO_EMPLOYEE,
   DELETE_LOCATION_FROM_EMPLOYEE,
+  EDIT_PROJECT,
+  EDIT_EMPLOYEE,
+  // VIP_PLAN,
+  // SET_ACTIVE_PLAN,
+  // GET_ACTIVE_PLAN,
 } from "./actionType";
 import moment from "moment";
 import jMoment from "moment-jalaali";
@@ -29,7 +33,7 @@ export const getEmployee = () => {
   return (dispatch, getState) => {
     dispatch({ type: LOADING_MANAGER });
     axiosAPI
-      .get(`/employee_register/`, {
+      .get("/employee_register/", {
         headers: {
           Authorization: `Bearer ${getState().authReducer.accessToken}`,
         },
@@ -41,7 +45,10 @@ export const getEmployee = () => {
         console.log("getEmployee error", err);
         dispatch({
           type: ERROR_MANAGER,
-          payload: { netError: "Error connecting to the system" },
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
         });
       });
   };
@@ -52,6 +59,8 @@ export const addEmployee = (
   lastName,
   email,
   password,
+  callingCode,
+  country,
   phoneNumber,
   setModalVisibleEmployee,
   setIsPress,
@@ -73,6 +82,7 @@ export const addEmployee = (
           email,
           password,
           phone_number: phoneNumber,
+          callingCode: country + callingCode,
         },
         {
           headers: {
@@ -81,12 +91,12 @@ export const addEmployee = (
         }
       )
       .then((res) => {
-        console.log(res.status);
         dispatch({
           type: ADD_EMPLOYEE,
           payload: {
             first_name: firstName,
             last_name: lastName,
+            calling_code: country + callingCode,
             email,
             password,
             phone_number: phoneNumber,
@@ -102,14 +112,103 @@ export const addEmployee = (
         setModalVisibleEmployee(false);
       })
       .catch((err) => {
-        console.log("error add employee", err);
         dispatch({
           type: ERROR_MANAGER,
-          payload: {
-            duplicateEmployeeError:
-              "This phone number is already in the system.",
-          },
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
         });
+      });
+  };
+};
+//-------------------------------------- edit employee  -------------------------------------//
+export const editEmployee = (
+  first_name,
+  last_name,
+  email,
+  callingCode,
+  country,
+  old_phone_number,
+  new_phone_number,
+  setIsEdit,
+  setEmployeeCurrentPhone
+) => {
+  return (dispatch, getState) => {
+    dispatch({ type: LOADING_MANAGER });
+    axiosAPI
+      .patch(
+        "/edit_user_information/",
+        {
+          first_name,
+          last_name,
+          email,
+          phone_number: old_phone_number,
+          calling_code: country + callingCode,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${getState().authReducer.accessToken}`,
+          },
+        }
+      )
+      .then((res) =>
+        old_phone_number == new_phone_number
+          ? (dispatch({
+              type: EDIT_EMPLOYEE,
+              payload: {
+                first_name,
+                last_name,
+                email,
+                old_phone_number,
+                calling_code: country + callingCode,
+              },
+            }),
+            setIsEdit(false))
+          : axiosAPI
+              .put(
+                "/edit_user_information/",
+                {
+                  newUsername: new_phone_number,
+                  oldUsername: old_phone_number,
+                  calling_code: country + callingCode,
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${
+                      getState().authReducer.accessToken
+                    }`,
+                  },
+                }
+              )
+              .then(
+                (resp) => (
+                  dispatch({
+                    type: EDIT_EMPLOYEE,
+                    payload: {
+                      first_name,
+                      last_name,
+                      email,
+                      old_phone_number,
+                      new_phone_number,
+                      calling_code: country + callingCode,
+                    },
+                  }),
+                  setEmployeeCurrentPhone(new_phone_number),
+                  setIsEdit(false)
+                )
+              )
+              .catch((err) => {
+                // dispatch({ type: LOADED_MANAGER }), console.log("f", err);
+                // Snackbar.show({
+                //   text: "Changes were not applied. Please try again.",
+                // });
+              })
+      )
+      .catch((err) => {
+        console.log(err);
+        // dispatch({ type: LOADED_MANAGER }), console.log(err);
+        // Snackbar.show({ text: "Changes were not applied. Please try again." });
       });
   };
 };
@@ -132,8 +231,13 @@ export const deleteEmployee = (phoneNumber) => {
             dispatch({ type: DELETE_EMPLOYEE, payload: phoneNumber })
           )
           .catch((err) => {
-            dispatch({ type: LOADED_MANAGER });
-            // Snackbar.show({ text: "Employee not deleted Please try again." });
+            dispatch({
+              type: LOADED_MANAGER,
+              payload:
+                err.code == "ERR_NETWORK"
+                  ? "connection failed please check your network."
+                  : err.response.data.detail,
+            });
           });
   };
 };
@@ -151,19 +255,21 @@ export const getProject = () => {
       .catch((err) => {
         dispatch({
           type: ERROR_MANAGER,
-          payload: { netError: "Error connecting to the system" },
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
         });
-        console.log("get project list Error", err);
       });
   };
 };
 //--------------------------------------- add project ---------------------------------------//
-export const addProject = (project_name, setProjectName) => {
+export const addProject = (project_name, setProjectName, setIsPress) => {
   return (dispatch, getState) => {
     dispatch({ type: LOADING_MANAGER });
     axiosAPI
       .put(
-        `/project_register/`,
+        "/project_register/",
         { project_name },
         {
           headers: {
@@ -172,8 +278,7 @@ export const addProject = (project_name, setProjectName) => {
         }
       )
       .then((res) => {
-        console.log(res.status);
-        // Snackbar.show({ text: "Add project successfully" });
+        setIsPress(false);
         dispatch({
           type: ADD_PROJECT,
           payload: { project_name, sum_duration: 0 },
@@ -183,9 +288,43 @@ export const addProject = (project_name, setProjectName) => {
       .catch((err) => {
         dispatch({
           type: ERROR_MANAGER,
-          payload: { addProject: "Project not added, please try again." },
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
         });
-        // Snackbar.show({ text: "Project not added, please try again." });
+        setIsPress(false);
+      });
+  };
+};
+//--------------------------------------- edit project --------------------------------------//
+export const editProject = (oldProjectName, newProjectName) => {
+  return (dispatch, getState) => {
+    dispatch({ type: LOADING_MANAGER });
+    axiosAPI
+      .patch(
+        `/project_register/`,
+        { oldProjectName, newProjectName },
+        {
+          headers: {
+            Authorization: `Bearer ${getState().authReducer.accessToken}`,
+          },
+        }
+      )
+      .then((res) => {
+        dispatch({
+          type: EDIT_PROJECT,
+          payload: { oldProjectName, newProjectName },
+        });
+      })
+      .catch((err) => {
+        dispatch({
+          type: ERROR_MANAGER,
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
+        });
       });
   };
 };
@@ -202,8 +341,13 @@ export const deleteProject = (project_name) => {
       })
       .then((res) => dispatch({ type: DELETE_PROJECT, payload: project_name }))
       .catch((err) => {
-        console.log("delete error", err);
-        // Snackbar.show({ text: "Project not deleted, please try again." });
+        dispatch({
+          type: ERROR_MANAGER,
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
+        });
       });
   };
 };
@@ -228,10 +372,12 @@ export const addProjectToEmployee = (phone_number, project_name) => {
         });
       })
       .catch((err) => {
-        console.log("error add project to employee", err);
         dispatch({
           type: ERROR_MANAGER,
-          payload: "Project not added to employee, please try again.",
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
         });
         // Snackbar.show({
         //   text: "Project not added to employee, please try again.",
@@ -250,19 +396,26 @@ export const deleteProjectFromEmployee = (phone_number, project_name) => {
         data: { employee_username: phone_number, project_name },
       })
       .then((res) => {
-        console.log(res.status);
         dispatch({
           type: DELETE_PROJECT_FROM_EMPLOYEE,
           payload: { phone_number, project_name },
         });
       })
-      .catch((err) => console.log("delete project from employee", err));
+      .catch((err) =>
+        dispatch({
+          type: ERROR_MANAGER,
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
+        })
+      );
   };
 };
 // --------------------------------------- access excel -------------------------------------//
 export const accessExcel = (phoneNumber, toggleExcel, setToggleExcel) => {
   return (dispatch, getState) => {
-    dispatch({ type: LOADING_MANAGER, payload: { typeError: "AccessExcel" } });
+    dispatch({ type: LOADING_MANAGER });
     axiosAPI
       .put(
         `/employee_register/${phoneNumber}/${toggleExcel}/`,
@@ -274,30 +427,33 @@ export const accessExcel = (phoneNumber, toggleExcel, setToggleExcel) => {
         }
       )
       .then((res) => {
-        console.log(res.status);
-        dispatch({
-          type: TOGGLE_EXCEL,
-          payload: { phoneNumber, toggleExcel, typeError: "AccessExcel" },
-        });
+        res.status &&
+          dispatch({
+            type: TOGGLE_EXCEL,
+            payload: { phoneNumber, toggleExcel },
+          });
         setToggleExcel(toggleExcel);
       })
       .catch((err) => {
         dispatch({
           type: ERROR_MANAGER,
-          payload: { typeError: "AccessExcel" },
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
         });
-        console.log("access error:", err);
       });
   };
 };
-//---------------------------------- export Excel Report ------------------------------------//
-export const exportExcelReport = (
+//--------------------------------------- export Excel --------------------------------------//
+export const exportExcel = (
   year,
   month,
   daysInMonth,
   employeeNumber,
   employeeName,
-  setModalVisible
+  setModalVisible,
+  FilterProject
 ) => {
   const startDate = jMoment(`${year}/${month}/1`, "jYYYY/jM/jD");
   const endDate = jMoment(`${year}/${month}/${daysInMonth}`, "jYYYY/jM/jD");
@@ -314,7 +470,6 @@ export const exportExcelReport = (
         }
       )
       .then((res) => {
-        console.log(res.status);
         if (res.data.report.length > 0) {
           axiosAPI
             .get(
@@ -335,14 +490,17 @@ export const exportExcelReport = (
                 new Date(parseInt(t)).toTimeString().slice(0, 8);
               // find all projects name in a month + add entry & exit
               const AllProjects = [
+                "entry", // move entry to first list
                 ...res.data.report
                   .map((report) => report.project_name)
                   .filter(
                     (PN, index, array) =>
                       array.indexOf(PN) == index && PN != "entry"
                   ),
-                "entry", // move entry to last list
-              ];
+              ].filter(
+                (project) =>
+                  FilterProject.filter((filter) => filter == project).length > 0
+              );
               // declare total list and fill with 0
               let total = [];
               AllProjects.forEach((element) => {
@@ -476,8 +634,8 @@ export const exportExcelReport = (
               }
               // merge project name and total row
               for (
-                let index = 2;
-                index < (AllProjects.length - 1) * 3;
+                let index = 5;
+                index < AllProjects.length * 3;
                 index = index + 3
               ) {
                 merge = [
@@ -497,15 +655,9 @@ export const exportExcelReport = (
               merge = [
                 ...merge,
                 {
-                  // merge total row last colum
-                  s: {
-                    c: AllProjects.length * 3 - 1,
-                    r: pointerStart.lastRow + 3,
-                  },
-                  e: {
-                    c: AllProjects.length * 3 + 1,
-                    r: pointerStart.lastRow + 3,
-                  },
+                  // merge total row first colum
+                  s: { c: 2, r: pointerStart.lastRow + 3 },
+                  e: { c: 4, r: pointerStart.lastRow + 3 },
                 },
                 {
                   // TOTAL Title
@@ -518,14 +670,14 @@ export const exportExcelReport = (
                   e: { c: AllProjects.length * 3 + 1, r: 0 },
                 },
               ];
-              let secondHeader = [];
+              let secondHeader = ["", "", ""];
               let newAllProject = [];
               let newTotalList = [];
               const date = (time) =>
                 `${pad(parseInt(moment.duration(time).asHours()))}:${pad(
                   parseInt(moment.duration(time).minutes())
                 )}:${pad(parseInt(moment.duration(time).seconds()))}`;
-              for (let index = 0; index < AllProjects.length - 1; index++) {
+              for (let index = 1; index < AllProjects.length; index++) {
                 newTotalList = [
                   ...newTotalList,
                   date(total[index]),
@@ -547,11 +699,12 @@ export const exportExcelReport = (
               }
               // total for entry
               newTotalList = [
+                date(total[0]),
+                date(total[0]),
+                date(total[0]),
                 ...newTotalList,
-                date(total[AllProjects.length - 1]),
-                date(total[AllProjects.length - 1]),
-                date(total[AllProjects.length - 1]),
               ];
+
               dispatch({
                 type: EXPORT_EXCEL_REPORT,
                 payload: {
@@ -560,10 +713,10 @@ export const exportExcelReport = (
                     [
                       "Date",
                       "Daily Report",
-                      ...newAllProject,
                       "ENTRY",
                       "EXIT",
                       "TOTAL",
+                      ...newAllProject,
                     ],
                     ["", "", ...secondHeader], //start & end
                     ...data,
@@ -586,7 +739,7 @@ export const exportExcelReport = (
             });
         } else {
           // Snackbar.show({
-          //   text: "Not exist report on this date for employee.",
+          //   text: "Not exist report on this date for this member.",
           // });
           dispatch({
             type: ERROR_MANAGER,
@@ -597,9 +750,12 @@ export const exportExcelReport = (
       .catch((err) => {
         dispatch({
           type: ERROR_MANAGER,
-          payload: "Report Error",
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
         });
-        console.log("Report Error :", err);
+        // console.log("Report Error :", err);
         // Snackbar.show({
         //   text: "connection failed please try again.",
         // });
@@ -626,8 +782,13 @@ export const getLocation = () => {
         dispatch({ type: GET_LOCATION, payload: locations });
       })
       .catch((err) => {
-        console.log("error get location:", err);
-        dispatch({ type: ERROR_MANAGER });
+        dispatch({
+          type: ERROR_MANAGER,
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
+        });
       });
   };
 };
@@ -731,8 +892,13 @@ export const getEmployeeLocation = (phone_number) => {
         });
       })
       .catch((err) => {
-        console.log("error get employee location:", err);
-        dispatch({ type: ERROR_MANAGER });
+        dispatch({
+          type: ERROR_MANAGER,
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
+        });
       });
   };
 };
@@ -758,7 +924,6 @@ export const addLocationToEmployee = (
         }
       )
       .then((res) => {
-        console.log(res.status);
         dispatch({
           type: ADD_LOCATION_TO_EMPLOYEE,
           payload: { location_name, phone_number },
@@ -766,8 +931,13 @@ export const addLocationToEmployee = (
         setToggleCheckBox(true);
       })
       .catch((err) => {
-        console.log("error Add location to employee:", err);
-        dispatch({ type: ERROR_MANAGER });
+        dispatch({
+          type: ERROR_MANAGER,
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
+        });
         // Snackbar.show({
         //   text: "Location not added to employee, please try again.",
         // });
@@ -793,7 +963,6 @@ export const DeleteLocationFromEmployee = (
         },
       })
       .then((res) => {
-        console.log(res.status);
         dispatch({
           type: DELETE_LOCATION_FROM_EMPLOYEE,
           payload: { location_name, phone_number },
@@ -801,8 +970,13 @@ export const DeleteLocationFromEmployee = (
         setToggleCheckBox(false);
       })
       .catch((err) => {
-        console.log("error delete location:", err);
-        dispatch({ type: ERROR_MANAGER });
+        dispatch({
+          type: ERROR_MANAGER,
+          payload:
+            err.code == "ERR_NETWORK"
+              ? "connection failed please check your network."
+              : err.response.data.detail,
+        });
       });
   };
 };

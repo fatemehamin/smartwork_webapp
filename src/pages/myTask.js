@@ -7,9 +7,9 @@ import {
   dailyReport,
   entry,
   exit,
-  location,
+  // location,
 } from "../redux/action/employeeAction";
-// import { getEmployee } from "../redux/action/managerAction";
+import { getEmployee } from "../redux/action/managerAction";
 import FloatingButton from "../components/floatingButton";
 import Modal from "../components/modal";
 import Input from "../components/Input";
@@ -17,15 +17,12 @@ import Button from "../components/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
 import { useNavigate } from "react-router-dom";
-import { init } from "../redux/action/authAction";
 import Alert from "../components/Alert";
-// import MapView from "react-native-maps";
-// import Permission, { PERMISSIONS_TYPE } from "../utils/AppPermissions";
+import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import checkLocation from "../utils/checkLocation";
 import useGeolocation from "../utils/useGeoLocation";
 import Spinner from "../components/spinner";
-// import NetInfo from '@react-native-community/netinfo';
-// import Icon from 'react-native-vector-icons/FontAwesome';
+import LocateControl from "../utils/locatecontrol";
 
 export default () => {
   const employeeState = useSelector((state) => state.employeeReducer);
@@ -167,7 +164,6 @@ export default () => {
   };
 
   useEffect(() => {
-    // dispatch(init(navigate));
     //   onRefresh();
     setIsEntry(employeeState.lastEntry ? true : false);
     // Permission();
@@ -216,28 +212,9 @@ export default () => {
           <p className="filterText">Map</p>
         </div>
       </div>
-      {/* {useGeolocation()} */}
       {activeFilter === "Tasks" ? (
-        // !isConnected ? (
-        //   <ScrollView
-        // className='error'
-        //     refreshControl={
-        //       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        //      }>
-        //      <Icon name="undo" size={30} onPress={onRefresh} />
-        //      <Text>connection failed</Text>
-        //   </ScrollView>
-        // ) : (
         <>
-          <div
-            className="employee"
-            // showsVerticalScrollIndicator={false}
-            // refreshControl={
-            //   <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            // }
-          >
-            {getTasks()}
-          </div>
+          <div className="employee">{getTasks()}</div>
           <FloatingButton
             type="DailyReport"
             setModalVisibleProject={setModalVisible}
@@ -264,6 +241,7 @@ export default () => {
               <Button
                 label="OK"
                 customStyle={{ width: "40%" }}
+                isLoading={employeeState.isLoading}
                 onClick={() => {
                   setIsPress(true);
                   dispatch(
@@ -282,19 +260,19 @@ export default () => {
           </Modal>
         </>
       ) : (
-        <div className="map">map</div>
-        // <MapView
-        // className="map"
-        //   initialRegion={{
-        //     latitude: 35.720228,
-        //     longitude: 51.39396,
-        //     latitudeDelta: 0.0621,
-        //     longitudeDelta: 0.0421,
-        //   }}
-        //   showsUserLocation={true}
-        //   showsMyLocationButton={true}
-        //   focusable={true}
-        // ></MapView>
+        <MapContainer
+          center={{ lat: 35.720228, lng: 51.39396 }}
+          zoom={13}
+          scrollWheelZoom={false}
+          className="map"
+          style={{ height: window.innerHeight - 150 }}
+        >
+          <LocateControl />
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+        </MapContainer>
       )}
       <ExitEntry />
       <Alert

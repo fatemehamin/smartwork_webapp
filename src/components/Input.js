@@ -5,7 +5,6 @@ import MuiPhoneNumber from "material-ui-phone-number";
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 
 export default ({
-  value,
   setValue,
   label,
   type = "text",
@@ -76,7 +75,6 @@ export default ({
             )
           }
           type={visiblePassword ? "text" : type}
-          value={value}
           {...props}
         />
       )}

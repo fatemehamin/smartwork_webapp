@@ -31,7 +31,10 @@ export default () => (
       <Route path="/location" element={<Location />} />
       <Route path="/VIP" element={<VIP />} />
       <Route path="/exportExcel" element={<ExportExcel />} />
-      <Route path="/statusMember" element={<StatusMember />} />
+      <Route
+        path="/statusMember/:currentPhoneNumber"
+        element={<StatusMember />}
+      />
     </Routes>
   </Router>
 );

@@ -18,16 +18,36 @@ import {
   ADD_LOCATION_TO_EMPLOYEE,
   GET_EMPLOYEE_LOCATION,
   DELETE_LOCATION_FROM_EMPLOYEE,
+  EDIT_PROJECT,
+  EDIT_EMPLOYEE,
+  // VIP_PLAN,
+  // SET_ACTIVE_PLAN,
+  // GET_ACTIVE_PLAN,
 } from "../action/actionType";
 
 const initialState = {
-  employees: [],
+  employees: [
+    {
+      first_name: "",
+      last_name: "",
+      email: "",
+      phone_number: "+98",
+      calling_code: "IR+98",
+      now_active_project: "nothing",
+      financial_group: false,
+      location: [],
+      project_list: [],
+    },
+  ],
   projects: [],
   isLoading: true,
   isError: false,
   error: null,
   report: null,
   locations: [],
+  isLoadingAccessExcel: false,
+  // vipPlan: [],
+  // activePlan: {},
   isLoadingAccessExcel: false,
 };
 
@@ -44,6 +64,7 @@ export default (preState = initialState, action) => {
         ...preState,
         isLoading: false,
         isError: true,
+        report: null,
         error: action.payload,
       };
     }
@@ -68,6 +89,38 @@ export default (preState = initialState, action) => {
             project_list: [],
           },
         ],
+        isLoading: false,
+        isError: false,
+        error: null,
+      };
+    }
+    case EDIT_EMPLOYEE: {
+      const {
+        first_name,
+        last_name,
+        email,
+        old_phone_number,
+        new_phone_number,
+        calling_code,
+      } = action.payload;
+      const newEmployee = preState.employees.map((employee) =>
+        employee.phone_number == old_phone_number
+          ? {
+              ...employee,
+              email,
+              first_name,
+              last_name,
+              calling_code,
+              phone_number:
+                new_phone_number == undefined
+                  ? old_phone_number
+                  : new_phone_number,
+            }
+          : employee
+      );
+      return {
+        ...preState,
+        employees: newEmployee,
         isLoading: false,
         isError: false,
         error: null,
@@ -98,6 +151,29 @@ export default (preState = initialState, action) => {
       return {
         ...preState,
         projects: [...preState.projects, action.payload],
+        isLoading: false,
+        isError: false,
+        error: null,
+      };
+    }
+    case EDIT_PROJECT: {
+      const newProjects = preState.projects.map((project) =>
+        project.project_name == action.payload.oldProjectName
+          ? { ...project, project_name: action.payload.newProjectName }
+          : project
+      );
+      const newEmployees = preState.employees.map((employee) => ({
+        ...employee,
+        project_list: employee.project_list.map((pro) =>
+          pro.project_name == action.payload.oldProjectName
+            ? { ...pro, project_name: action.payload.newProjectName }
+            : pro
+        ),
+      }));
+      return {
+        ...preState,
+        employees: newEmployees,
+        projects: newProjects,
         isLoading: false,
         isError: false,
         error: null,
@@ -169,7 +245,6 @@ export default (preState = initialState, action) => {
         isLoading: false,
         isError: false,
         error: null,
-        ["isLoading" + action.payload.typeError]: false,
       };
     }
     case EXPORT_EXCEL_REPORT: {
@@ -268,6 +343,19 @@ export default (preState = initialState, action) => {
         error: null,
       };
     }
+    // case VIP_PLAN: {
+    //   return {...preState, vipPlan: action.payload, isLoading: false};
+    // }
+    // case SET_ACTIVE_PLAN: {
+    //   return {...preState, activePlan: action.payload, isLoading: false};
+    // }
+    // case GET_ACTIVE_PLAN: {
+    //   return {
+    //     ...preState,
+    //     // activePlan: action.payload,
+    //     isLoading: false,
+    //   };
+    // }
     default: {
       return preState;
     }

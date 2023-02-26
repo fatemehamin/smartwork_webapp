@@ -116,7 +116,7 @@ export default () => {
           setYear={setYear}
           setMonth={setMonth}
           month={month}
-          // isCalendar
+          isCalendar
         />
         <Button
           label="Show Result"
