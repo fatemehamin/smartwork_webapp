@@ -1,7 +1,7 @@
 import React from "react";
 import { Drawer } from "@mui/material";
 
-export default ({ modalVisible, setModalVisible, ...props }) => {
+export default ({ modalVisible, setModalVisible, customStyle, ...props }) => {
   const toggleDrawer = (open) => (event) => {
     if (
       event.type === "keydown" &&
@@ -16,7 +16,7 @@ export default ({ modalVisible, setModalVisible, ...props }) => {
       anchor="bottom"
       open={modalVisible}
       onClose={toggleDrawer(false)}
-      PaperProps={{ sx: styles.modal }}
+      PaperProps={{ sx: { ...styles.modal, ...customStyle } }}
     >
       {props.children}
     </Drawer>

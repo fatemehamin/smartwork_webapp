@@ -10,7 +10,7 @@ export default ({
   name,
   toggle,
   employeeCurrentPhone,
-  isLoading,
+  disabled,
   type = "Location",
   setFilterProject,
   FilterProject,
@@ -47,8 +47,7 @@ export default ({
         control={
           <Checkbox
             color="secondary"
-            checked={toggleCheckBox}
-            disabled={isLoading}
+            disabled={disabled}
             // onChange={onPressHandler}
           />
         }

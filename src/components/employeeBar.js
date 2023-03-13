@@ -16,7 +16,7 @@ import {
 import { animated, useSpring, useTransition } from "@react-spring/web";
 import Alert from "./Alert";
 
-export default ({
+const EmployeeBar = ({
   firstName,
   lastName,
   phoneNumber,
@@ -53,7 +53,7 @@ export default ({
   const [springs1, api1] = useSpring(() => ({
     from: {
       // width: isOpen ? "25%" : "0%",
-      display: isOpen ? "block" : "none",
+      display: isOpen ? "flex" : "none",
 
       // borderTopRightRadius: isOpen ? 10 : 0,
       // borderBottomRightRadius: isOpen ? 10 : 0,
@@ -89,7 +89,7 @@ export default ({
 
       to: {
         // width: isOpen ? "0%" : "%25",
-        display: isOpen ? "none" : "block",
+        display: isOpen ? "none" : "flex",
         // borderTopRightRadius: isOpen ? 0 : 10,
         // borderBottomRightRadius: isOpen ? 0 : 10,
         // opacity: isOpen ? 1 : 0,
@@ -303,7 +303,7 @@ const styles = {
     // textAlign: "left",
   },
   optionContainer: {
-    // alignItems: "center",
+    alignItems: "center",
     // justifyContent: "center",
     // display: "flex",
   },
@@ -312,3 +312,5 @@ const styles = {
     color: "#269dd870",
   },
 };
+
+export default EmployeeBar;

@@ -309,7 +309,6 @@ export const dailyReport = (
             type: DAILY_REPORT,
             payload: { dailyReport, date },
           });
-          setIsPress(false);
         } else {
           const newReport = getState().employeeReducer.report.map((rep) =>
             Object.keys(rep)[0] === jDate
@@ -318,7 +317,7 @@ export const dailyReport = (
           );
           dispatch({ type: REPORT, payload: { reports: newReport } });
         }
-        setIsPress(false);
+        setIsPress != undefined && setIsPress(false);
       })
       .catch((err) => {
         dispatch({
@@ -328,7 +327,7 @@ export const dailyReport = (
               ? "connection failed please check your network."
               : "Daily report not save please try again.",
         });
-        setIsPress(false);
+        setIsPress != undefined && setIsPress(false);
       });
   };
 };

@@ -96,6 +96,10 @@ export default ({
   };
   const onClickHandler = () => {
     setIsPress(true);
+    const firstEntryHandler = () => {
+      setOpenAlert(true);
+      setIsPress(false);
+    };
     const nowTime = new Date().getTime();
     // برای زمانی که روی خود تسک دوباره کلیک می کنی تا غیر فعال و یا دوباره فعال بشود
     currentTask.name == name
@@ -107,7 +111,7 @@ export default ({
       ? dispatch(endTime(currentTask.name, nowTime, name, setIsPress))
       : lastEntry
       ? dispatch(startTime(name, nowTime, setIsPress))
-      : (() => setOpenAlert(true), setIsPress(false))();
+      : firstEntryHandler();
   };
   return (
     <div

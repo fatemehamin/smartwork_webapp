@@ -275,7 +275,7 @@ const Location = ({ stateManager, employeeCurrent, dispatch }) => {
                 ).length > 0
               }
               employeeCurrentPhone={employeeCurrent.phone_number}
-              isLoading={stateManager.isLoading}
+              disabled={stateManager.isLoading}
             />
           ))
         }
@@ -437,5 +437,11 @@ const styles = {
     flexDirection: "row",
     alignItems: "center",
     padding: "0px 30px",
+  },
+  checkbox: {
+    flexDirection: "row",
+    padding: 5,
+    marginLeft: "10%",
+    alignItems: "center",
   },
 };

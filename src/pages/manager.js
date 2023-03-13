@@ -22,7 +22,7 @@ import {
 } from "../redux/action/managerAction";
 // import Spinner from '../components/spinner';
 
-export default () => {
+const Manager = () => {
   const [modalVisibleEmployee, setModalVisibleEmployee] = useState(false);
   const [modalVisibleProject, setModalVisibleProject] = useState(false);
   const [employeeCurrentPhone, setEmployeeCurrentPhone] = useState("");
@@ -270,3 +270,5 @@ const styles = {
     display: "flex",
   },
 };
+
+export default Manager;

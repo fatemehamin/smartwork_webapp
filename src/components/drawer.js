@@ -94,17 +94,17 @@ export default ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
           />
           {position === "boss" && (
             <>
-              <Item
+              {/* <Item
                 label="List of projects"
                 Icon={Dns}
                 onClick={() => navigate("/listOfProjects")}
-              />
+              /> */}
               <Item
                 label="Location"
                 Icon={LocationSearching}
                 onClick={() => navigate("/location")}
               />
-              <Item label="VIP" Icon={Stars} onClick={() => navigate("/VIP")} />
+              {/* <Item label="VIP" Icon={Stars} onClick={() => navigate("/VIP")} /> */}
             </>
           )}
           {(position === "financial" || position === "boss") && (

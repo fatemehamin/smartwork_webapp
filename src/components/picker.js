@@ -90,7 +90,7 @@ export default ({
 const styles = {
   text: {
     color: "#000",
-    fontWeight: "400",
+    fontWeight: "600",
     fontSize: 15,
     paddingLeft: 10,
     textAlign: "left",

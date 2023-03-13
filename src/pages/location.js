@@ -20,7 +20,7 @@ import Icon from "../assets/images/marker-icon-2x-gold.png";
 import L from "leaflet";
 import LocateControl from "../utils/locatecontrol";
 
-export default () => {
+const Location = () => {
   const stateManager = useSelector((state) => state.managerReducer);
   const dispatch = useDispatch();
   const [openSnackbar, closeSnackbar] = useSnackbar();
@@ -82,6 +82,7 @@ export default () => {
       </>
     );
   };
+
   const LocationList = () =>
     locations.length > 0 &&
     locations.map((location, index) => (
@@ -251,7 +252,7 @@ export default () => {
     </>
   );
 };
-
+export default Location;
 const styles = {
   map: {
     width: "100%",

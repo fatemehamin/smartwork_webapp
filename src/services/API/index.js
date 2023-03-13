@@ -14,8 +14,6 @@ axiosAPI.interceptors.response.use(
   },
   (error) => {
     if (
-      // error.response.data.code === 'token_not_valid' &&
-      // error.response.status === 401
       jwtDecode(store.getState().authReducer.refreshToken).exp * 1000 <=
       new Date().getTime()
     ) {

@@ -107,12 +107,12 @@ export default () => {
         <span onClick={() => exportFile(filename)} style={styles.iconShare}>
           <FileDownload />
         </span>
-        <span
+        {/* <span
           style={styles.iconShare}
           // onPress={onShare}
         >
           <Share />
-        </span>
+        </span> */}
       </div>
     );
   const onRemoveFilterHandler = () => {
@@ -294,7 +294,7 @@ const styles = {
     borderColor: "#CACCCF",
     borderStyle: "solid",
     borderTop: "none",
-    padding: 20,
+    padding: "0px 20px",
     margin: "0px 10px",
     borderRadius: 5,
   },

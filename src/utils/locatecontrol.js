@@ -2,10 +2,9 @@ import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 import Locate from "leaflet.locatecontrol";
 
-export default () => {
+const LocateControl = () => {
   const map = useMap();
   useEffect(() => {
-    // geo locate props
     const locateOptions = {
       position: "topleft",
       maxZoom: 19,
@@ -16,8 +15,8 @@ export default () => {
 
     const lc = new Locate(locateOptions);
     lc.addTo(map);
-    return () => lc.remove();
+    // return () => lc.remove();
   }, [map]);
-
   return null;
 };
+export default LocateControl;

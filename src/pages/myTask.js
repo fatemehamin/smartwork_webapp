@@ -20,7 +20,6 @@ import { useNavigate } from "react-router-dom";
 import Alert from "../components/Alert";
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import checkLocation from "../utils/checkLocation";
-import useGeolocation from "../utils/useGeoLocation";
 import Spinner from "../components/spinner";
 import LocateControl from "../utils/locatecontrol";
 
