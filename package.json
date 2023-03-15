@@ -1,6 +1,6 @@
 {
   "name": "smartwork_webapp",
-  "homepage":"https://smartbyhub.com/smart_time/api",
+  "homepage": "https://smartbyhub.com/smart_time/web",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
