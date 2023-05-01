@@ -15,7 +15,7 @@ import VIP from "../../pages/VIP";
 import ExportExcel from "../../pages/exportExcel";
 import StatusMember from "../../pages/statusMember";
 
-export default () => (
+const Routers = () => (
   <Router>
     <Routes>
       <Route path="/" element={<Init />} />
@@ -38,3 +38,5 @@ export default () => (
     </Routes>
   </Router>
 );
+
+export default Routers;

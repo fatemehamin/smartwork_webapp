@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 import React, { useEffect, useCallback, useState } from "react";
 import Task from "../components/Task";
 import "./myTask.css";
@@ -7,6 +8,7 @@ import {
   dailyReport,
   entry,
   exit,
+  location,
   // location,
 } from "../redux/action/employeeAction";
 import { getEmployee } from "../redux/action/managerAction";
@@ -22,9 +24,12 @@ import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import checkLocation from "../utils/checkLocation";
 import Spinner from "../components/spinner";
 import LocateControl from "../utils/locatecontrol";
+import { Translate } from "../i18n";
 
 export default () => {
   const employeeState = useSelector((state) => state.employeeReducer);
+  const { language, I18nManager } = useSelector((state) => state.configReducer);
+
   const authState = useSelector((state) => state.authReducer);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -34,10 +39,13 @@ export default () => {
   const [isEntry, setIsEntry] = useState(false);
   const [isPress, setIsPress] = useState(false);
   const [isErrorAlert, setIsErrorAlert] = useState(false);
+  const [locationDenied, setLocationDenied] = useState({
+    status: false,
+    error: null,
+  });
   const [modalVisible, setModalVisible] = useState(false);
   const [activeFilter, setActiveFilter] = useState("Tasks");
   const [openAlert, setOpenAlert] = useState(false);
-  const styles = { entryExitText: { color: isEntry ? "red" : "#008800" } };
   const [dailyReportToday, setDailyReportToday] = useState(
     employeeState.dailyReport.dailyReport
   );
@@ -95,6 +103,7 @@ export default () => {
         : dispatch(exit(nowTime, setIsEntry, undefined, setIsPress))
       : dispatch(entry(nowTime, setIsEntry, setIsPress));
   };
+
   const ExitEntry = () => (
     <div
       className="exitEntry"
@@ -114,8 +123,8 @@ export default () => {
         }
       }}
     >
-      <p className="exitEntryText" style={styles.entryExitText}>
-        {isEntry ? "E     X     I     T" : "E    N    T    R    Y"}
+      <p className="exitEntryText" style={styles.entryExitText(isEntry)}>
+        {isEntry ? Translate("exit", language) : Translate("entry", language)}
       </p>
     </div>
   );
@@ -129,7 +138,6 @@ export default () => {
   //   });
   // }, []);
   const onSuccess = (position) => {
-    console.log("success", position);
     employeeState.locations.filter((location) =>
       checkLocation(
         {
@@ -139,25 +147,18 @@ export default () => {
         location,
         location.radius
       )
-    ).length > 0 ? (
-      exitEntryHandler()
-    ) : (
-      <Alert
-        title="LOCATION"
-        description="You are not in a defined location. If you are in location, please restart your location."
-        open={isErrorAlert}
-        setOpen={setIsErrorAlert}
-      />
-    );
+    ).length > 0
+      ? exitEntryHandler()
+      : setIsErrorAlert(true);
   };
   const onError = (error) => {
-    console.log("error", error.message);
+    setLocationDenied({ error: error.message, status: true });
     return (
       <Alert
-        title="LOCATION DENIED"
+        title={Translate("locationDenied", language)}
         description={error.message}
-        open={isErrorAlert}
-        setOpen={setIsErrorAlert}
+        open={locationDenied.status}
+        setOpen={(s) => console.log(s)}
       />
     );
   };
@@ -166,7 +167,7 @@ export default () => {
     //   onRefresh();
     setIsEntry(employeeState.lastEntry ? true : false);
     // Permission();
-    // dispatch(location(authState.user.phoneNumber));
+    dispatch(location(authState.user.phoneNumber));
     dispatch(getProject());
     setDailyReportToday(employeeState.dailyReport.dailyReport);
     isPress && employeeState.isError && openSnackbar(employeeState.error);
@@ -174,9 +175,10 @@ export default () => {
     employeeState.dailyReport.dailyReport,
     employeeState.lastEntry,
     employeeState.isError,
+    authState.user.phoneNumber,
   ]);
   const getTasks = () => {
-    return employeeState.projects !== null ? (
+    return employeeState.projects?.length > 1 ? (
       employeeState.projects.map((project, index) => (
         <Task
           name={project.project_name}
@@ -189,26 +191,31 @@ export default () => {
         />
       ))
     ) : (
-      <div className="text">
-        The manager has not defined a project for you at this time.
-      </div>
+      <div className="text">{Translate("noHaveTask", language)}</div>
     );
   };
+
   return (
     <>
-      <AppBar label={authState.type === "boss" ? "My Tasks" : "Smart Work"} />
+      <AppBar
+        label={
+          authState.type === "boss"
+            ? Translate("myTasks", language)
+            : "Smart Work"
+        }
+      />
       <div className="filterContainer">
         <div
           className={`filter ${activeFilter === "Tasks" && "activeFilter"}`}
           onClick={() => setActiveFilter("Tasks")}
         >
-          <p className="filterText">Tasks</p>
+          <p className="filterText">{Translate("tasks", language)}</p>
         </div>
         <div
           className={`filter ${activeFilter === "Map" && "activeFilter"}`}
           onClick={() => setActiveFilter("Map")}
         >
-          <p className="filterText">Map</p>
+          <p className="filterText">{Translate("map", language)}</p>
         </div>
       </div>
       {activeFilter === "Tasks" ? (
@@ -219,26 +226,20 @@ export default () => {
             setModalVisibleProject={setModalVisible}
           />
           <Modal modalVisible={modalVisible} setModalVisible={setModalVisible}>
-            <h2 className="labelModal">Today Report</h2>
+            <h2 className="labelModal">{Translate("todayReport", language)}</h2>
             <Input
               value={dailyReportToday}
               setValue={setDailyReportToday}
-              placeholder="what's doing today?"
+              placeholder={Translate("WhatIsDoingToday", language)}
               autoFocus
               multiline
             />
-            <div className="buttonsContainer">
+            <div
+              className="buttonsContainer"
+              style={styles.buttonsContainer(I18nManager.isRTL)}
+            >
               <Button
-                label="Cancel"
-                customStyle={{ width: "40%" }}
-                onClick={() => {
-                  setModalVisible(false);
-                  setDailyReportToday(employeeState.dailyReport.dailyReport);
-                }}
-                type="SECONDARY"
-              />
-              <Button
-                label="OK"
+                label={Translate("ok", language)}
                 customStyle={{ width: "40%" }}
                 isLoading={employeeState.isLoading}
                 onClick={() => {
@@ -254,6 +255,15 @@ export default () => {
                     )
                   );
                 }}
+              />
+              <Button
+                label={Translate("cancel", language)}
+                customStyle={{ width: "40%" }}
+                onClick={() => {
+                  setModalVisible(false);
+                  setDailyReportToday(employeeState.dailyReport.dailyReport);
+                }}
+                type="SECONDARY"
               />
             </div>
           </Modal>
@@ -275,11 +285,23 @@ export default () => {
       )}
       <ExitEntry />
       <Alert
-        title="ENTRY"
-        description="Please entry first and then start the task."
+        title={Translate("ENTRY", language)}
+        description={Translate("entryFirst", language)}
         open={openAlert}
         setOpen={setOpenAlert}
         ButtonAction={[{ text: "Ok" }]}
+      />
+      <Alert
+        title={Translate("location", language)}
+        description={Translate("errorLocationNotCorrect", language)}
+        open={isErrorAlert}
+        setOpen={setIsErrorAlert}
+      />
+      <Alert
+        title={Translate("locationDenied", language)}
+        description={locationDenied.error}
+        open={locationDenied.status}
+        setOpen={(s) => setLocationDenied({ ...locationDenied, status: s })}
       />
       {/* <Spinner
         // isLoading={true}
@@ -287,4 +309,11 @@ export default () => {
       /> */}
     </>
   );
+};
+
+const styles = {
+  entryExitText: (isEntry) => ({ color: isEntry ? "red" : "#008800" }),
+  buttonsContainer: (isRTL) => ({
+    direction: isRTL ? "rtl" : "ltr",
+  }),
 };

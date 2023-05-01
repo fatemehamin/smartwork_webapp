@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "react-simple-snackbar";
+import { Translate } from "../i18n";
 import {
   PersonOutlineOutlined,
   WorkOutlineOutlined,
@@ -18,7 +19,7 @@ import {
   phoneNumberCheck,
 } from "../redux/action/authAction";
 
-export default () => {
+const Signup = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -33,6 +34,8 @@ export default () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const stateAuth = useSelector((state) => state.authReducer);
+  const { language } = useSelector((state) => state.configReducer);
+
   useEffect(() => {
     stateAuth.isError &&
       stateAuth.error.existsCompanyError != undefined &&
@@ -40,35 +43,69 @@ export default () => {
     // check phoneNumber realtime
     callingCode != phoneNumber && dispatch(phoneNumberCheck(phoneNumber));
   }, [phoneNumber, stateAuth.isError]);
+
+  const disableSignup = !(
+    password &&
+    rePassword &&
+    companyName &&
+    email &&
+    phoneNumber &&
+    firstName &&
+    lastName
+  );
+
+  const onSignupHandler = () => {
+    setIsPress(true);
+    !(
+      msgError.email(email) ||
+      msgError.password(password) ||
+      msgError.rePassword(rePassword, password) ||
+      stateAuth.isError
+    ) &&
+      dispatch(
+        createUserLoading(
+          firstName,
+          lastName,
+          companyName,
+          country,
+          callingCode,
+          phoneNumber,
+          email,
+          password,
+          navigate
+        )
+      );
+  };
+
   return (
     <>
-      <AppBar label="Signup" type="AUTH" />
+      <AppBar label={Translate("signup", language)} type="AUTH" />
       <Input
         value={firstName}
         setValue={setFirstName}
-        label="First Name"
-        placeholder="First Name"
+        label={Translate("firstName", language)}
+        placeholder={Translate("firstName", language)}
         Icon={PersonOutlineOutlined}
       />
       <Input
         value={lastName}
         setValue={setLastName}
-        label="Last name"
-        placeholder="Last name"
+        label={Translate("lastName", language)}
+        placeholder={Translate("lastName", language)}
         Icon={PersonOutlineOutlined}
       />
       <Input
         value={companyName}
         setValue={setCompanyName}
-        label="business Name"
-        placeholder="business Name"
+        label={Translate("businessName", language)}
+        placeholder={Translate("businessName", language)}
         Icon={WorkOutlineOutlined}
       />
       <Input
         value={phoneNumber}
         setValue={setPhoneNumber}
-        label="Phone Number"
-        placeholder="Phone Number"
+        label={Translate("phoneNumber", language)}
+        placeholder={Translate("phoneNumber", language)}
         country={country}
         setCountry={setCountry}
         callingCode={callingCode}
@@ -78,66 +115,39 @@ export default () => {
       <Input
         value={email}
         setValue={setEmail}
-        label="Email"
-        placeholder="Email"
-        msgError={isPress && msgError.email(email)}
+        label={Translate("email", language)}
+        placeholder={Translate("email", language)}
+        msgError={isPress && Translate(msgError.email(email), language)}
         Icon={EmailOutlined}
       />
       <Input
         value={password}
         setValue={setPassword}
-        label="Password"
-        placeholder="Password"
+        label={Translate("password", language)}
+        placeholder={Translate("password", language)}
         type="password"
-        msgError={isPress && msgError.password(password)}
+        msgError={isPress && Translate(msgError.password(password), language)}
         Icon={LockOutlined}
       />
       <Input
         value={rePassword}
         setValue={setRePassword}
-        label="Repeat Password"
-        placeholder="Repeat Password"
+        label={Translate("repeatPassword", language)}
+        placeholder={Translate("repeatPassword", language)}
         type="password"
-        msgError={isPress && msgError.rePassword(rePassword, password)}
+        msgError={
+          isPress &&
+          Translate(msgError.rePassword(rePassword, password), language)
+        }
         Icon={LockOutlined}
       />
       <Button
-        label="Signup"
-        disabled={
-          !(
-            password &&
-            rePassword &&
-            companyName &&
-            email &&
-            phoneNumber &&
-            firstName &&
-            lastName
-          )
-        }
-        onClick={() => {
-          setIsPress(true);
-          !(
-            msgError.email(email) ||
-            msgError.password(password) ||
-            msgError.rePassword(rePassword, password) ||
-            stateAuth.isError
-          ) &&
-            dispatch(
-              createUserLoading(
-                firstName,
-                lastName,
-                companyName,
-                country,
-                callingCode,
-                phoneNumber,
-                email,
-                password,
-                navigate
-              )
-            );
-        }}
+        label={Translate("signup", language)}
+        disabled={disableSignup}
+        onClick={onSignupHandler}
         isLoading={stateAuth.isLoading}
       />
     </>
   );
 };
+export default Signup;

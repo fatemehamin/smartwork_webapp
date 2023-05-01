@@ -8,20 +8,24 @@ import Button from "../components/Button";
 import Calendar from "../components/picker";
 import TextEdit from "../components/textEdit";
 import { useSnackbar } from "react-simple-snackbar";
+import { Translate } from "../i18n";
 import "./myReport.css";
 
-export default () => {
+const MyReport = () => {
   const employeeState = useSelector((state) => state.employeeReducer);
+  const { language, I18nManager } = useSelector((state) => state.configReducer);
   const dispatch = useDispatch();
   const [activeFilter, setActiveFilter] = useState("Summary");
   const [year, setYear] = useState(jMoment(new Date()).jYear());
   const [month, setMonth] = useState(jMoment(new Date()).jMonth());
   const [openSnackbar, closeSnackbar] = useSnackbar();
   const [isPress, setIsPress] = useState(false);
+
   const pad = (n) => (n < 10 ? "0" + n : n);
   useEffect(() => {
     isPress && employeeState.isError && openSnackbar(employeeState.error);
   }, [employeeState.isError]);
+
   //--------------------------------------- Details Report ---------------------------------------//
   const getDetailsReport = () =>
     employeeState.report != null &&
@@ -36,15 +40,19 @@ export default () => {
         const date = Object.keys(value)[0];
         return (
           <div key={index} className="MR_report">
-            <p className="MR_date">{date}</p>
+            <p className="MR_date" style={styles.textAlign(I18nManager.isRTL)}>
+              {date}
+            </p>
             {value[date].reportDay.length > 0 &&
               value[date].reportDay.map((v, i) => {
                 const duration = moment.duration(v.duration);
                 return (
                   duration != 0 && (
-                    <p key={i} className="MR_textReport">{`${
-                      v.project_name
-                    } : ${pad(duration.hours())}:${pad(
+                    <p
+                      style={styles.textAlign(I18nManager.isRTL)}
+                      key={i}
+                      className="MR_textReport"
+                    >{`${v.project_name} : ${pad(duration.hours())}:${pad(
                       duration.minutes()
                     )}:${pad(duration.seconds())}`}</p>
                   )
@@ -66,7 +74,12 @@ export default () => {
   const getSummaryReport = () =>
     employeeState.reportInMonth != null && (
       <div>
-        <p className="MR_date MR_textReport">Summary of the monthly report:</p>
+        <p
+          className="MR_date MR_textReport"
+          style={styles.textAlign(I18nManager.isRTL)}
+        >
+          {Translate("summaryOfTheMonthlyReport", language)}
+        </p>
         {Object.keys(employeeState.reportInMonth)
           .sort()
           .map((project, index) => {
@@ -74,7 +87,11 @@ export default () => {
               employeeState.reportInMonth[project]
             );
             return (
-              <p key={index} className="MR_textReport">
+              <p
+                key={index}
+                className="MR_textReport"
+                style={styles.textAlign(I18nManager.isRTL)}
+              >
                 {project == "entry" ? "Total Work Time" : project} :{" "}
                 {pad(parseInt(duration.asHours()))}:{pad(duration.minutes())}:
                 {pad(duration.seconds())}
@@ -94,7 +111,9 @@ export default () => {
           }`}
           onClick={() => setActiveFilter("Summary")}
         >
-          <span className="MR_filterText">Summary</span>
+          <span className="MR_filterText">
+            {Translate("summaryStatus", language)}
+          </span>
         </div>
         <div
           key="Details"
@@ -103,13 +122,15 @@ export default () => {
           }`}
           onClick={() => setActiveFilter("Details")}
         >
-          <span className="MR_filterText">Details</span>
+          <span className="MR_filterText">
+            {Translate("moreDetails", language)}
+          </span>
         </div>
       </div>
     );
   return (
     <>
-      <AppBar label="My Report" />
+      <AppBar label={Translate("myReport", language)} />
       <div className="MR_container">
         <Calendar
           year={year}
@@ -119,7 +140,7 @@ export default () => {
           isCalendar
         />
         <Button
-          label="Show Result"
+          label={Translate("showResult", language)}
           isLoading={employeeState.isLoading}
           onClick={() => {
             setIsPress(true);
@@ -139,3 +160,11 @@ export default () => {
     </>
   );
 };
+
+const styles = {
+  textAlign: (isRTL) => ({
+    textAlign: isRTL ? "right" : "left",
+  }),
+};
+
+export default MyReport;

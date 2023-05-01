@@ -7,8 +7,11 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
+import { useSelector } from "react-redux";
 
-export default ({ title, description, open, setOpen, ButtonAction }) => {
+const Alert = ({ title, description, open, setOpen, ButtonAction }) => {
+  const { I18nManager } = useSelector((state) => state.configReducer);
+
   return (
     <Dialog
       open={open}
@@ -16,7 +19,12 @@ export default ({ title, description, open, setOpen, ButtonAction }) => {
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
-      <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
+      <DialogTitle
+        id="alert-dialog-title"
+        style={styles.textAlign(I18nManager.isRTL)}
+      >
+        {title}
+      </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
           {description}
@@ -39,3 +47,11 @@ export default ({ title, description, open, setOpen, ButtonAction }) => {
     </Dialog>
   );
 };
+
+const styles = {
+  textAlign: (isRTL) => ({
+    textAlign: isRTL ? "right" : "left",
+  }),
+};
+
+export default Alert;

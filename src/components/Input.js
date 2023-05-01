@@ -3,8 +3,9 @@ import "./Input.css";
 import { Input, InputAdornment } from "@mui/material";
 import MuiPhoneNumber from "material-ui-phone-number";
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
+import { useSelector } from "react-redux";
 
-export default ({
+const CustomInput = ({
   setValue,
   label,
   type = "text",
@@ -19,9 +20,18 @@ export default ({
   ...props
 }) => {
   const [visiblePassword, setVisiblePassword] = useState(false);
+  const { I18nManager } = useSelector((state) => state.configReducer);
   return (
-    <div className="input_container">
-      <p className="titleInputContainer">{label}</p>
+    <div
+      className="input_container"
+      style={styles.container(I18nManager.isRTL, callingCode)}
+    >
+      <p
+        className="titleInputContainer"
+        style={styles.textAlign(I18nManager.isRTL)}
+      >
+        {label}
+      </p>
       {callingCode ? (
         <MuiPhoneNumber
           defaultCountry={country.toLowerCase()}
@@ -78,11 +88,23 @@ export default ({
           {...props}
         />
       )}
-      {msgError ? <p className="msgError">{msgError}</p> : null}
+      {msgError ? (
+        <p className="msgError" style={styles.textAlign(I18nManager.isRTL)}>
+          {msgError}
+        </p>
+      ) : null}
     </div>
   );
 };
 
 const styles = {
   IconSize: { fontSize: 18 },
+  container: (isRTL, callingCode) => ({
+    direction: isRTL && !callingCode ? "rtl" : "ltr",
+  }),
+  textAlign: (isRTL) => ({
+    textAlign: isRTL ? "right" : "left",
+  }),
 };
+
+export default CustomInput;

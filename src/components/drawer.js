@@ -23,14 +23,16 @@ import {
   Home,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
+import { Translate } from "../i18n";
 
-export default ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
+const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
   const iOS =
     typeof navigator !== "undefined" &&
     /iPad|iPhone|iPod/.test(navigator.userAgent);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const position = useSelector((state) => state.authReducer.type);
+  const { language, I18nManager } = useSelector((state) => state.configReducer);
   const [isAlert, setIsAlert] = useState(false);
   const toggleDrawer = (open) => (event) => {
     if (
@@ -57,7 +59,10 @@ export default ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
             {/* <ListItemIcon style={{ color: CurrentLabel == label && "#f6921e" }}>
               <Icon size="small" />
             </ListItemIcon> */}
-            <ListItemText primary={label} />
+            <ListItemText
+              primary={label}
+              style={{ textAlign: I18nManager.isRTL ? "right" : "left" }}
+            />
           </ListItemButton>
         </ListItem>
       );
@@ -70,25 +75,28 @@ export default ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
         onKeyDown={toggleDrawer(false)}
       >
         <List>
-          <img src={ImgDrawer} style={styles.img} />
+          <img src={ImgDrawer} style={styles.img} alt="SmartWorkDrawer" />
           <div style={styles.labelDrawer}>
             <p style={{ ...styles.text, fontWeight: "bold" }}>Smart Work</p>
-            <p style={styles.text}>v1.0.0</p>
+            <p style={styles.text}>v1.1.0</p>
           </div>
           {position === "boss" && (
             <Item
-              label="Home"
+              label={Translate("home", language)}
               Icon={Home}
               onClick={() => navigate("/manager")}
             />
           )}
           <Item
-            label={position === "boss" ? "My Tasks" : "Home"}
+            label={Translate(
+              position === "boss" ? "myTasks" : "home",
+              language
+            )}
             Icon={TaskAlt}
             onClick={() => navigate("/myTasks")}
           />
           <Item
-            label="My Report"
+            label={Translate("myReport", language)}
             Icon={Assessment}
             onClick={() => navigate("/myReport")}
           />
@@ -100,7 +108,7 @@ export default ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
                 onClick={() => navigate("/listOfProjects")}
               /> */}
               <Item
-                label="Location"
+                label={Translate("location", language)}
                 Icon={LocationSearching}
                 onClick={() => navigate("/location")}
               />
@@ -109,7 +117,7 @@ export default ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
           )}
           {(position === "financial" || position === "boss") && (
             <Item
-              label="Export Excel"
+              label={Translate("exportExcel", language)}
               Icon={InsertDriveFile}
               onClick={() => navigate("/exportExcel")}
             />
@@ -117,17 +125,21 @@ export default ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
         </List>
         <Divider />
         <List>
-          <Item label="Logout" Icon={Alert} onClick={() => setIsAlert(true)} />
+          <Item
+            label={Translate("logout", language)}
+            Icon={Alert}
+            onClick={() => setIsAlert(true)}
+          />
         </List>
         <Alert
           open={isAlert}
           setOpen={setIsAlert}
-          title="Logout"
-          description="Are you sure want to logout?"
+          title={Translate("logout", language)}
+          description={Translate("logoutDescription", language)}
           ButtonAction={[
-            { text: "No" },
+            { text: Translate("no", language) },
             {
-              text: "Yes",
+              text: Translate("yes", language),
               onClick: () => dispatch(logout(navigate)),
             },
           ]}
@@ -163,3 +175,5 @@ const styles = {
   text: { color: "#fff", lineHeight: 0.25 },
   list: { borderRadius: 5, width: 230, marginLeft: 10 },
 };
+
+export default Drawer;

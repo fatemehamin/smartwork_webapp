@@ -874,7 +874,7 @@ export const getEmployeeLocation = (phone_number) => {
   return (dispatch, getState) => {
     dispatch({ type: LOADING_MANAGER });
     axiosAPI
-      .get(`/location_user/${phone_number}`, {
+      .get(`/location_user/${phone_number}/`, {
         headers: {
           Authorization: `Bearer ${getState().authReducer.accessToken}`,
         },

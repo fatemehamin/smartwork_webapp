@@ -1,17 +1,15 @@
 const msgError = {
   email: (email) => {
     const regexEmail =
-      /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-    return regexEmail.test(email) ? "" : "Invalid email format.";
+      /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
+    return regexEmail.test(email) ? "" : "errorEmailFormat";
   },
   password: (password) => {
     const regexPassword = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-    return regexPassword.test(password)
-      ? ""
-      : "Minimum 8 characters, at least one letter and one number.";
+    return regexPassword.test(password) ? "" : "errorFormatPassword";
   },
   rePassword: (rePassword, password) => {
-    return password === rePassword ? "" : "Repeat password is incorrect.";
+    return password === rePassword ? "" : "errorRepeatPassword";
   },
 };
 

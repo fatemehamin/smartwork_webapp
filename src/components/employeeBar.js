@@ -5,7 +5,7 @@ import "./employeeBar.css";
 // import Icon from 'react-native-vector-icons/FontAwesome';
 // import {useNavigation} from '@react-navigation/native';
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { deleteEmployee } from "../redux/action/managerAction";
 // import {useDrawerStatus} from '@react-navigation/drawer';
 import {
@@ -15,6 +15,7 @@ import {
 } from "@mui/icons-material";
 import { animated, useSpring, useTransition } from "@react-spring/web";
 import Alert from "./Alert";
+import { Translate } from "../i18n";
 
 const EmployeeBar = ({
   firstName,
@@ -29,6 +30,8 @@ const EmployeeBar = ({
   const nodeRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [openAlertDelete, setOpenAlertDelete] = useState(false);
+  const { language, I18nManager } = useSelector((state) => state.configReducer);
+
   const [springs, api] = useSpring(() => ({
     from: {
       width: isOpen ? "%75" : "100%",
@@ -186,12 +189,12 @@ const EmployeeBar = ({
   //     opacity: animation,
   //   };
   return (
-    <div onClick={toggleOption} style={styles.container}>
+    <div onClick={toggleOption} style={styles.container(I18nManager.isRTL)}>
       <animated.div
         // onClick={toggleOption}
         // style={[styles.employeeDetails, barStyle]}
         style={{
-          ...styles.employeeDetails,
+          ...styles.employeeDetails(I18nManager.isRTL),
           ...springs,
           //  ...barStyle
         }}
@@ -199,14 +202,18 @@ const EmployeeBar = ({
         <div style={styles.avatar}>
           <PersonRounded style={styles.avatarIcon} fontSize="large" />
         </div>
-        <div style={styles.text}>{`${firstName} ${lastName}`}</div>
+        <div
+          style={styles.text(I18nManager.isRTL)}
+        >{`${firstName} ${lastName}`}</div>
         <div
           style={{
             ...styles.nowActiveProject,
             ...(nowActiveProject == "nothing" && { color: "#aaa" }),
           }}
         >
-          {nowActiveProject}
+          {nowActiveProject == "nothing"
+            ? Translate("nothing", language)
+            : nowActiveProject}
         </div>
       </animated.div>
       <animated.div
@@ -238,14 +245,15 @@ const EmployeeBar = ({
         />
       </animated.div>
       <Alert
-        title="Delete Employee"
-        description="Are you sure you want to delete this employee?"
+        title={Translate("deleteMember", language)}
+        deleteEmployee
+        description={Translate("deleteMemberDescription", language)}
         open={openAlertDelete}
         setOpen={setOpenAlertDelete}
         ButtonAction={[
-          { text: "No" },
+          { text: Translate("no", language) },
           {
-            text: "Yes",
+            text: Translate("yes", language),
             onClick: () => {
               setIsOpen(!isOpen);
               dispatch(deleteEmployee(phoneNumber));
@@ -258,17 +266,17 @@ const EmployeeBar = ({
 };
 
 const styles = {
-  container: {
-    // flexDirection: "row",
+  container: (isRTL) => ({
+    direction: isRTL ? "rtl" : "ltr",
     display: "flex",
-  },
-  employeeDetails: {
+  }),
+  employeeDetails: (isRTL) => ({
     height: 80,
     backgroundColor: "#fff",
     display: "flex",
     alignItems: "center",
     // justifyContent: "flex-start",
-    // flexDirection: "row",
+    direction: isRTL ? "rtl" : "ltr",
     // paddingHorizontal: 5,
     paddingLeft: 5,
     paddingRight: 5,
@@ -276,7 +284,7 @@ const styles = {
     borderBottomWidth: 1,
     borderBottomStyle: "solid",
     borderBottomColor: "#eee",
-  },
+  }),
   avatar: {
     backgroundColor: "#269dd870",
     width: 50,
@@ -292,12 +300,12 @@ const styles = {
     color: "#fff",
     textAlign: "center",
   },
-  text: {
+  text: (isRTL) => ({
     color: "#000",
     fontSize: 16,
     flexGrow: 0.9,
-    textAlign: "left",
-  },
+    textAlign: isRTL ? "right" : "left",
+  }),
   nowActiveProject: {
     color: "#d91c5c",
     // textAlign: "left",

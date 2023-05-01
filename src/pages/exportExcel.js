@@ -16,15 +16,17 @@ import { exportExcel } from "../redux/action/managerAction";
 import jMoment from "moment-jalaali";
 import Modal from "../components/modal";
 import Button from "../components/Button";
+import { Translate } from "../i18n";
 // import Share from "react-native-share";
 // import Spinner from "../components/spinner";
 import { getProject } from "../redux/action/employeeAction";
 // import Collapsible from "react-native-collapsible";
 
-export default () => {
+const ExportExcel = () => {
   const [year, setYear] = useState(jMoment(new Date()).jYear());
   const [month, setMonth] = useState(jMoment(new Date()).jMonth());
   const stateManager = useSelector((state) => state.managerReducer);
+  const { language, I18nManager } = useSelector((state) => state.configReducer);
   const [modalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSnackbar, setIsSnackbar] = useState(false);
@@ -65,7 +67,6 @@ export default () => {
     XLSX.utils.book_append_sheet(wb, ws, "ReportSheet");
     XLSX.writeFile(wb, `${filename}.xlsx`);
   };
-  console.log("ff", FilterProject);
   // const onShare = () => {
   //   const wbout = exportFile("base64");
   //   const uri = `${RNFS.CachesDirectoryPath}/${filename}.xlsx`;
@@ -135,51 +136,22 @@ export default () => {
       )
     );
   };
-  const getCheckBoxProject = () =>
-    stateManager.projects.map((project, index) => {
-      const [toggle, setToggle] = useState(false);
-      useEffect(() => {
-        setToggle(
-          FilterProject.filter((proFilter) => proFilter == project.project_name)
-            .length > 0
-        );
-      }, [
-        FilterProject.filter((proFilter) => proFilter == project.project_name)
-          .length > 0,
-      ]);
-      return (
-        <FormControlLabel
-          key={index}
-          control={
-            <Checkbox
-              checked={toggle}
-              disabled={stateManager.isLoading}
-              onChange={(e) => {
-                toggle
-                  ? setFilterProject(
-                      FilterProject.filter((p) => p !== project.project_name)
-                    )
-                  : setFilterProject([...FilterProject, project.project_name]);
-                setToggle(e.target.checked);
-              }}
-            />
-          }
-          label={project.project_name}
-        />
-      );
-    });
 
   return (
     <>
-      <AppBar label="Export Excel" />
+      <AppBar label={Translate("exportExcel", language)} />
       <div style={styles.container}>
         <div style={styles.text}>
-          Please select the desired date , member or project.
+          {Translate("selectDateMemberProject", language)}
         </div>
-        <Button onClick={() => setModalVisible(true)} label="Export Excel" />
+        <Button
+          onClick={() => setModalVisible(true)}
+          label={Translate("exportExcel", language)}
+        />
         {stateManager.report != null ? (
           <div style={styles.text}>
-            Excel {year}/{month + 1} {employees.name[indexEmployeeCurrent]} :
+            {Translate("excel", language)} {year}/{month + 1}{" "}
+            {employees.name[indexEmployeeCurrent]} :
           </div>
         ) : null}
         <ExcelFileView />
@@ -194,15 +166,20 @@ export default () => {
                 <ArrowBackIos />
               </span>
               <div style={{ ...styles.textHeaderModal, fontWeight: "500" }}>
-                remove filter
+                {Translate("removeFilter", language)}
               </div>
             </div>
             <div style={{ ...styles.textHeaderModal, paddingRight: 15 }}>
-              Export
+              {Translate("export", language)}
             </div>
           </div>
-          <div style={{ ...styles.sectionContainerModal, marginTop: 50 }}>
-            <div style={styles.text}>Choose Date :</div>
+          <div
+            style={{
+              ...styles.sectionContainerModal(I18nManager.isRTL),
+              marginTop: 50,
+            }}
+          >
+            <div style={styles.text}>{Translate("date", language)} : </div>
             <Calendar
               month={month}
               setMonth={setMonth}
@@ -211,9 +188,9 @@ export default () => {
               isCalendar
             />
           </div>
-          <div style={styles.sectionContainerModal}>
+          <div style={styles.sectionContainerModal(I18nManager.isRTL)}>
             <Calendar
-              label="Choose Member : "
+              label={`${Translate("member", language)} : `}
               onePicker={{
                 data: employees.name,
                 init: indexEmployeeCurrent,
@@ -221,12 +198,12 @@ export default () => {
               }}
             />
           </div>
-          <div style={styles.sectionContainerModal}>
+          <div style={styles.sectionContainerModal(I18nManager.isRTL)}>
             <div
               style={styles.Collapse}
               onClick={() => setIsCollapse(!isCollapse)}
             >
-              <span style={styles.text}>Projects</span>
+              <span style={styles.text}>{Translate("projects", language)}</span>
               {isCollapse ? <ExpandLess /> : <ExpandMore />}
             </div>
             <div>
@@ -235,20 +212,24 @@ export default () => {
                   <FormControlLabel
                     disabled
                     control={<Checkbox checked={true} />}
-                    label="entry & exit"
+                    label={Translate("entry&Exit", language)}
                   />
                   <FormControlLabel
                     disabled
                     control={<Checkbox checked={true} />}
-                    label="Daily Report"
+                    label={Translate("dailyReport", language)}
                   />
-                  {getCheckBoxProject()}
+                  {getCheckBoxProject(
+                    stateManager,
+                    FilterProject,
+                    setFilterProject
+                  )}
                 </FormGroup>
               </Collapse>
             </div>
           </div>
           <Button
-            label="Export"
+            label={Translate("export", language)}
             onClick={onExportFilterHandler}
             isLoading={stateManager.isLoading}
           />
@@ -258,6 +239,39 @@ export default () => {
     </>
   );
 };
+const getCheckBoxProject = (stateManager, FilterProject, setFilterProject) =>
+  stateManager.projects.map((project, index) => {
+    const [toggle, setToggle] = useState(false);
+    useEffect(() => {
+      setToggle(
+        FilterProject.filter((proFilter) => proFilter == project.project_name)
+          .length > 0
+      );
+    }, [
+      FilterProject.filter((proFilter) => proFilter == project.project_name)
+        .length > 0,
+    ]);
+    return (
+      <FormControlLabel
+        key={index}
+        control={
+          <Checkbox
+            checked={toggle}
+            disabled={stateManager.isLoading}
+            onChange={(e) => {
+              toggle
+                ? setFilterProject(
+                    FilterProject.filter((p) => p !== project.project_name)
+                  )
+                : setFilterProject([...FilterProject, project.project_name]);
+              setToggle(e.target.checked);
+            }}
+          />
+        }
+        label={project.project_name}
+      />
+    );
+  });
 const styles = {
   container: {
     justifyContent: "center",
@@ -308,13 +322,14 @@ const styles = {
     backgroundColor: "#176085",
     zIndex: 3,
   },
-  sectionContainerModal: {
+  sectionContainerModal: (isRTL) => ({
     backgroundColor: "#fff",
     width: "100%",
     marginBottom: 10,
     elevation: 1,
     padding: "15px 0px",
-  },
+    direction: isRTL ? "rtl" : "ltr",
+  }),
   text: {
     color: "#000",
     margin: "10px 0px",
@@ -362,3 +377,5 @@ const styles = {
   img: { width: 20, height: 20, marginLeft: 5 },
   backIcon: { color: "#fff", marginLeft: 10, marginTop: 3 },
 };
+
+export default ExportExcel;

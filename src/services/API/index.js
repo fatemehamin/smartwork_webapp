@@ -5,7 +5,10 @@ import jwtDecode from "jwt-decode";
 import { getProject } from "../../redux/action/employeeAction";
 import { getEmployee } from "../../redux/action/managerAction";
 
-const baseURL = "https://smartbyhub.com/smart_time/api";
+// const baseURL = 'https://smartbyhub.com/smart_time/api';
+// const baseURL = "http://127.0.0.1:8000/api";
+const baseURL = "https://smartwork.backend.smartbyhub.com/api";
+
 const axiosAPI = axios.create({ baseURL });
 
 axiosAPI.interceptors.response.use(
@@ -29,7 +32,7 @@ axiosAPI.interceptors.response.use(
           .then((res) =>
             store.dispatch(
               accessToken(res.data.access, () =>
-                store.getState().authReducer.type == "boss"
+                store.getState().authReducer.type === "boss"
                   ? store.getState().managerReducer.employees.length <= 0 &&
                     store.dispatch(getEmployee())
                   : store.getState().employeeReducer.projects.length <= 0 &&

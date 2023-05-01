@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Translate } from "../i18n";
+import { useSelector } from "react-redux";
 import "./floatingButton.css";
 import {
   PersonAddAltOutlined,
@@ -14,23 +16,25 @@ import {
   Fab,
 } from "@mui/material";
 
-export default ({
+const FloatingButton = ({
   type = "Add",
   setModalVisibleProject,
   setModalVisibleEmployee,
 }) => {
   const [open, setOpen] = useState(false);
+  const { language } = useSelector((state) => state.configReducer);
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const actions = [
     {
       icon: <PersonAddAltOutlined />,
-      name: "Add member",
+      name: Translate("addMember", language),
       onClick: () => setModalVisibleEmployee(true),
     },
     {
       icon: <NoteAddOutlined />,
-      name: "Add project",
+      name: Translate("addProject", language),
       onClick: () => setModalVisibleProject(true),
     },
   ];
@@ -76,3 +80,5 @@ const styles = {
     color: "#fff",
   },
 };
+
+export default FloatingButton;

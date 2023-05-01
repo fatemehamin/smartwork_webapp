@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import msgError from "../utils/msgError";
 import LocationCheckBox from "../components/checkBox";
+import { Translate } from "../i18n";
 import {
   accessExcel,
   addProjectToEmployee,
@@ -34,11 +35,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import {
-  KeyboardArrowDown,
-  KeyboardArrowRight,
-  Close,
-} from "@mui/icons-material";
+import { ExpandMore, ExpandLess, Close } from "@mui/icons-material";
 import Button from "../components/Button";
 // import TextInput from '../components/customTextInput';
 // import SwitchButton from '../components/switchButton';
@@ -49,16 +46,18 @@ import Button from "../components/Button";
 // import Spinner from '../components/spinner';
 // import Chip from '../components/chip';
 
-export default () => {
+const StatusMember = () => {
   const { currentPhoneNumber } = useParams();
   const [employeeCurrentPhone, setEmployeeCurrentPhone] =
     useState(currentPhoneNumber);
   const stateManager = useSelector((state) => state.managerReducer);
+  const { language, I18nManager } = useSelector((state) => state.configReducer);
+
   let findCurrent = stateManager.employees.filter(
-    (employee) => employee.phone_number == employeeCurrentPhone
+    (employee) => employee.phone_number === employeeCurrentPhone
   );
   const employeeCurrent =
-    findCurrent.length == 0 ? stateManager.employees[0] : findCurrent[0];
+    findCurrent.length === 0 ? stateManager.employees[0] : findCurrent[0];
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getProject());
@@ -76,21 +75,29 @@ export default () => {
           dispatch={dispatch}
           setEmployeeCurrentPhone={setEmployeeCurrentPhone}
           stateManager={stateManager}
+          language={language}
+          isRTL={I18nManager.isRTL}
         />
         <Excel
           stateManager={stateManager}
           employeeCurrent={employeeCurrent}
           dispatch={dispatch}
+          language={language}
+          isRTL={I18nManager.isRTL}
         />
         <Location
           stateManager={stateManager}
           employeeCurrent={employeeCurrent}
           dispatch={dispatch}
+          language={language}
+          isRTL={I18nManager.isRTL}
         />
         <Project
           stateManager={stateManager}
           employeeCurrent={employeeCurrent}
           dispatch={dispatch}
+          language={language}
+          isRTL={I18nManager.isRTL}
         />
       </div>
       {/* <Spinner isLoading={stateManager.isLoading} /> */}
@@ -98,17 +105,20 @@ export default () => {
   );
 };
 //--------------------------------------------- Custom Collapse ------------------------------------------------//
-const CustomCollapse = ({ label, content }) => {
+const CustomCollapse = ({ label, content, isRTL }) => {
   const [isCollapse, setIsCollapse] = useState(false);
   return (
     <>
-      <div style={styles.Collapse} onClick={() => setIsCollapse(!isCollapse)}>
+      <div
+        style={styles.Collapse(isRTL)}
+        onClick={() => setIsCollapse(!isCollapse)}
+      >
         <span>{label}</span>
         <span style={{ color: "#f6921e" }}>
           {isCollapse ? (
-            <KeyboardArrowDown fontSize="large" />
+            <ExpandLess fontSize="large" />
           ) : (
-            <KeyboardArrowRight fontSize="large" />
+            <ExpandMore fontSize="large" />
           )}
         </span>
       </div>
@@ -117,13 +127,17 @@ const CustomCollapse = ({ label, content }) => {
   );
 };
 //------------------------------------------------- main title -------------------------------------------------//
-const MainTitle = ({ title }) => <div style={styles.mainTitle}>{title}</div>;
+const MainTitle = ({ title, isRTL }) => (
+  <div style={styles.mainTitle(isRTL)}>{title}</div>
+);
 //-------------------------------------------- personal information --------------------------------------------//
 const PersonalInformation = ({
   employeeCurrent,
   dispatch,
   setEmployeeCurrentPhone,
   stateManager,
+  language,
+  isRTL,
 }) => {
   const [firstName, setFirstName] = useState(employeeCurrent.first_name);
   const [lastName, setLastName] = useState(employeeCurrent.last_name);
@@ -147,34 +161,37 @@ const PersonalInformation = ({
   }, [firstName, lastName, email, phoneNumber, callingCode]);
   return (
     <div style={styles.sectionContainer}>
-      <MainTitle title="Personal Information" />
+      <MainTitle
+        title={Translate("personalInformation", language)}
+        isRTL={isRTL}
+      />
       <Input
         value={firstName}
         setValue={setFirstName}
-        label="First Name"
-        placeholder="First Name"
+        label={Translate("firstName", language)}
+        placeholder={Translate("firstName", language)}
         Icon={PersonOutlineOutlined}
       />
       <Input
         value={lastName}
         setValue={setLastName}
-        label="Last name"
-        placeholder="Last name"
+        label={Translate("lastName", language)}
+        placeholder={Translate("lastName", language)}
         Icon={PersonOutlineOutlined}
       />
       <Input
         value={email}
         setValue={setEmail}
-        label="Email"
-        placeholder="Email"
+        label={Translate("email", language)}
+        placeholder={Translate("email", language)}
         Icon={EmailOutlined}
-        msgError={isEdit && msgError.email(email)}
+        msgError={isEdit && Translate(msgError.email(email), language)}
       />
       <Input
         value={phoneNumber}
         setValue={setPhoneNumber}
-        label="Phone Number"
-        placeholder="Phone Number"
+        label={Translate("phoneNumber", language)}
+        placeholder={Translate("phoneNumber", language)}
         country={country}
         setCountry={setCountry}
         callingCode={callingCode}
@@ -184,7 +201,7 @@ const PersonalInformation = ({
       {isEdit && (
         <div style={styles.buttonContainer}>
           <Button
-            label="Cancel"
+            label={Translate("cancel", language)}
             customStyle={{ width: "40%" }}
             type="SECONDARY"
             onClick={() => {
@@ -198,7 +215,7 @@ const PersonalInformation = ({
             }}
           />
           <Button
-            label="Confirm"
+            label={Translate("ok", language)}
             customStyle={{ width: "40%" }}
             isLoading={stateManager.isLoading}
             onClick={() => {
@@ -224,17 +241,25 @@ const PersonalInformation = ({
   );
 };
 //--------------------------------------------------- Excel ----------------------------------------------------//
-const Excel = ({ stateManager, employeeCurrent, dispatch }) => {
+const Excel = ({
+  stateManager,
+  employeeCurrent,
+  dispatch,
+  language,
+  isRTL,
+}) => {
   const [isChecked, setIsChecked] = useState(
-    (employeeCurrent.financial_group == true ||
-      employeeCurrent.financial_group == "true") &&
+    (employeeCurrent.financial_group === true ||
+      employeeCurrent.financial_group === "true") &&
       true
   );
   return (
     <div style={styles.sectionContainer}>
-      <MainTitle title="Excel" />
-      <div style={styles.sectionPart}>
-        <div style={styles.SectionDescription}>Access Excel</div>
+      <MainTitle title={Translate("excel", language)} isRTL={isRTL} />
+      <div style={styles.sectionPart(isRTL)}>
+        <div style={styles.SectionDescription}>
+          {Translate("accessExcel", language)}
+        </div>
         <Switch
           checked={isChecked}
           disabled={stateManager.isLoading}
@@ -254,24 +279,30 @@ const Excel = ({ stateManager, employeeCurrent, dispatch }) => {
   );
 };
 //------------------------------------------------- Location ---------------------------------------------------//
-const Location = ({ stateManager, employeeCurrent, dispatch }) => {
+const Location = ({
+  stateManager,
+  employeeCurrent,
+  dispatch,
+  language,
+  isRTL,
+}) => {
   useEffect(() => {
     dispatch(getEmployeeLocation(employeeCurrent.phone_number));
-  }, []);
+  }, [dispatch]);
   return (
     <div style={{ ...styles.sectionContainer, alignItems: "flex-start" }}>
-      <MainTitle title="Location" />
+      <MainTitle title={Translate("location", language)} isRTL={isRTL} />
       <CustomCollapse
-        label="Add location to member."
+        label={Translate("addLocationToMember", language)}
         content={() =>
           stateManager.locations.map((location, index) => (
             <LocationCheckBox
               name={location.location_name}
               key={index}
               toggle={
-                employeeCurrent.location != undefined &&
+                employeeCurrent.location !== undefined &&
                 employeeCurrent.location.filter(
-                  (loc) => loc.location_name == location.location_name
+                  (loc) => loc.location_name === location.location_name
                 ).length > 0
               }
               employeeCurrentPhone={employeeCurrent.phone_number}
@@ -279,15 +310,22 @@ const Location = ({ stateManager, employeeCurrent, dispatch }) => {
             />
           ))
         }
+        isRTL={isRTL}
       />
     </div>
   );
 };
 //-------------------------------------------------- Project ---------------------------------------------------//
-const Project = ({ stateManager, employeeCurrent, dispatch }) => {
+const Project = ({
+  stateManager,
+  employeeCurrent,
+  dispatch,
+  language,
+  isRTL,
+}) => {
   const pickerItems = stateManager.projects.filter((pikerItem) => {
     for (const projectEmployee of employeeCurrent.project_list) {
-      if (projectEmployee.project_name == pikerItem.project_name) {
+      if (projectEmployee.project_name === pikerItem.project_name) {
         return false;
       }
     }
@@ -317,14 +355,16 @@ const Project = ({ stateManager, employeeCurrent, dispatch }) => {
         </div>
       ))
     ) : (
-      <span style={styles.noProjectFiled}>Add project to member ...</span>
+      <span style={styles.noProjectFiled}>
+        {Translate("addProjectToMember", language)} ...
+      </span>
     );
   };
   return (
     <div style={styles.sectionContainer}>
-      <MainTitle title="Project" />
+      <MainTitle title={Translate("project", language)} isRTL={isRTL} />
       <CustomCollapse
-        label="Add project to member."
+        label={Translate("addProjectToMember.", language)}
         content={() => (
           <div style={styles.project}>
             <div style={styles.containerSelectedProjectEmployee}>
@@ -350,16 +390,18 @@ const Project = ({ stateManager, employeeCurrent, dispatch }) => {
                 ))
               ) : (
                 <p style={styles.noProjectDefine}>
-                  Please define new projects.
+                  {Translate("defineNewProjects", language)}
                 </p>
               )}
             </div>
           </div>
         )}
+        isRTL={isRTL}
       />
     </div>
   );
 };
+
 const styles = {
   sectionContainer: {
     backgroundColor: "#fff",
@@ -368,24 +410,25 @@ const styles = {
     boxShadow: "-2px 3px 12px -5px rgba(0,0,0,0.31)",
     padding: "15px 0px",
   },
-  mainTitle: {
-    textAlign: "left",
+  mainTitle: (isRTL) => ({
+    textAlign: isRTL ? "right" : "left",
     margin: "0px 20px",
     fontWeight: "bold",
     color: "#176085",
-  },
+  }),
   buttonContainer: {
     display: "flex",
     justifyContent: "space-evenly",
     alignSelf: "stretch",
   },
-  sectionPart: {
+  sectionPart: (isRTL) => ({
     display: "flex",
+    direction: isRTL ? "rtl" : "ltr",
     alignSelf: "stretch",
     justifyContent: "space-between",
     margin: "0px 20px",
     marginTop: 10,
-  },
+  }),
   containerSelectedProjectEmployee: {
     flexWrap: "wrap",
     display: "flex",
@@ -431,13 +474,13 @@ const styles = {
     flexDirection: "column",
     alignItems: "center",
   },
-  Collapse: {
+  Collapse: (isRTL) => ({
     display: "flex",
     justifyContent: "space-between",
-    flexDirection: "row",
+    direction: isRTL ? "rtl" : "ltr",
     alignItems: "center",
     padding: "0px 30px",
-  },
+  }),
   checkbox: {
     flexDirection: "row",
     padding: 5,
@@ -445,3 +488,5 @@ const styles = {
     alignItems: "center",
   },
 };
+
+export default StatusMember;

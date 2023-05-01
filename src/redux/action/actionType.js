@@ -48,3 +48,6 @@ export const DAILY_REPORT = "DAILY_REPORT";
 export const ENTRY = "ENTRY";
 export const EXIT = "EXIT";
 export const LOCATION = "LOCATION";
+
+//--------------------------------- config type ---------------------------------//
+export const CHANGE_LANGUAGE = "CHANGE_LANGUAGE";

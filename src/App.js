@@ -15,7 +15,7 @@ const theme = createTheme({
     white: { main: "#fff" },
   },
 });
-export default () => {
+const App = () => {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
@@ -30,3 +30,5 @@ export default () => {
     </Provider>
   );
 };
+
+export default App;

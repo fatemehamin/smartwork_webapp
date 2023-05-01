@@ -8,6 +8,7 @@ import msgError from "../utils/msgError";
 import EmployeeBar from "../components/employeeBar";
 import { useSnackbar } from "react-simple-snackbar";
 import { useDispatch, useSelector } from "react-redux";
+import { Translate } from "../i18n";
 import {
   PersonOutlineOutlined,
   EmailOutlined,
@@ -31,6 +32,7 @@ const Manager = () => {
   const [openSnackbar, closeSnackbar] = useSnackbar();
   const dispatch = useDispatch();
   const stateManager = useSelector((state) => state.managerReducer);
+  const { language, I18nManager } = useSelector((state) => state.configReducer);
 
   useEffect(() => {
     isPress && stateManager.isError && openSnackbar(stateManager.error);
@@ -65,6 +67,8 @@ const Manager = () => {
         dispatch={dispatch}
         stateManager={stateManager}
         openSnackbar={openSnackbar}
+        language={language}
+        isRTL={I18nManager.isRTL}
       />
       <AddProjectModal
         modalVisibleProject={modalVisibleProject}
@@ -72,6 +76,8 @@ const Manager = () => {
         dispatch={dispatch}
         stateManager={stateManager}
         setIsPress={setIsPress}
+        language={language}
+        isRTL={I18nManager.isRTL}
       />
       {!(modalVisibleEmployee || modalVisibleProject) ? (
         <FloatingButton
@@ -92,7 +98,9 @@ const AddEmployeeModal = ({
   setModalVisibleEmployee,
   dispatch,
   stateManager,
+  language,
   openSnackbar,
+  isRTL,
 }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -111,24 +119,24 @@ const AddEmployeeModal = ({
       modalVisible={modalVisibleEmployee}
       setModalVisible={setModalVisibleEmployee}
     >
-      <h2 style={styles.textCenter}>Member profile</h2>
+      <h2 style={styles.textCenter}>{Translate("memberProfile", language)}</h2>
       <Input
-        label="First name"
-        placeholder="First name"
+        label={Translate("firstName", language)}
+        placeholder={Translate("firstName", language)}
         Icon={PersonOutlineOutlined}
         value={firstName}
         setValue={setFirstName}
       />
       <Input
-        label="Last name"
-        placeholder="Last name"
+        label={Translate("lastName", language)}
+        placeholder={Translate("lastName", language)}
         Icon={PersonOutlineOutlined}
         value={lastName}
         setValue={setLastName}
       />
       <Input
-        label="Phone number"
-        placeholder="Phone Number"
+        label={Translate("phoneNumber", language)}
+        placeholder={Translate("phoneNumber", language)}
         callingCode={callingCode}
         setCallingCode={setCallingCode}
         value={phoneNumber}
@@ -140,40 +148,38 @@ const AddEmployeeModal = ({
         // }
       />
       <Input
-        label="Email"
-        placeholder="Email"
+        label={Translate("email", language)}
+        placeholder={Translate("email", language)}
         Icon={EmailOutlined}
         value={email}
         setValue={setEmail}
-        msgError={isPress && msgError.email(email)}
+        msgError={isPress && Translate(msgError.email(email), language)}
       />
       <Input
-        label="Password"
-        placeholder="Password"
+        label={Translate("password", language)}
+        placeholder={Translate("password", language)}
+        repeatPassword
         Icon={LockOutlined}
         value={password}
         setValue={setPassword}
         type="password"
-        msgError={isPress && msgError.password(password)}
+        msgError={isPress && Translate(msgError.password(password), language)}
       />
       <Input
-        label="Repeat password"
-        placeholder="Repeat Password"
+        label={Translate("repeatPassword", language)}
+        placeholder={Translate("repeatPassword", language)}
         Icon={LockOutlined}
         type="password"
         value={rePassword}
         setValue={setRePassword}
-        msgError={isPress && msgError.rePassword(rePassword, password)}
+        msgError={
+          isPress &&
+          Translate(msgError.rePassword(rePassword, password), language)
+        }
       />
-      <div style={styles.containerButton}>
+      <div style={styles.containerButton(isRTL)}>
         <Button
-          label="Cancel"
-          customStyle={{ width: "40%" }}
-          onClick={() => setModalVisibleEmployee(!modalVisibleEmployee)}
-          type="SECONDARY"
-        />
-        <Button
-          label="Add"
+          label={Translate("add", language)}
           customStyle={{ width: "40%" }}
           isLoading={stateManager.isLoading}
           disabled={
@@ -214,6 +220,12 @@ const AddEmployeeModal = ({
               );
           }}
         />
+        <Button
+          label={Translate("cancel", language)}
+          customStyle={{ width: "40%" }}
+          onClick={() => setModalVisibleEmployee(!modalVisibleEmployee)}
+          type="SECONDARY"
+        />
       </div>
     </Modal>
   );
@@ -225,6 +237,8 @@ const AddProjectModal = ({
   dispatch,
   stateManager,
   setIsPress,
+  language,
+  isRTL,
 }) => {
   const [projectName, setProjectName] = useState("");
   return (
@@ -232,22 +246,16 @@ const AddProjectModal = ({
       modalVisible={modalVisibleProject}
       setModalVisible={setModalVisibleProject}
     >
-      <h2 style={styles.textCenter}>Add project</h2>
+      <h2 style={styles.textCenter}>{Translate("addProject", language)}</h2>
       <Input
         value={projectName}
         setValue={setProjectName}
         autoFocus
-        placeholder="Project Name"
+        placeholder={Translate("projectName", language)}
       />
-      <div style={styles.containerButton}>
+      <div style={styles.containerButton(isRTL)}>
         <Button
-          label="Cancel"
-          customStyle={{ width: "40%" }}
-          onClick={() => setModalVisibleProject(!modalVisibleProject)}
-          type="SECONDARY"
-        />
-        <Button
-          label="Add"
+          label={Translate("add", language)}
           customStyle={{ width: "40%" }}
           isLoading={stateManager.isLoading}
           onClick={() => {
@@ -256,6 +264,12 @@ const AddProjectModal = ({
             setModalVisibleProject(!modalVisibleProject);
           }}
         />
+        <Button
+          label={Translate("cancel", language)}
+          customStyle={{ width: "40%" }}
+          onClick={() => setModalVisibleProject(!modalVisibleProject)}
+          type="SECONDARY"
+        />
       </div>
     </Modal>
   );
@@ -263,12 +277,12 @@ const AddProjectModal = ({
 
 const styles = {
   textCenter: { textAlign: "center" },
-  containerButton: {
-    flexDirection: "row",
+  containerButton: (isRTL) => ({
+    direction: isRTL ? "rtl" : "ltr",
     justifyContent: "space-evenly",
     alignSelf: "stretch",
     display: "flex",
-  },
+  }),
 };
 
 export default Manager;

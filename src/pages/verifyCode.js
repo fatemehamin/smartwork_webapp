@@ -6,19 +6,21 @@ import CodeField from "../components/codeField";
 import "./verifyCode.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
+import { Translate } from "../i18n";
 import {
   createUserLoading,
   forgotPassword,
   verifyCode,
 } from "../redux/action/authAction";
 
-export default () => {
+const VerifyCode = () => {
   const { phoneNumber, type } = useParams();
   const [code, setCode] = useState("");
   const [time, setTime] = useState(120);
   const [isPress, setIsPress] = useState(false);
   const [startTime, setStartTime] = useState(new Date().getTime());
   const stateAuth = useSelector((state) => state.authReducer);
+  const { language } = useSelector((state) => state.configReducer);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [openSnackbar, closeSnackbar] = useSnackbar();
@@ -34,68 +36,78 @@ export default () => {
       return () => clearInterval(intervalId);
     }
   }, [time, stateAuth.isError, isPress]);
+
+  const onReSendCodeHandler = () => {
+    setStartTime(() => new Date().getTime());
+    setTime(120);
+    type === "forgotPassword"
+      ? dispatch(forgotPassword(stateAuth.user.username))
+      : dispatch(
+          createUserLoading(
+            stateAuth.user.firstName,
+            stateAuth.user.lastName,
+            stateAuth.user.companyName,
+            stateAuth.user.country,
+            stateAuth.user.callingCode,
+            stateAuth.user.phoneNumber,
+            stateAuth.user.email,
+            stateAuth.user.password
+          )
+        );
+  };
+
+  const onVerifyCodeHandler = () => {
+    setIsPress(true);
+    dispatch(
+      verifyCode(
+        code,
+        stateAuth.user.email,
+        stateAuth.user.firstName,
+        stateAuth.user.lastName,
+        stateAuth.user.companyName,
+        stateAuth.user.password,
+        stateAuth.user.country,
+        stateAuth.user.callingCode,
+        stateAuth.user.phoneNumber,
+        navigate,
+        type,
+        setIsPress
+      )
+    );
+  };
+
   return (
     <>
-      <AppBar label="Verification Code" type="back" />
+      <AppBar label={Translate("verificationCode", language)} type="back" />
       <div className="Verify_description">
-        Please type the verification code sent {"\n"} to {phoneNumber}
+        {Translate("typeVerificationCode", language)}
+        <br />
+        {phoneNumber}
       </div>
       <CodeField code={code} setCode={setCode} cellCount={5} />
       <div className="Verify_timer">
         {time >= 0 ? (
           <span style={styles.textResend}>
-            Re-send the code in {time} seconds{" "}
+            {Translate("reSendCodeIn", language) +
+              time +
+              Translate("seconds", language)}
           </span>
         ) : (
-          <div
-            onClick={() => {
-              setStartTime(() => new Date().getTime());
-              setTime(120);
-              type == "forgotPassword"
-                ? dispatch(forgotPassword(stateAuth.user.username))
-                : dispatch(
-                    createUserLoading(
-                      stateAuth.user.firstName,
-                      stateAuth.user.lastName,
-                      stateAuth.user.companyName,
-                      stateAuth.user.country,
-                      stateAuth.user.callingCode,
-                      stateAuth.user.phoneNumber,
-                      stateAuth.user.email,
-                      stateAuth.user.password
-                    )
-                  );
-            }}
-          >
-            <span className="Verify_textTimeout">Re-send code</span>
+          <div onClick={onReSendCodeHandler}>
+            <span className="Verify_textTimeout">
+              {Translate("reSendCode", language)}
+            </span>
           </div>
         )}
       </div>
       <Button
         isLoading={stateAuth.isLoading}
-        label="Verify"
-        onClick={() => {
-          setIsPress(true);
-          dispatch(
-            verifyCode(
-              code,
-              stateAuth.user.email,
-              stateAuth.user.firstName,
-              stateAuth.user.lastName,
-              stateAuth.user.companyName,
-              stateAuth.user.password,
-              stateAuth.user.country,
-              stateAuth.user.callingCode,
-              stateAuth.user.phoneNumber,
-              navigate,
-              type,
-              setIsPress
-            )
-          );
-        }}
+        label={Translate("verifyCode", language)}
+        onClick={onVerifyCodeHandler}
         disabled={code.length < 5}
       />
     </>
   );
 };
 const styles = { textResend: { color: "#777" } };
+export default VerifyCode;

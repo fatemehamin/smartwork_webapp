@@ -1,8 +1,10 @@
 import React from "react";
 import { MenuItem, FormControl, Select, InputLabel } from "@mui/material";
 import jMoment from "moment-jalaali";
+import { Translate } from "../i18n";
+import { useSelector } from "react-redux";
 
-export default ({
+const Calender = ({
   month,
   setMonth,
   year,
@@ -11,32 +13,36 @@ export default ({
   onePicker,
   label,
 }) => {
+  const { language, I18nManager } = useSelector((state) => state.configReducer);
   const JMonth = [
-    "Farvardin",
-    "Ordibehesht",
-    "Khordad",
-    "Tir",
-    "Mordad",
-    "Shahrivar",
-    "Mehr",
-    "Aban",
-    "Azar",
-    "Dey",
-    "Bahman",
-    "Esfand",
+    Translate("Farvardin", language),
+    Translate("Ordibehesht", language),
+    Translate("Khordad", language),
+    Translate("Tir", language),
+    Translate("Mordad", language),
+    Translate("Shahrivar", language),
+    Translate("Mehr", language),
+    Translate("Aban", language),
+    Translate("Azar", language),
+    Translate("Dey", language),
+    Translate("Bahman", language),
+    Translate("Esfand", language),
   ];
+
   const getYears = () => {
     let Years = [];
-    for (let y = 1400; y <= jMoment(new Date()).jYear(); y++) {
+    for (let y = 1401; y <= jMoment(new Date()).jYear(); y++) {
       Years = [...Years, y.toString()];
     }
     return Years;
   };
   return !isCalendar ? (
-    <div style={styles.onePickerContainer}>
+    <div style={styles.onePickerContainer(I18nManager.isRTL)}>
       <div style={styles.text}>{label}</div>
       <FormControl sx={{ m: 1, minWidth: 150 }}>
-        <InputLabel id="demo-simple-select-helper-label">Member</InputLabel>
+        <InputLabel id="demo-simple-select-helper-label">
+          {Translate("member", language)}
+        </InputLabel>
         <Select
           value={onePicker.init}
           onChange={(event) => onePicker.onSelect(event.target.value)}
@@ -54,7 +60,9 @@ export default ({
   ) : (
     <>
       <FormControl sx={{ m: 1, minWidth: 150 }} key="Year">
-        <InputLabel id="demo-simple-select-helper-label">Year</InputLabel>
+        <InputLabel id="demo-simple-select-helper-label">
+          {Translate("year", language)}
+        </InputLabel>
         <Select
           value={year}
           onChange={(event) => setYear(event.target.value)}
@@ -69,7 +77,9 @@ export default ({
         </Select>
       </FormControl>
       <FormControl sx={{ m: 1, minWidth: 150 }} key="Month">
-        <InputLabel id="demo-simple-select-helper-label">Month</InputLabel>
+        <InputLabel id="demo-simple-select-helper-label">
+          {Translate("month", language)}
+        </InputLabel>
         <Select
           value={month}
           onChange={(event) => setMonth(event.target.value)}
@@ -95,9 +105,11 @@ const styles = {
     paddingLeft: 10,
     textAlign: "left",
   },
-  onePickerContainer: {
-    flexDirection: "row",
+  onePickerContainer: (isRTL) => ({
+    direction: isRTL ? "rtl" : "ltr",
     display: "flex",
     alignItems: "center",
-  },
+  }),
 };
+
+export default Calender;

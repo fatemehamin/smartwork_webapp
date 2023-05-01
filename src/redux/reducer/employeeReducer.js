@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 import {
   LOADING_EMPLOYEE,
   LOADED_EMPLOYEE,
@@ -46,37 +47,32 @@ export default (preState = initialState, action) => {
     }
     case GET_TASKS_EMPLOYEE: {
       const { data, dailyReport, startTime } = action.payload;
-      let entry = 0;
       let newCurrentTask = {
         name: "",
         start: 0,
       };
-      const newProject =
-        data === undefined
-          ? null
-          : data
-              .filter((project) => {
-                entry =
-                  project.project_name === "entry" ? project.start_time : 0;
-                return project.project_name !== "entry";
-              })
-              .map((project) => {
-                if (project.start_time) {
-                  newCurrentTask = {
-                    name: project.project_name,
-                    start:
-                      startTime !== null // if start time storage in phone delete and be null give start time data base
-                        ? parseInt(startTime)
-                        : project.start_time,
-                  };
-                }
-                return {
-                  project_name: project.project_name,
-                  startTime: parseInt(project.start_time),
-                  endTime: 0,
-                  duration: parseInt(project.today_duration),
-                };
-              });
+      const entry = data.find(
+        (project) => project.project_name === "entry"
+      ).start_time;
+      const newProject = data
+        .filter((project) => project.project_name !== "entry")
+        .map((project) => {
+          if (project.start_time) {
+            newCurrentTask = {
+              name: project.project_name,
+              start:
+                startTime !== null // if start time storage in phone delete and be null give start time data base
+                  ? parseInt(startTime)
+                  : project.start_time,
+            };
+          }
+          return {
+            project_name: project.project_name,
+            startTime: parseInt(project.start_time),
+            endTime: 0,
+            duration: parseInt(project.today_duration),
+          };
+        });
       const todayDate = new Date().toISOString().slice(0, 10);
       return {
         ...preState,

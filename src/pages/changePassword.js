@@ -7,58 +7,63 @@ import msgError from "../utils/msgError";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "react-simple-snackbar";
-import { ChangePassword } from "../redux/action/authAction";
+import { changePassword } from "../redux/action/authAction";
 import { useEffect } from "react";
+import { Translate } from "../i18n";
 
-export default () => {
+const ChangePassword = () => {
   const [password, setPassword] = useState("");
   const [rePassword, setRePassword] = useState("");
   const [isPress, setIsPress] = useState(false);
   const [openSnackbar, closeSnackbar] = useSnackbar();
   const stateAuth = useSelector((state) => state.authReducer);
+  const { language } = useSelector((state) => state.configReducer);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   useEffect(() => {
     stateAuth.isError && openSnackbar(stateAuth.error);
   }, [stateAuth.isError]);
 
+  const onChangePassHandler = () => {
+    setIsPress(true);
+    !(
+      msgError.rePassword(rePassword, password) || msgError.password(password)
+    ) && dispatch(changePassword(stateAuth.user.username, password, navigate));
+  };
+
   return (
     <>
-      <AppBar label="Change password" type="back" />
+      <AppBar label={Translate("changePassword", language)} type="back" />
       <Input
         value={password}
         setValue={setPassword}
-        label="Password"
-        placeholder="Password"
+        label={Translate("password", language)}
+        placeholder={Translate("password", language)}
         type="password"
-        msgError={isPress && msgError.password(password)}
+        msgError={isPress && Translate(msgError.password(password), language)}
         Icon={LockOutlined}
       />
       <Input
         value={rePassword}
         setValue={setRePassword}
-        label="Repeat Password"
-        placeholder="Repeat Password"
+        label={Translate("repeatPassword", language)}
+        placeholder={Translate("repeatPassword", language)}
         type="password"
-        msgError={isPress && msgError.rePassword(rePassword, password)}
+        msgError={
+          isPress &&
+          Translate(msgError.rePassword(rePassword, password), language)
+        }
         Icon={LockOutlined}
       />
       <Button
-        label="Change Password"
+        label={Translate("changePassword", language)}
         disabled={!(password && rePassword)}
-        onClick={() => {
-          console.log("Change Password");
-          setIsPress(true);
-          !(
-            msgError.rePassword(rePassword, password) ||
-            msgError.password(password)
-          ) &&
-            dispatch(
-              ChangePassword(stateAuth.user.username, password, navigate)
-            );
-        }}
+        onClick={onChangePassHandler}
         isLoading={stateAuth.isLoading}
       />
     </>
   );
 };
+
+export default ChangePassword;

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 import {
   addLocationToEmployee,
   DeleteLocationFromEmployee,
 } from "../redux/action/managerAction";
 
-export default ({
+const CheckBox = ({
   name,
   toggle,
   employeeCurrentPhone,
@@ -15,40 +15,53 @@ export default ({
   setFilterProject,
   FilterProject,
 }) => {
+  console.log(
+    "fff",
+    name,
+    toggle,
+    employeeCurrentPhone,
+    disabled,
+    type,
+    setFilterProject,
+    FilterProject
+  );
   const [toggleCheckBox, setToggleCheckBox] = useState(false);
+  const { I18nManager } = useSelector((state) => state.configReducer);
   const dispatch = useDispatch();
   useEffect(() => {
     setToggleCheckBox(toggle);
   }, [toggle]);
-  // const onPressHandler = (e) => {
-  //   type == "Location"
-  //     ? e.target.checked
-  //       ? dispatch(
-  //           addLocationToEmployee(employeeCurrentPhone, name, setToggleCheckBox)
-  //         )
-  //       : dispatch(
-  //           DeleteLocationFromEmployee(
-  //             employeeCurrentPhone,
-  //             name,
-  //             setToggleCheckBox
-  //           )
-  //         )
-  //     : (toggleCheckBox
-  //         ? setFilterProject(
-  //             FilterProject.filter((project) => project !== name)
-  //           )
-  //         : setFilterProject([...FilterProject, name]),
-  //       setToggleCheckBox(!toggleCheckBox));
-  // };
+
+  const onPressHandler = (e) => {
+    return type == "Location"
+      ? e.target.checked
+        ? dispatch(
+            addLocationToEmployee(employeeCurrentPhone, name, setToggleCheckBox)
+          )
+        : dispatch(
+            DeleteLocationFromEmployee(
+              employeeCurrentPhone,
+              name,
+              setToggleCheckBox
+            )
+          )
+      : (toggleCheckBox
+          ? setFilterProject(
+              FilterProject.filter((project) => project !== name)
+            )
+          : setFilterProject([...FilterProject, name]),
+        setToggleCheckBox(!toggleCheckBox));
+  };
 
   return (
-    <FormGroup style={styles.container}>
+    <FormGroup style={styles.container(I18nManager.isRTL)}>
       <FormControlLabel
         control={
           <Checkbox
             color="secondary"
             disabled={disabled}
-            // onChange={onPressHandler}
+            checked={toggleCheckBox}
+            onChange={onPressHandler}
           />
         }
         label={name}
@@ -57,10 +70,11 @@ export default ({
   );
 };
 const styles = {
-  container: {
-    flexDirection: "row",
+  container: (isRTL) => ({
+    direction: isRTL ? "rtl" : "ltr",
     padding: 5,
     marginLeft: "10%",
-    alignItems: "center",
-  },
+  }),
 };
+
+export default CheckBox;

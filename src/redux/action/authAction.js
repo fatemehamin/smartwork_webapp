@@ -229,7 +229,7 @@ export const forgotPassword = (
   };
 };
 // -------------------------------- change password -------------------------------- //
-export const ChangePassword = (username, password, navigate) => {
+export const changePassword = (username, password, navigate) => {
   return (dispatch) => {
     dispatch({ type: LOADING });
     axios
@@ -288,12 +288,14 @@ export const login = (
       setIsPress(false);
       navigate(type.data.place === "boss" ? "/manager" : "/myTasks");
     } catch (err) {
+      console.log(err.response);
+      console.log(err);
       dispatch({
         type: ERROR,
         payload:
           err.code == "ERR_NETWORK"
             ? "connection failed please check your network."
-            : err.response.status === 401
+            : err.response.status == 401
             ? "Username or password is incorrect."
             : err.response.status == 400
             ? "Please enter your username or password."

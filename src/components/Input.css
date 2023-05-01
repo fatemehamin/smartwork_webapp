@@ -1,6 +1,5 @@
 .input_container {
   width: 80%;
-  justify-content: center;
   margin: auto;
 }
 .container_div {
@@ -25,7 +24,6 @@
 }
 .msgError {
   color: #990f02;
-  text-align: left;
   margin: 0px;
 }
 .icon {

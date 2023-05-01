@@ -19,9 +19,11 @@ import Input from "../components/Input";
 import Icon from "../assets/images/marker-icon-2x-gold.png";
 import L from "leaflet";
 import LocateControl from "../utils/locatecontrol";
+import { Translate } from "../i18n";
 
 const Location = () => {
   const stateManager = useSelector((state) => state.managerReducer);
+  const { language, I18nManager } = useSelector((state) => state.configReducer);
   const dispatch = useDispatch();
   const [openSnackbar, closeSnackbar] = useSnackbar();
   const [locations, setLocations] = useState([]);
@@ -89,7 +91,7 @@ const Location = () => {
       <div
         key={index}
         style={{
-          ...styles.containerLocationList,
+          ...styles.containerLocationList(I18nManager.isRTL),
           backgroundColor:
             location.location_name == currentCoordinate.location_name &&
             "#f6921e30",
@@ -129,7 +131,7 @@ const Location = () => {
 
   return (
     <>
-      <AppBar label="Location" />
+      <AppBar label={Translate("location", language)} />
       <MapContainer
         center={{
           lat: currentCoordinate.latitude,
@@ -158,16 +160,21 @@ const Location = () => {
             </Marker>
           ))}
       </MapContainer>
-      <Button label="Add New Location" onClick={() => setModalVisible(true)} />
+      <Button
+        label={Translate("addNewLocation", language)}
+        onClick={() => setModalVisible(true)}
+      />
       <Modal modalVisible={modalVisible} setModalVisible={setModalVisible}>
-        <h2 style={styles.textAddLocation}>Add New Location</h2>
+        <h2 style={styles.textAddLocation}>
+          {Translate("addNewLocation", language)}
+        </h2>
         {/*********************** two text input ***********************/}
-        <div style={styles.containerTextInputBar}>
-          <div style={styles.containerTextInput}>
+        <div style={styles.containerTextInputBar(I18nManager.isRTL)}>
+          <div style={styles.containerTextInput(I18nManager.isRTL)}>
             <Input
               customStyle={{ width: "100%" }}
-              label="name"
-              placeholder="name"
+              label={Translate("nameLocation", language)}
+              placeholder={Translate("nameLocation", language)}
               value={currentCoordinate.location_name}
               Icon={() => <Room size={30} color="secondary80" />}
               setValue={(text) =>
@@ -178,17 +185,21 @@ const Location = () => {
               }
             />
           </div>
-          <div style={styles.containerTextInput}>
+          <div style={styles.containerTextInput(I18nManager.isRTL)}>
             <Input
               customStyle={{ width: "100%" }}
-              label="radius"
-              placeholder="radius"
+              label={Translate("radius", language)}
+              placeholder={Translate("radius", language)}
               type="number"
               value={currentCoordinate.radius.toString()}
               Icon={() => (
                 <RadioButtonUnchecked size={30} color="secondary80" />
               )}
-              IconEnd={() => <span style={{ color: "#000" }}>Meter</span>}
+              IconEnd={() => (
+                <span style={{ color: "#000" }}>
+                  {Translate("meter", language)}
+                </span>
+              )}
               setValue={(text) => {
                 setCurrentCoordinate({
                   ...currentCoordinate,
@@ -203,15 +214,9 @@ const Location = () => {
           </div>
         </div>
         {/*********************** two button ***********************/}
-        <div style={styles.containerButton}>
+        <div style={styles.containerButton(I18nManager.isRTL)}>
           <Button
-            label="Cancel"
-            customStyle={{ width: "40%" }}
-            type="SECONDARY"
-            onClick={() => setModalVisible(false)}
-          />
-          <Button
-            label="OK"
+            label={Translate("ok", language)}
             customStyle={{ width: "40%" }}
             isLoading={stateManager.isLoading}
             onClick={() => {
@@ -228,19 +233,25 @@ const Location = () => {
               );
             }}
           />
+          <Button
+            label={Translate("cancel", language)}
+            customStyle={{ width: "40%" }}
+            type="SECONDARY"
+            onClick={() => setModalVisible(false)}
+          />
         </div>
       </Modal>
       <Alert
-        title="Delete Location"
-        description="Are you sure you want to delete this location?"
+        title={Translate("deleteLocation", language)}
+        description={Translate("deleteLocationDescription", language)}
         open={openAlert}
         setOpen={setOpenAlert}
         ButtonAction={[
           {
-            text: "No",
+            text: Translate("no", language),
           },
           {
-            text: "Yes",
+            text: Translate("yes", language),
             onClick: () => {
               setIsPress(true);
               dispatch(DeleteLocation(deleteLocation, setIsPress));
@@ -258,27 +269,27 @@ const styles = {
     width: "100%",
     height: window.innerHeight / 1.75,
   },
-  containerTextInputBar: {
-    flexDirection: "row",
+  containerTextInputBar: (isRTL) => ({
+    direction: isRTL ? "rtl" : "ltr",
     justifyContent: "space-evenly",
     alignSelf: "stretch",
     marginVertical: 10,
     display: "flex",
-  },
-  containerTextInput: {
-    flexDirection: "row",
+  }),
+  containerTextInput: (isRTL) => ({
+    direction: isRTL ? "rtl" : "ltr",
     alignItems: "baseline",
     display: "flex",
     width: "100%",
-  },
-  containerButton: {
-    flexDirection: "row",
+  }),
+  containerButton: (isRTL) => ({
+    direction: isRTL ? "rtl" : "ltr",
     justifyContent: "space-evenly",
     alignSelf: "stretch",
     display: "flex",
-  },
-  containerLocationList: {
-    flexDirection: "row",
+  }),
+  containerLocationList: (isRTL) => ({
+    direction: isRTL ? "rtl" : "ltr",
     alignItems: "center",
     alignSelf: "stretch",
     justifyContent: "space-between",
@@ -286,7 +297,7 @@ const styles = {
     padding: 10,
     display: "flex",
     borderRadius: 5,
-  },
+  }),
   textAddLocation: {
     color: "#000",
     fontSize: 20,
