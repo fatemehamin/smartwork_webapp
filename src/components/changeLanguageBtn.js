@@ -34,7 +34,7 @@ const ChangeLanguageBtn = () => {
   };
 
   const [translateX, api] = useSpring(() => ({
-    from: { x: 0 },
+    from: { x: selectLang === "EN" ? 0 : 65 },
   }));
 
   return (
@@ -45,7 +45,7 @@ const ChangeLanguageBtn = () => {
         <p className="text_change_lang_btn">En</p>
       </div>
       <div onClick={selectPr} className="language_section">
-        <p className="text_change_lang_btn">Pr</p>
+        <p className="text_change_lang_btn">Fa</p>
         <img src={IR} className="image_country" alt="IR" />
       </div>
     </div>

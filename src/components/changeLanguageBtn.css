@@ -1,10 +1,11 @@
 .container_change_lang_btn {
   display: flex;
   width: 130px;
+  height: 40px;
   text-align: center;
   background-color: #269dd850;
   border-radius: 50px;
-  margin-top: 20px;
+  margin: 20px 0px;
   position: relative;
   z-index: 1;
 }
