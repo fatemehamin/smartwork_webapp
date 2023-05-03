@@ -29,7 +29,8 @@ const ChangePassword = () => {
     setIsPress(true);
     !(
       msgError.rePassword(rePassword, password) || msgError.password(password)
-    ) && dispatch(changePassword(stateAuth.user.username, password, navigate));
+    ) &&
+      dispatch(changePassword(stateAuth.user.phoneNumber, password, navigate));
   };
 
   return (

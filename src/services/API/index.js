@@ -5,8 +5,8 @@ import jwtDecode from "jwt-decode";
 import { getProject } from "../../redux/action/employeeAction";
 import { getEmployee } from "../../redux/action/managerAction";
 
-const baseURL = "https://smartbyhub.com/smart_time/api";
-// const baseURL = "http://127.0.0.1:8000/api";
+// const baseURL = "https://smartbyhub.com/smart_time/api";
+const baseURL = "http://127.0.0.1:8000/api";
 // const baseURL = "https://smartwork.backend.smartbyhub.com/api";
 
 const axiosAPI = axios.create({ baseURL });
