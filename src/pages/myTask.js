@@ -11,7 +11,10 @@ import {
   location,
   // location,
 } from "../redux/action/employeeAction";
-import { getEmployee } from "../redux/action/managerAction";
+import {
+  getEmployee,
+  getProject as allProject,
+} from "../redux/action/managerAction";
 import FloatingButton from "../components/floatingButton";
 import Modal from "../components/modal";
 import Input from "../components/Input";
@@ -167,6 +170,8 @@ export default () => {
     //   onRefresh();
     setIsEntry(employeeState.lastEntry ? true : false);
     // Permission();
+    dispatch(getEmployee());
+    dispatch(allProject());
     dispatch(location(authState.user.phoneNumber));
     dispatch(getProject());
     setDailyReportToday(employeeState.dailyReport.dailyReport);

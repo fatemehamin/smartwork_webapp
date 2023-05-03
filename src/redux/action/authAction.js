@@ -53,12 +53,12 @@ export const phoneNumberCheck = (phoneNumber) => {
         dispatch({
           type: PHONE_NUMBER_ERROR,
           payload: {
-            phoneNumberError:
-              err.code == "ERR_NETWORK"
-                ? "connection failed please check your network."
-                : err.response.status === 406
-                ? "This phone number exists in the system."
-                : err.response.data.detail,
+            phoneNumberError: "This phone number exists in the system.",
+            //     err.code == "ERR_NETWORK"
+            //       ? "connection failed please check your network."
+            //       : err.response.status === 406
+            //       ? "This phone number exists in the system."
+            //       : err.response.data.detail,
           },
         });
       });
@@ -103,12 +103,12 @@ export const createUserLoading = (
         dispatch({
           type: CREATE_USER_ERROR,
           payload: {
-            existsCompanyError:
-              err.code == "ERR_NETWORK"
-                ? "connection failed please check your network."
-                : err.response.status === 406
-                ? "This business name exists in the system."
-                : err.response.data.detail,
+            existsCompanyError: "This business name exists in the system.",
+            // err.code == "ERR_NETWORK"
+            //   ? "connection failed please check your network."
+            //   : err.response.status === 406
+            //   ? "This business name exists in the system."
+            //   : err.response.data.detail,
           },
         });
       });
@@ -165,10 +165,10 @@ export const verifyCode = (
             .catch((error) =>
               dispatch({
                 type: ERROR,
-                payload:
-                  error.code == "ERR_NETWORK"
-                    ? "connection failed please check your network."
-                    : error.response.data.detail,
+                payload: "Try again",
+                // error.code == "ERR_NETWORK"
+                //   ? "connection failed please check your network."
+                //   : error.response.data.detail,
               })
             );
           // when forgotPassword: from verify code go to changePassword screen
@@ -181,12 +181,12 @@ export const verifyCode = (
       .catch((err) => {
         dispatch({
           type: ERROR,
-          payload:
-            err.code == "ERR_NETWORK"
-              ? "connection failed please check your network."
-              : err.response.status === 401
-              ? "verify code is incorrect."
-              : err.response.data.detail,
+          payload: "verify code is incorrect.",
+          // err.code == "ERR_NETWORK"
+          //   ? "connection failed please check your network."
+          //   : err.response.status === 401
+          //   ? "verify code is incorrect."
+          //   : err.response.data.detail,
         });
         setIsPress(false);
       });
@@ -217,12 +217,12 @@ export const forgotPassword = (
       .catch((err) => {
         dispatch({
           type: ERROR,
-          payload:
-            err.code == "ERR_NETWORK"
-              ? "connection failed please check your network."
-              : err.response.status === 404
-              ? "Phone number not exists."
-              : err.response.data.detail,
+          payload: "Phone number not exists.",
+          // err.code == "ERR_NETWORK"
+          //   ? "connection failed please check your network."
+          //   : err.response.status === 404
+          //   ? "Phone number not exists."
+          //   : err.response.data.detail,
         });
         setIsPress(false);
       });
@@ -292,14 +292,14 @@ export const login = (
       console.log(err);
       dispatch({
         type: ERROR,
-        payload:
-          err.code == "ERR_NETWORK"
-            ? "connection failed please check your network."
-            : err.response.status == 401
-            ? "Username or password is incorrect."
-            : err.response.status == 400
-            ? "Please enter your username or password."
-            : err.response.data.detail,
+        payload: "Username or password is incorrect.",
+        // err.code == "ERR_NETWORK"
+        //   ? "connection failed please check your network."
+        //   : err.response.status == 401
+        //   ? "Username or password is incorrect."
+        //   : err.response.status == 400
+        //   ? "Please enter your username or password."
+        //   : err.response.data.detail,
       });
       setIsPress(false);
     }
