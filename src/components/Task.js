@@ -1,20 +1,71 @@
 import React, { useState, useEffect, useRef } from "react";
 import moment from "moment";
-import { useDispatch } from "react-redux";
-import { endTime, startTime } from "../redux/action/employeeAction";
-import "./Task.css";
+import { useDispatch, useSelector } from "react-redux";
+import { endTime, startTime } from "../features/tasks/action";
+import { useSnackbar } from "react-simple-snackbar";
+import { animated, useSpring } from "@react-spring/web";
+import { Translate } from "@mui/icons-material";
+import "./task.css";
 
-export default ({
+const Task = ({
   name,
   currentTask,
   initialDuration,
   lastEntry,
   setOpenAlert,
-  setIsPress,
+  setAlertType,
 }) => {
   const dispatch = useDispatch();
   const [isEnable, setIsEnable] = useState(false);
   const [duration, setDuration] = useState(initialDuration);
+  const [openSnackbar] = useSnackbar();
+  const { phoneNumber } = useSelector((state) => state.auth.userInfo);
+  const { language } = useSelector((state) => state.i18n);
+  const [backgroundPosition, api] = useSpring(() => ({
+    backgroundPositionX: "0px",
+    backgroundPositionY: "140px",
+  }));
+  // const { animation } = useSpring({ from: { x: 0 }, x: 1 });
+
+  const FullWidth = () =>
+    api.start({
+      from: { backgroundPositionX: "0px", backgroundPositionY: "140px" },
+      to: { backgroundPositionX: "300px", backgroundPositionY: "-25px" },
+    });
+
+  const emptyWidth = () =>
+    api.start({
+      from: { backgroundPositionX: "300px", backgroundPositionY: "-25px" },
+      to: { backgroundPositionX: "0px", backgroundPositionY: "140px" },
+    });
+
+  // const firstIndicatorRotate = () => ({
+  //   transform: animation.to({
+  //     range: [0, 50],
+  //     output: ["0deg", "180deg"],
+  //   }),
+  //   // .to((x) => `scale(${x}) rotate(4deg)`),
+  // });
+
+  //     };
+  //     const SecondIndicatorRotate = {
+  //       transform: [
+  //         {
+  //           rotate: animation.interpolate({
+  //             inputRange: [0, 100],
+  //             outputRange: ["0deg", "360deg"],
+  //             extrapolate: "clamp",
+  //           }),
+  //         },
+  //       ],
+  //     };
+  //     const SecondIndicatorVisible = {
+  //       opacity: animation.interpolate({
+  //         inputRange: [0, 49, 50, 100],
+  //         outputRange: [0, 0, 1, 1],
+  //       }),
+  //     };
+
   //   // animation
   //   const [progress, setProgress] = useState(0);
   //   const [startLoading, setStartLoading] = useState(false);
@@ -54,8 +105,9 @@ export default ({
   //     }),
   //   };
   useEffect(() => {
-    (name != currentTask.name || currentTask.start == 0) && setIsEnable(false);
-    currentTask.start != 0 && name == currentTask.name && setIsEnable(true);
+    (name !== currentTask.name || currentTask.start === 0) &&
+      setIsEnable(false);
+    currentTask.start !== 0 && name === currentTask.name && setIsEnable(true);
     if (isEnable) {
       const id = setInterval(() => {
         setDuration(
@@ -80,7 +132,7 @@ export default ({
     // progress,
     //  startLoading
   ]);
-
+  console.log(backgroundPosition);
   const Timer = ({ time }) => {
     let duration = moment.duration(time);
     const pad = (n) => (n < 10 ? "0" + n : n);
@@ -94,25 +146,61 @@ export default ({
       </p>
     );
   };
+
   const onClickHandler = () => {
-    setIsPress(true);
-    const firstEntryHandler = () => {
+    const entryFirstHandler = () => {
       setOpenAlert(true);
-      setIsPress(false);
+      setAlertType("entryFirst");
     };
-    const nowTime = new Date().getTime();
+    const test1 = () => {
+      FullWidth();
+      dispatch(startTime(name))
+        .unwrap()
+        .catch((error) => {
+          openSnackbar(
+            error.code === "ERR_NETWORK"
+              ? Translate("connectionFailed", language)
+              : error.message
+          );
+        });
+    };
+    const test2 = () => {
+      FullWidth();
+      dispatch(startTime(name));
+    };
+    const test3 = () => {
+      emptyWidth();
+      dispatch(endTime({ name, phoneNumber }));
+    };
     // برای زمانی که روی خود تسک دوباره کلیک می کنی تا غیر فعال و یا دوباره فعال بشود
-    currentTask.name == name
-      ? currentTask.start
-        ? dispatch(endTime(name, nowTime, undefined, setIsPress))
-        : dispatch(startTime(name, nowTime, setIsPress))
+    currentTask.name === name
+      ? (currentTask.start ? test3() : test2()).unwrap().catch((error) => {
+          openSnackbar(
+            error.code === "ERR_NETWORK"
+              ? Translate("connectionFailed", language)
+              : error.message
+          );
+        })
       : // برای زمانی که از تسکی به تسک دیگه پرس می کنیم
       currentTask.start
-      ? dispatch(endTime(currentTask.name, nowTime, name, setIsPress))
+      ? dispatch(endTime({ name: currentTask.name, phoneNumber }))
+          .unwrap()
+          .then(() => {
+            dispatch(startTime(name))
+              .unwrap()
+              .catch((error) => {
+                openSnackbar(
+                  error.code === "ERR_NETWORK"
+                    ? Translate("connectionFailed", language)
+                    : error.message
+                );
+              });
+          })
       : lastEntry
-      ? dispatch(startTime(name, nowTime, setIsPress))
-      : firstEntryHandler();
+      ? test1()
+      : entryFirstHandler();
   };
+
   return (
     <div
       onClick={onClickHandler}
@@ -124,7 +212,8 @@ export default ({
       //   }}
       //   delayLongPress={550}
     >
-      <div
+      <animated.div
+        style={backgroundPosition}
         className="circleBase"
         //   style={ { transform: [{ rotate: "-45deg" }] }}
       >
@@ -146,7 +235,7 @@ export default ({
             {name}
           </p>
         </div>
-      </div>
+      </animated.div>
     </div>
   );
 };
@@ -176,3 +265,4 @@ export default ({
 //     position: 'absolute',
 //     // transform: [{rotate: '45deg'}],
 //   },
+export default Task;

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Translate } from "../i18n";
+import { Translate } from "../features/i18n/translate";
 import { useSelector } from "react-redux";
 import "./floatingButton.css";
 import {
   PersonAddAltOutlined,
   NoteAddOutlined,
   Edit,
+  Notes,
 } from "@mui/icons-material";
 import {
   Box,
@@ -22,33 +23,43 @@ const FloatingButton = ({
   setModalVisibleEmployee,
 }) => {
   const [open, setOpen] = useState(false);
-  const { language } = useSelector((state) => state.configReducer);
-
+  const { language } = useSelector((state) => state.i18n);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const OpenModalDailyReport = () => setModalVisibleProject(true);
   const actions = [
     {
       icon: <PersonAddAltOutlined />,
-      name: Translate("addMember", language),
-      onClick: () => setModalVisibleEmployee(true),
+      name: Translate("addUser", language),
+      onClick: () => {
+        handleClose();
+        setModalVisibleEmployee(true);
+      },
     },
     {
       icon: <NoteAddOutlined />,
       name: Translate("addProject", language),
-      onClick: () => setModalVisibleProject(true),
+      onClick: () => {
+        handleClose();
+        setModalVisibleProject(true);
+      },
     },
   ];
+
+  const styles = {
+    btn: {
+      backgroundColor: "#f6921e",
+      color: "#fff",
+    },
+  };
+
   return type === "DailyReport" ? (
     <Box className="FBtn">
-      <Fab
-        aria-label="edit"
-        style={styles.btn}
-        onClick={() => setModalVisibleProject(true)}
-      >
+      <Fab aria-label="edit" style={styles.btn} onClick={OpenModalDailyReport}>
         <Edit />
       </Fab>
     </Box>
-  ) : (
+  ) : type === "Add" ? (
     <Box className="FBtn">
       <Backdrop open={open} />
       <SpeedDial
@@ -65,20 +76,19 @@ const FloatingButton = ({
             icon={action.icon}
             tooltipTitle={action.name}
             tooltipOpen
-            onClick={() => (handleClose(), action.onClick())}
+            onClick={action.onClick}
             FabProps={{ style: styles.btn }}
           />
         ))}
       </SpeedDial>
     </Box>
+  ) : (
+    <Box className="FBtn">
+      <Fab aria-label="edit" style={styles.btn} onClick={OpenModalDailyReport}>
+        <Notes />
+      </Fab>
+    </Box>
   );
-};
-
-const styles = {
-  btn: {
-    backgroundColor: "#f6921e",
-    color: "#fff",
-  },
 };
 
 export default FloatingButton;

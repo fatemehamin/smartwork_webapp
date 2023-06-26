@@ -11,7 +11,6 @@ import MyTask from "../../pages/myTask";
 import MyReport from "../../pages/myReport";
 import ListOfProjects from "../../pages/listOfProjects";
 import Location from "../../pages/location";
-import VIP from "../../pages/VIP";
 import ExportExcel from "../../pages/exportExcel";
 import StatusMember from "../../pages/statusMember";
 
@@ -29,7 +28,6 @@ const Routers = () => (
       <Route path="/myReport" element={<MyReport />} />
       <Route path="/listOfProjects" element={<ListOfProjects />} />
       <Route path="/location" element={<Location />} />
-      <Route path="/VIP" element={<VIP />} />
       <Route path="/exportExcel" element={<ExportExcel />} />
       <Route
         path="/statusMember/:currentPhoneNumber"

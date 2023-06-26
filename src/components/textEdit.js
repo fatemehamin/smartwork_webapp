@@ -1,89 +1,101 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { dailyReport } from "../redux/action/employeeAction";
+import { useSnackbar } from "react-simple-snackbar";
 import jMoment from "moment-jalaali";
 import { Input, InputAdornment } from "@mui/material";
 import { Check, Close } from "@mui/icons-material";
-import { Translate } from "../i18n";
+import { Translate } from "../features/i18n/translate";
+import { setDailyReport } from "../features/reports/action";
 import "./textEdit.css";
 
 const TextEdit = ({ report, jDate }) => {
-  const pad = (n) => (n < 10 ? "0" + n : n);
+  const [isEdit, setIsEdit] = useState(false);
+  const [notSave, setNotSave] = useState(false);
+  const [DReport, setDReport] = useState(report);
+  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const [openSnackbar] = useSnackbar();
+  const dispatch = useDispatch();
   const Date = jMoment(
     `${jDate.slice(0, 4)}/${jDate.slice(5, 7)}/${jDate.slice(8, 10)}`,
     "jYYYY/jM/jD"
   );
-  const date = `${Date.year()}-${pad(Date.month() + 1)}-${pad(Date.date())}`;
-  const [isEdit, setIsEdit] = useState(false);
-  const [notSave, setNotSave] = useState(false);
-  const [DReport, setDReport] = useState(report);
-  const dispatch = useDispatch();
-  const { language, I18nManager } = useSelector((state) => state.configReducer);
 
   useEffect(() => {
     setDReport(report);
   }, [report]);
 
+  const pad = (n) => (n < 10 ? "0" + n : n);
+  const date = `${Date.year()}-${pad(Date.month() + 1)}-${pad(Date.date())}`;
+  const toggleEdit = () => setIsEdit((isEdit) => !isEdit);
+  const handleChange = (e) => setDReport(e.target.value);
+
   const onBlurHandler = () => {
-    return report == DReport
+    return report === DReport
       ? (setIsEdit(false), setNotSave(false))
       : setNotSave(true);
   };
 
+  const handleCheck = () => {
+    dispatch(setDailyReport({ date, dailyReport: DReport, jDate }))
+      .unwrap()
+      .then(() => setIsEdit(false))
+      .catch((error) => {
+        openSnackbar(
+          error.code === "ERR_NETWORK"
+            ? Translate("connectionFailed", language)
+            : error.message
+        );
+      });
+    setNotSave(false);
+  };
+
+  const handleClose = () => {
+    setDReport(report);
+    setIsEdit(!isEdit);
+    setNotSave(false);
+  };
+
   const endAdornment = (
     <InputAdornment position="end">
-      <Check
-        className="TE_dailyReportEdit"
-        onClick={() => {
-          dispatch(dailyReport(date, DReport, setIsEdit, !isEdit, jDate));
-          setNotSave(false);
-        }}
-      />
-      <Close
-        className="TE_dailyReportEdit"
-        onClick={() => {
-          setDReport(report);
-          setIsEdit(!isEdit);
-          setNotSave(false);
-        }}
-      />
+      <Check className="TE_dailyReportEdit" onClick={handleCheck} />
+      <Close className="TE_dailyReportEdit" onClick={handleClose} />
     </InputAdornment>
   );
 
+  const className = {
+    container: `TE_container ${notSave ? "TE_notSave" : ""} ${
+      I18nManager.isRTL ? "rtl" : "ltr"
+    }`,
+    input: `TE_textReportDefault TE_textReportEditable text-${
+      I18nManager.isRTL ? "right" : "left"
+    }`,
+    text: `TE_textReportDefault text-${I18nManager.isRTL ? "right" : "left"} ${
+      DReport ? "TE_textReportNotEditable" : "TE_textNoReport"
+    }`,
+  };
+
   return (
-    <div
-      style={styles(I18nManager.isRTL).direction}
-      className={`TE_container ${notSave && "TE_notSave"}`}
-    >
+    <div className={className.container}>
       {isEdit ? (
         <>
           <Input
             multiline
             disableUnderline
-            style={styles(I18nManager.isRTL).textAlign}
-            className="TE_textReportDefault TE_textReportEditable"
+            className={className.input}
             defaultValue={DReport}
-            onChange={(e) => setDReport(e.target.value)}
+            onChange={handleChange}
             inputProps={{ onBlur: onBlurHandler }}
             endAdornment={endAdornment}
+            autoFocus
           />
         </>
       ) : (
-        <p
-          className="TE_textReportDefault TE_textReportNotEditable"
-          style={styles(I18nManager.isRTL).textAlign}
-          onClick={() => setIsEdit(!isEdit)}
-        >
-          {Translate("dailyReport", language)} : {DReport}
+        <p className={className.text} onClick={toggleEdit}>
+          {DReport ? DReport : Translate("dailyReport", language) + " ..."}
         </p>
       )}
     </div>
   );
 };
-
-const styles = (isRTL) => ({
-  direction: { direction: isRTL ? "rtl" : "ltr" },
-  textAlign: { textAlign: isRTL ? "right" : "left" },
-});
 
 export default TextEdit;

@@ -1,23 +1,19 @@
 import React, { useState } from "react";
-import AppBar from "../components/AppBar";
-import Input from "../components/Input";
-import Button from "../components/Button";
+import AppBar from "../components/appBar";
+import Input from "../components/input";
+import Button from "../components/button";
 import msgError from "../utils/msgError";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "react-simple-snackbar";
-import { Translate } from "../i18n";
+import { Translate } from "../features/i18n/translate";
+import { createUserLoading, phoneNumberCheck } from "../features/auth/action";
 import {
   PersonOutlineOutlined,
   WorkOutlineOutlined,
-  EmailOutlined,
   LockOutlined,
 } from "@mui/icons-material";
-import {
-  createUserLoading,
-  phoneNumberCheck,
-} from "../redux/action/authAction";
 
 const Signup = () => {
   const [firstName, setFirstName] = useState("");
@@ -26,60 +22,63 @@ const Signup = () => {
   const [phoneNumber, setPhoneNumber] = useState("+98");
   const [country, setCountry] = useState("IR");
   const [callingCode, setCallingCode] = useState("+98");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rePassword, setRePassword] = useState("");
   const [isPress, setIsPress] = useState(false);
-  const [openSnackbar, closeSnackbar] = useSnackbar();
+  const [openSnackbar] = useSnackbar();
+  const { isLoading, error } = useSelector((state) => state.auth);
+  const { language } = useSelector((state) => state.i18n);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const stateAuth = useSelector((state) => state.authReducer);
-  const { language } = useSelector((state) => state.configReducer);
 
   useEffect(() => {
-    stateAuth.isError &&
-      stateAuth.error.existsCompanyError != undefined &&
-      openSnackbar(stateAuth.error.existsCompanyError);
     // check phoneNumber realtime
-    callingCode != phoneNumber && dispatch(phoneNumberCheck(phoneNumber));
-  }, [phoneNumber, stateAuth.isError]);
+    callingCode !== phoneNumber && dispatch(phoneNumberCheck(phoneNumber));
+  }, [callingCode, dispatch, phoneNumber]);
 
   const disableSignup = !(
     password &&
     rePassword &&
-    companyName &&
-    email &&
-    phoneNumber &&
-    firstName &&
-    lastName
+    companyName.trim() &&
+    phoneNumber !== callingCode &&
+    firstName.trim() &&
+    lastName.trim()
   );
 
-  const onSignupHandler = () => {
+  const HandleSignup = () => {
     setIsPress(true);
     !(
-      msgError.email(email) ||
       msgError.password(password) ||
       msgError.rePassword(rePassword, password) ||
-      stateAuth.isError
+      error
     ) &&
       dispatch(
-        createUserLoading(
+        createUserLoading({
           firstName,
           lastName,
           companyName,
           country,
           callingCode,
           phoneNumber,
-          email,
           password,
-          navigate
-        )
-      );
+        })
+      )
+        .unwrap()
+        .then((res) => navigate(`/verifyCode/${phoneNumber}/createUser`))
+        .catch((error) =>
+          openSnackbar(
+            error.code === "ERR_NETWORK"
+              ? Translate("connectionFailed", language)
+              : error.message.slice(-3) === "406"
+              ? Translate("businessNameExists", language)
+              : error.message
+          )
+        );
   };
 
   return (
     <>
-      <AppBar label={Translate("signup", language)} type="AUTH" />
+      <AppBar label="signup" type="AUTH" />
       <Input
         value={firstName}
         setValue={setFirstName}
@@ -110,15 +109,11 @@ const Signup = () => {
         setCountry={setCountry}
         callingCode={callingCode}
         setCallingCode={setCallingCode}
-        msgError={stateAuth.isError ? stateAuth.error.phoneNumberError : ""}
-      />
-      <Input
-        value={email}
-        setValue={setEmail}
-        label={Translate("email", language)}
-        placeholder={Translate("email", language)}
-        msgError={isPress && Translate(msgError.email(email), language)}
-        Icon={EmailOutlined}
+        msgError={
+          error === "phoneNumberExists"
+            ? Translate("phoneNumberExists", language)
+            : error
+        }
       />
       <Input
         value={password}
@@ -126,8 +121,8 @@ const Signup = () => {
         label={Translate("password", language)}
         placeholder={Translate("password", language)}
         type="password"
-        msgError={isPress && Translate(msgError.password(password), language)}
         Icon={LockOutlined}
+        msgError={isPress && Translate(msgError.password(password), language)}
       />
       <Input
         value={rePassword}
@@ -135,17 +130,17 @@ const Signup = () => {
         label={Translate("repeatPassword", language)}
         placeholder={Translate("repeatPassword", language)}
         type="password"
+        Icon={LockOutlined}
         msgError={
           isPress &&
           Translate(msgError.rePassword(rePassword, password), language)
         }
-        Icon={LockOutlined}
       />
       <Button
         label={Translate("signup", language)}
         disabled={disableSignup}
-        onClick={onSignupHandler}
-        isLoading={stateAuth.isLoading}
+        onClick={HandleSignup}
+        isLoading={isLoading}
       />
     </>
   );

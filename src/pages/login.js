@@ -1,45 +1,57 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Logo from "../assets/images/Logo.png";
-import "./login.css";
-import Button from "../components/Button";
-import Input from "../components/Input";
+import Button from "../components/button";
+import Input from "../components/input";
+import ChangeLanguageBtn from "../components/changeLanguageBtn";
 import { Link, useNavigate } from "react-router-dom";
 import { LockOutlined } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../redux/action/authAction";
 import { useSnackbar } from "react-simple-snackbar";
-import { Translate } from "../i18n";
-import { changeLanguage } from "../redux/action/configAction";
-import ChangeLanguageBtn from "../components/changeLanguageBtn";
+import { Translate } from "../features/i18n/translate";
+import { login } from "../features/auth/action";
+import "./login.css";
 
 const Login = () => {
   const [country, setCountry] = useState("IR");
   const [callingCode, setCallingCode] = useState("+98");
   const [phoneNumber, setPhoneNumber] = useState("+98");
   const [password, setPassword] = useState("");
-  const [isPress, setIsPress] = useState(false);
-  const [isEN, setIsEN] = useState(false);
-  const navigation = useNavigate();
-  const [openSnackbar, closeSnackbar] = useSnackbar();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const stateAuth = useSelector((state) => state.authReducer);
-  const { language, I18nManager } = useSelector((state) => state.configReducer);
+  const dispatch = useDispatch();
+  const [openSnackbar] = useSnackbar();
+  const stateAuth = useSelector((state) => state.auth);
+  const { language, I18nManager } = useSelector((state) => state.i18n);
 
-  useEffect(() => {
-    isPress && stateAuth.isError && openSnackbar(stateAuth.error);
-  }, [stateAuth.isError]);
+  const className = {
+    forgotPass: `forgotPassword_btn ${
+      I18nManager.isRTL ? "text-right" : "text-left"
+    }`,
+  };
 
-  const onLoginHandler = () => {
-    setIsPress(true);
-    dispatch(
-      login(country, callingCode, phoneNumber, password, setIsPress, navigate)
-    );
+  const handleSignup = () => navigate("/signup");
+
+  const handleLogin = () => {
+    dispatch(login({ country, callingCode, phoneNumber, password }))
+      .unwrap()
+      .then((res) => {
+        navigate(res.type === "boss" ? "/manager" : "/myTasks");
+      })
+      .catch((error) => {
+        openSnackbar(
+          error.code === "ERR_NETWORK"
+            ? Translate("connectionFailed", language)
+            : error.message.slice(-3) === "400"
+            ? Translate("enterPhoneNumberOrPassword", language)
+            : error.message.slice(-3) === "401"
+            ? Translate("incorrectPhoneNumberOrPassword", language)
+            : error.message
+        );
+      });
   };
 
   return (
     <div className="login">
-      <img src={Logo} className="Logo" alt="Logo" />
+      <img src={Logo} className="login-Logo" alt="Logo" />
       <div className="login_body">
         <Input
           value={phoneNumber}
@@ -59,33 +71,23 @@ const Login = () => {
           type="password"
           Icon={LockOutlined}
         />
-        <Link
-          to="/forgotPassword"
-          style={styles.textAlign(I18nManager.isRTL)}
-          className="forgotPassword_btn"
-        >
+        <Link to="/forgotPassword" className={className.forgotPass}>
           {Translate("forgotPassword?", language)}
         </Link>
         <Button
           label={Translate("login", language)}
-          onClick={onLoginHandler}
+          onClick={handleLogin}
           isLoading={stateAuth.isLoading}
         />
         <Button
           label={Translate("signup", language)}
+          onClick={handleSignup}
           type="SECONDARY"
-          onClick={() => navigation("/signup")}
         />
         <ChangeLanguageBtn />
       </div>
     </div>
   );
-};
-
-const styles = {
-  textAlign: (isRTL) => ({
-    textAlign: isRTL ? "right" : "left",
-  }),
 };
 
 export default Login;

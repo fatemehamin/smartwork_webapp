@@ -1,6 +1,6 @@
-import React from "react";
-import AppBar from "../components/AppBar";
+// import React from "react";
+// import AppBar from "../components/AppBar";
 
-export default () => {
-  return <AppBar label="List of projects" />;
-};
+// export default () => {
+//   return <AppBar label="List of projects" />;
+// };

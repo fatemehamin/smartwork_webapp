@@ -1,12 +1,12 @@
 .login {
   background-color: #269dd850;
 }
-.Logo {
+.login-Logo {
   width: 80%;
   margin: 20px;
 }
 .login_body {
-  background-color: #f5f5f5;
+  background-color: #fff;
   border-top-right-radius: 60px;
   border-top-left-radius: 60px;
   padding-top: 5px;

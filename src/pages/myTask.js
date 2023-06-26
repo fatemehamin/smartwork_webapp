@@ -1,136 +1,132 @@
-/* eslint-disable import/no-anonymous-default-export */
 import React, { useEffect, useCallback, useState } from "react";
-import Task from "../components/Task";
+import { useSwipeable } from "react-swipeable";
+import { animated, useSpring } from "@react-spring/web";
+import Task from "../components/task";
 import "./myTask.css";
-import AppBar from "../components/AppBar";
-import {
-  getProject,
-  dailyReport,
-  entry,
-  exit,
-  location,
-  // location,
-} from "../redux/action/employeeAction";
-import {
-  getEmployee,
-  getProject as allProject,
-} from "../redux/action/managerAction";
+import AppBar from "../components/appBar";
+// import {
+//   getProject,
+//   // dailyReport,
+//   location,
+// } from "../redux/action/employeeAction";
+// import {
+//   getEmployee,
+//   getProject as allProject,
+// } from "../redux/action/managerAction";
 import FloatingButton from "../components/floatingButton";
 import Modal from "../components/modal";
-import Input from "../components/Input";
-import Button from "../components/Button";
+import Input from "../components/input";
+import Button from "../components/button";
 import { useSelector, useDispatch } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
 import { useNavigate } from "react-router-dom";
-import Alert from "../components/Alert";
+import Alert from "../components/alert";
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import checkLocation from "../utils/checkLocation";
 import Spinner from "../components/spinner";
 import LocateControl from "../utils/locatecontrol";
-import { Translate } from "../i18n";
+import { Translate } from "../features/i18n/translate";
+import Tabs from "../components/tabs";
+import { Login, Logout } from "@mui/icons-material";
+import { endTime, entry, exit, fetchTasks } from "../features/tasks/action";
+import { fetchLocationSpacialUser } from "../features/locations/action";
+import { setIsLoading } from "../features/tasks/tasksSlice";
+import { setDailyReport, fetchDailyReport } from "../features/reports/action";
 
-export default () => {
-  const employeeState = useSelector((state) => state.employeeReducer);
-  const { language, I18nManager } = useSelector((state) => state.configReducer);
-
-  const authState = useSelector((state) => state.authReducer);
+const MyTask = () => {
+  const locations = useSelector((state) => state.locations.locationSpacialUser);
+  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { type, userInfo } = useSelector((state) => state.auth);
+  const { dailyReport } = useSelector((state) => state.reports);
+  const { tasks, currentTask, lastEntry, isLoading } = useSelector(
+    (state) => state.tasks
+  );
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [openSnackbar, closeSnackbar] = useSnackbar();
+  const [openSnackbar] = useSnackbar();
   const [refreshing, setRefreshing] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [isEntry, setIsEntry] = useState(false);
   const [isPress, setIsPress] = useState(false);
-  const [isErrorAlert, setIsErrorAlert] = useState(false);
-  const [locationDenied, setLocationDenied] = useState({
-    status: false,
-    error: null,
-  });
+  const [isOpenAlert, setIsOpenAlert] = useState(false);
+  const [alertType, setAlertType] = useState("");
+  const [locationDenied, setLocationDenied] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
-  const [activeFilter, setActiveFilter] = useState("Tasks");
+  const [activeFilter, setActiveFilter] = useState("entryAndExit");
   const [openAlert, setOpenAlert] = useState(false);
-  const [dailyReportToday, setDailyReportToday] = useState(
-    employeeState.dailyReport.dailyReport
-  );
-  const isGrantedFunction = () => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        // when location add for each employee
-        employeeState.locations.filter((location) =>
-          checkLocation(
-            {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-            },
-            location,
-            location.radius
-          )
-        ).length > 0 ? (
-          exitEntryHandler()
-        ) : (
-          <Alert
-            title="LOCATION"
-            description="You are not in a defined location. If you are in location, please restart your location."
-            open={isErrorAlert}
-            setOpen={setIsErrorAlert}
-          />
-        );
-      },
-      (err) => {
-        console.log("location check err", err);
-      }
-    );
-  };
-  const isDeniedFunction = () => {
-    <Alert
-      title="LOCATION DENIED"
-      description="location permission denied"
-      open={isErrorAlert}
-      setOpen={setIsErrorAlert}
-    />;
+  const [dailyReportToday, setDailyReportToday] = useState(dailyReport);
+  const [position, setPosition] = useState(0);
+  const [width, api] = useSpring(() => ({ from: { width: "44px" } }));
+
+  const FullWidth = () =>
+    api.start({ from: { width: "44px" }, to: { width: "200px" } });
+
+  const emptyWidth = () =>
+    api.start({ from: { width: "200px" }, to: { width: "44px" } });
+
+  const alert = {
+    locationNotCorrect: {
+      title: Translate("location", language),
+      description: Translate("errorLocationNotCorrect", language),
+      Icon: () => <div>icon</div>, // ------------------------need icon ----------------//
+      ButtonAction: [{ text: Translate("ok", language) }],
+    },
+    locationDenied: {
+      title: Translate("locationDenied", language),
+      description: locationDenied,
+      Icon: () => <div>icon</div>, // ------------------------need icon ----------------//
+      ButtonAction: [{ text: Translate("ok", language) }],
+    },
+    entryFirst: {
+      title: Translate("ENTRY", language),
+      description: Translate("entryFirst", language),
+      Icon: () => <div>icon</div>, // ------------------------need icon ----------------//
+      ButtonAction: [{ text: Translate("ok", language) }],
+    },
   };
 
-  const exitEntryHandler = () => {
-    setIsPress(true);
-    const nowTime = new Date().getTime();
-    isEntry
-      ? employeeState.currentTask.start // when exit all task disable
-        ? dispatch(
-            exit(
-              nowTime,
-              setIsEntry,
-              employeeState.currentTask.name,
-              setIsPress
-            )
-          )
-        : dispatch(exit(nowTime, setIsEntry, undefined, setIsPress))
-      : dispatch(entry(nowTime, setIsEntry, setIsPress));
+  const className = {
+    exitEntry: `exit-entry ${isLoading ? "exit-entry-disable" : ""} ${
+      isEntry ? "exit" : "entry"
+    }${isLoading ? "-disable" : ""}`,
+    exitEntryText: `exit-entry-text ${isEntry ? "exit-text" : "entry-text"}${
+      isLoading ? "-disable" : ""
+    }`,
   };
 
   const ExitEntry = () => (
     <div
-      className="exitEntry"
-      // disabled={isLoadingButton}
-      onClick={() => {
-        if (employeeState.locations.length > 0) {
-          navigator.geolocation.getCurrentPosition(onSuccess, onError);
-          // isGrantedFunction();
-          // Permission(
-          //   PERMISSIONS_TYPE.location,
-          //   isGrantedFunction,
-          //   isDeniedFunction,
-          //   setIsLoadingButton
-          // ))
-        } else {
-          exitEntryHandler();
-        }
+      className="exit-entry-row"
+      style={{
+        height:
+          window.innerHeight > window.innerWidth
+            ? window.innerHeight / 3 - 106
+            : window.innerHeight / 2 - 116,
       }}
     >
-      <p className="exitEntryText" style={styles.entryExitText(isEntry)}>
-        {isEntry ? Translate("exit", language) : Translate("entry", language)}
-      </p>
+      <div className="exit-entry-outline">
+        <div className="exit-entry-inline">
+          <animated.div
+            className={className.exitEntry}
+            style={width}
+            {...handlers}
+          >
+            {isEntry ? (
+              <Logout color="white" fontSize="small" />
+            ) : (
+              <Login color="white" fontSize="small" />
+            )}
+          </animated.div>
+          <p className={className.exitEntryText}>
+            {isEntry
+              ? Translate("exit", language)
+              : Translate("entry", language)}
+          </p>
+        </div>
+      </div>
     </div>
   );
+
   // const onRefresh = useCallback(() => {
   //   // setRefreshing(false);
   //   dispatch(getProject());
@@ -140,59 +136,135 @@ export default () => {
   //     setIsConnected(netInfo.isConnected);
   //   });
   // }, []);
-  const onSuccess = (position) => {
-    employeeState.locations.filter((location) =>
-      checkLocation(
-        {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        },
-        location,
-        location.radius
-      )
-    ).length > 0
-      ? exitEntryHandler()
-      : setIsErrorAlert(true);
-  };
-  const onError = (error) => {
-    setLocationDenied({ error: error.message, status: true });
-    return (
-      <Alert
-        title={Translate("locationDenied", language)}
-        description={error.message}
-        open={locationDenied.status}
-        setOpen={(s) => console.log(s)}
-      />
-    );
-  };
 
   useEffect(() => {
     //   onRefresh();
-    setIsEntry(employeeState.lastEntry ? true : false);
-    // Permission();
-    dispatch(getEmployee());
-    dispatch(allProject());
-    dispatch(location(authState.user.phoneNumber));
-    dispatch(getProject());
-    setDailyReportToday(employeeState.dailyReport.dailyReport);
-    isPress && employeeState.isError && openSnackbar(employeeState.error);
+    setIsEntry(lastEntry ? true : false);
+    // dispatch(getEmployee());
+    // dispatch(allProject());
+    dispatch(fetchLocationSpacialUser(userInfo.phoneNumber))
+      .unwrap()
+      .catch((error) => {
+        openSnackbar(
+          error.code === "ERR_NETWORK"
+            ? Translate("connectionFailed", language)
+            : error.message
+        );
+      });
+    dispatch(fetchTasks())
+      .unwrap()
+      .then((res) => {
+        setActiveFilter(isEntry ? "tasks" : "entryAndExit");
+      })
+      .catch((error) => {
+        openSnackbar(
+          error.code === "ERR_NETWORK"
+            ? Translate("connectionFailed", language)
+            : error.message
+        );
+      });
+
+    dispatch(fetchDailyReport(new Date().toISOString().slice(0, 10)));
+    setDailyReportToday(dailyReport);
+    // isPress && employeeState.isError && openSnackbar(employeeState.error);
   }, [
-    employeeState.dailyReport.dailyReport,
-    employeeState.lastEntry,
-    employeeState.isError,
-    authState.user.phoneNumber,
+    // employeeState.dailyReport.dailyReport,
+    // employeeState.lastEntry,
+    // employeeState.isError,
+    userInfo.phoneNumber,
+    isEntry,
   ]);
+
+  const handlers = useSwipeable({
+    onSwiped: (eventData) => {
+      FullWidth();
+      setTimeout(() => {
+        dispatch(setIsLoading(true));
+        if (locations.length > 0) {
+          navigator.geolocation.getCurrentPosition(onSuccess, onError);
+        } else {
+          exitEntryHandler();
+        }
+      }, 900);
+    },
+  });
+
+  const onSuccess = (position) => {
+    if (
+      locations.filter((location) =>
+        checkLocation(
+          {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          },
+          location,
+          location.radius
+        )
+      ).length > 0
+    ) {
+      exitEntryHandler();
+    } else {
+      emptyWidth();
+      setIsOpenAlert(true);
+      setAlertType("locationNotCorrect");
+      dispatch(setIsLoading(true));
+    }
+  };
+
+  const onError = (error) => {
+    emptyWidth();
+    setLocationDenied(error.message);
+    setAlertType("locationDenied");
+    setIsOpenAlert(true);
+    dispatch(setIsLoading(false));
+  };
+
+  const exitEntryHandler = () => {
+    isEntry
+      ? currentTask.start // if have enable task first all task disable then exit
+        ? dispatch(
+            endTime({
+              name: currentTask.name,
+              phoneNumber: userInfo.phoneNumber,
+            })
+          )
+            .unwrap()
+            .then(() => {
+              dispatch(exit())
+                .unwrap()
+                .then(() => {
+                  setIsEntry(false);
+                  emptyWidth();
+                })
+                .catch(emptyWidth);
+            })
+        : dispatch(exit())
+            .unwrap()
+            .then(() => {
+              setIsEntry(false);
+              emptyWidth();
+            })
+            .catch(emptyWidth)
+      : dispatch(entry())
+          .unwrap()
+          .then(() => {
+            setIsEntry(true);
+            emptyWidth();
+            setActiveFilter("tasks");
+          });
+  };
+
   const getTasks = () => {
-    return employeeState.projects?.length > 1 ? (
-      employeeState.projects.map((project, index) => (
+    return tasks.length > 0 ? (
+      tasks.map((t, index) => (
         <Task
-          name={project.project_name}
-          initialDuration={project.duration}
-          currentTask={employeeState.currentTask}
+          name={t.project_name}
+          initialDuration={t.today_duration}
+          currentTask={currentTask}
           key={index}
-          lastEntry={employeeState.lastEntry}
-          setOpenAlert={setOpenAlert}
-          setIsPress={setIsPress}
+          lastEntry={lastEntry}
+          setOpenAlert={setIsOpenAlert}
+          setAlertType={setAlertType}
         />
       ))
     ) : (
@@ -200,32 +272,62 @@ export default () => {
     );
   };
 
+  const handleDailyReport = () => {
+    dispatch(
+      setDailyReport({
+        date: new Date().toISOString().slice(0, 10),
+        dailyReport: dailyReportToday,
+      })
+    )
+      .unwrap()
+      .then(() => setModalVisible(false))
+      .catch((error) => {
+        openSnackbar(
+          error.code === "ERR_NETWORK"
+            ? Translate("connectionFailed", language)
+            : error.message
+        );
+      });
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    // setDailyReportToday(employeeState.dailyReport.dailyReport);
+  };
+
   return (
     <>
-      <AppBar
-        label={
-          authState.type === "boss"
-            ? Translate("myTasks", language)
-            : "Smart Work"
-        }
+      <AppBar label={type === "boss" ? "myTasks" : "Smart Work"} />
+      <Tabs
+        titles={["entryAndExit", "tasks", "cartable"]}
+        activeFilter={activeFilter}
+        setActiveFilter={setActiveFilter}
       />
-      <div className="filterContainer">
-        <div
-          className={`filter ${activeFilter === "Tasks" && "activeFilter"}`}
-          onClick={() => setActiveFilter("Tasks")}
-        >
-          <p className="filterText">{Translate("tasks", language)}</p>
-        </div>
-        <div
-          className={`filter ${activeFilter === "Map" && "activeFilter"}`}
-          onClick={() => setActiveFilter("Map")}
-        >
-          <p className="filterText">{Translate("map", language)}</p>
-        </div>
-      </div>
-      {activeFilter === "Tasks" ? (
+      {activeFilter === "entryAndExit" ? (
         <>
-          <div className="employee">{getTasks()}</div>
+          <MapContainer
+            center={{ lat: 35.720228, lng: 51.39396 }}
+            zoom={13}
+            scrollWheelZoom={false}
+            className="map"
+            style={{
+              height:
+                window.innerHeight > window.innerWidth
+                  ? (window.innerHeight * 2) / 3
+                  : window.innerHeight / 2,
+            }}
+          >
+            <LocateControl />
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          </MapContainer>
+          <ExitEntry />
+        </>
+      ) : activeFilter === "tasks" ? (
+        <>
+          <div className="my-task">{getTasks()}</div>
           <FloatingButton
             type="DailyReport"
             setModalVisibleProject={setModalVisible}
@@ -240,74 +342,34 @@ export default () => {
               multiline
             />
             <div
-              className="buttonsContainer"
-              style={styles.buttonsContainer(I18nManager.isRTL)}
+              className={`container_btn_row ${
+                I18nManager.isRTL ? "rtl" : "ltr"
+              }`}
             >
               <Button
                 label={Translate("ok", language)}
                 customStyle={{ width: "40%" }}
-                isLoading={employeeState.isLoading}
-                onClick={() => {
-                  setIsPress(true);
-                  dispatch(
-                    dailyReport(
-                      new Date().toISOString().slice(0, 10),
-                      dailyReportToday,
-                      setModalVisible,
-                      !modalVisible,
-                      undefined,
-                      setIsPress
-                    )
-                  );
-                }}
+                // isLoading={employeeState.isLoading}
+                onClick={handleDailyReport}
               />
               <Button
                 label={Translate("cancel", language)}
                 customStyle={{ width: "40%" }}
-                onClick={() => {
-                  setModalVisible(false);
-                  setDailyReportToday(employeeState.dailyReport.dailyReport);
-                }}
+                onClick={closeModal}
                 type="SECONDARY"
               />
             </div>
           </Modal>
         </>
       ) : (
-        <MapContainer
-          center={{ lat: 35.720228, lng: 51.39396 }}
-          zoom={13}
-          scrollWheelZoom={false}
-          className="map"
-          style={{ height: window.innerHeight - 150 }}
-        >
-          <LocateControl />
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-        </MapContainer>
+        <div>cartable</div>
       )}
-      <ExitEntry />
       <Alert
-        title={Translate("ENTRY", language)}
-        description={Translate("entryFirst", language)}
-        open={openAlert}
-        setOpen={setOpenAlert}
-        ButtonAction={[{ text: "Ok" }]}
+        {...alert[alertType]}
+        open={isOpenAlert}
+        setOpen={setIsOpenAlert}
       />
-      <Alert
-        title={Translate("location", language)}
-        description={Translate("errorLocationNotCorrect", language)}
-        open={isErrorAlert}
-        setOpen={setIsErrorAlert}
-      />
-      <Alert
-        title={Translate("locationDenied", language)}
-        description={locationDenied.error}
-        open={locationDenied.status}
-        setOpen={(s) => setLocationDenied({ ...locationDenied, status: s })}
-      />
+
       {/* <Spinner
         // isLoading={true}
         isLoading={employeeState.isLoading ? true : employeeState.isLoading}
@@ -316,9 +378,25 @@ export default () => {
   );
 };
 
-const styles = {
-  entryExitText: (isEntry) => ({ color: isEntry ? "red" : "#008800" }),
-  buttonsContainer: (isRTL) => ({
-    direction: isRTL ? "rtl" : "ltr",
-  }),
-};
+// const DotBadge = ({ setIsPressMore, isPressMore }) => {
+//   const [invisible, setInvisible] = useState(false);
+//   const handleBadgeVisibility = () => {
+//     setInvisible(!invisible);
+//     setIsPressMore(!isPressMore);
+//   };
+
+//   return (
+//     <Badge
+//       color="secondary"
+//       variant="dot"
+//       className="box-member-icon"
+//       invisible={invisible}
+//       onClick={handleBadgeVisibility}
+//       style={styles.morePress(isPressMore)}
+//     >
+//       <MoreHorizOutlined />
+//     </Badge>
+//   );
+// };
+
+export default MyTask;

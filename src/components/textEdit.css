@@ -13,8 +13,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.TE_textNoReport {
+  color: #00000050;
+}
 .TE_textReportEditable {
-  min-height: 53px;
+  min-height: 57px;
 }
 .TE_notSave {
   border: 1px #990f02 solid;

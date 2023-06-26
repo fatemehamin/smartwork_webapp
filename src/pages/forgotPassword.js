@@ -1,40 +1,45 @@
 import React, { useState } from "react";
-import AppBar from "../components/AppBar";
-import Input from "../components/Input";
-import Button from "../components/Button";
+import AppBar from "../components/appBar";
+import Input from "../components/input";
+import Button from "../components/button";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { forgotPassword } from "../redux/action/authAction";
-import { useEffect } from "react";
+import { forgotPassword } from "../features/auth/action";
 import { useSnackbar } from "react-simple-snackbar";
-import { Translate } from "../i18n";
+import { Translate } from "../features/i18n/translate";
+import "./forgotPassword.css";
 
 const ForgotPassword = () => {
   const [phoneNumber, setPhoneNumber] = useState("+98");
   const [country, setCountry] = useState("IR");
   const [callingCode, setCallingCode] = useState("+98");
-  const [isPress, setIsPress] = useState(false);
-  const [openSnackbar, closeSnackbar] = useSnackbar();
-  const stateAuth = useSelector((state) => state.authReducer);
-  const { language } = useSelector((state) => state.configReducer);
+  const [openSnackbar] = useSnackbar();
+  const stateAuth = useSelector((state) => state.auth);
+  const { language, I18nManager } = useSelector((state) => state.i18n);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    isPress && stateAuth.isError && openSnackbar(stateAuth.error);
-  }, [stateAuth.isError]);
-
-  const onSendHandler = () => {
-    setIsPress(true);
-    dispatch(
-      forgotPassword(callingCode, phoneNumber, country, navigate, setIsPress)
-    );
+  const handelSendCode = () => {
+    dispatch(forgotPassword({ callingCode, phoneNumber, country }))
+      .unwrap()
+      .then((res) => navigate(`/verifyCode/${phoneNumber}/forgotPassword`))
+      .catch((error) =>
+        openSnackbar(
+          error.code === "ERR_NETWORK"
+            ? Translate("connectionFailed", language)
+            : error.message.slice(-3) === "404"
+            ? Translate("phoneNumberNotExists", language)
+            : error.message
+        )
+      );
   };
 
   return (
     <>
-      <AppBar label={Translate("forgotPassword", language)} type="back" />
-      <p style={styles.text}>{Translate("enterYourPhoneNumber", language)}</p>
+      <AppBar label="forgotPassword" type="back" />
+      <p className={`forgot_pass_text ${I18nManager.isRTL ? "rtl" : "ltr"}`}>
+        {Translate("enterYourPhoneNumber", language)}
+      </p>
       <Input
         value={phoneNumber}
         setValue={setPhoneNumber}
@@ -44,23 +49,15 @@ const ForgotPassword = () => {
         setCountry={setCountry}
         callingCode={callingCode}
         setCallingCode={setCallingCode}
-        msgError={stateAuth.isError ? stateAuth.error.phoneNumberError : ""}
       />
       <Button
         label={Translate("sendCode", language)}
         disabled={phoneNumber === callingCode}
-        onClick={onSendHandler}
+        onClick={handelSendCode}
         isLoading={stateAuth.isLoading}
       />
     </>
   );
-};
-const styles = {
-  text: {
-    marginLeft: "10%",
-    marginBottom: 30,
-    textAlign: "left",
-  },
 };
 
 export default ForgotPassword;

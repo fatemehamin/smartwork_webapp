@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from "react";
-import AppBar from "../components/AppBar";
+import AppBar from "../components/appBar";
+import Button from "../components/button";
+import Modal from "../components//modal";
+import { Room, Delete, RadioButtonUnchecked } from "@mui/icons-material";
+import { useSnackbar } from "react-simple-snackbar";
+import { useDispatch, useSelector } from "react-redux";
+import Alert from "../components/alert";
+import Input from "../components/input";
+import Icon from "../assets/images/marker-icon-2x-gold.png";
+import L from "leaflet";
+import LocateControl from "../utils/locatecontrol";
+import { Translate } from "../features/i18n/translate";
+import {
+  addLocation,
+  deleteLocation,
+  fetchLocations,
+} from "../features/locations/action";
 import {
   MapContainer,
   TileLayer,
@@ -8,35 +24,23 @@ import {
   Circle,
   useMap,
 } from "react-leaflet";
-import Button from "../components/Button";
-import Modal from "../components//modal";
-import { Room, Delete, RadioButtonUnchecked } from "@mui/icons-material";
-import { useSnackbar } from "react-simple-snackbar";
-import { useDispatch, useSelector } from "react-redux";
-import { addLocation, DeleteLocation } from "../redux/action/managerAction";
-import Alert from "../components/Alert";
-import Input from "../components/Input";
-import Icon from "../assets/images/marker-icon-2x-gold.png";
-import L from "leaflet";
-import LocateControl from "../utils/locatecontrol";
-import { Translate } from "../i18n";
+import "./location.css";
 
 const Location = () => {
-  const stateManager = useSelector((state) => state.managerReducer);
-  const { language, I18nManager } = useSelector((state) => state.configReducer);
+  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { locations, isLoading } = useSelector((state) => state.locations);
+  const { phoneNumber } = useSelector((state) => state.auth.userInfo);
   const dispatch = useDispatch();
-  const [openSnackbar, closeSnackbar] = useSnackbar();
-  const [locations, setLocations] = useState([]);
-  const [isPress, setIsPress] = useState(false);
+  const [openSnackbar] = useSnackbar();
   const [modalVisible, setModalVisible] = useState(false);
-  const [openAlert, setOpenAlert] = useState(false);
-  const [deleteLocation, setDeleteLocation] = useState("");
+  const [isOpenAlert, setIsOpenAlert] = useState(false);
   const [currentCoordinate, setCurrentCoordinate] = useState({
     latitude: 35.720228,
     longitude: 51.39396,
     location_name: "",
     radius: "",
   });
+
   const goldIcon = L.icon({
     iconUrl: Icon,
     shadowUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png",
@@ -46,6 +50,7 @@ const Location = () => {
     iconAnchor: [13, 41], // point of the icon which will correspond to marker's location
     popupAnchor: [0, -35], // point from which the popup should open relative to the iconAnchor
   });
+
   const SettingMap = () => {
     const map = useMap();
     map.on("click", (e) => {
@@ -85,53 +90,84 @@ const Location = () => {
     );
   };
 
+  const openModal = () => setModalVisible(true);
+  const closeModal = () => setModalVisible(false);
+  const openAlert = () => setIsOpenAlert(true);
+
+  const iconEnd = () => (
+    <span className="location-icon">{Translate("meter", language)}</span>
+  );
+
+  const onChangeNameLocation = (text) =>
+    setCurrentCoordinate((coordinate) => ({
+      ...coordinate,
+      location_name: text,
+    }));
+
+  const onChangeRadius = (text) => {
+    setCurrentCoordinate((coordinate) => ({
+      ...coordinate,
+      radius: text ? (isNaN(parseInt(text)) ? 0 : parseInt(text)) : 0,
+    }));
+  };
+
+  const handleAddLocation = () => {
+    dispatch(addLocation({ ...currentCoordinate, phoneNumber }))
+      .unwrap()
+      .then(closeModal)
+      .catch((error) => {
+        console.log(error);
+        openSnackbar(
+          error.code === "ERR_NETWORK"
+            ? Translate("connectionFailed", language)
+            : error.code === "ERR_BAD_REQUEST"
+            ? Translate("locationNameExist", language)
+            : error.message
+        );
+      });
+  };
+
+  const handleDeleteLocation = () =>
+    dispatch(deleteLocation(currentCoordinate.location_name));
+
   const LocationList = () =>
-    locations.length > 0 &&
-    locations.map((location, index) => (
-      <div
-        key={index}
-        style={{
-          ...styles.containerLocationList(I18nManager.isRTL),
-          backgroundColor:
-            location.location_name == currentCoordinate.location_name &&
-            "#f6921e30",
-        }}
-      >
-        <span onClick={() => setCurrentCoordinate(location)}>
-          <Room size={20} color="secondary" />
-          <span style={{ color: "#000", fontSize: 15 }}>
-            {location.location_name}
-          </span>
-        </span>
-        <Delete
-          size={20}
-          color={!stateManager.isLoading ? "secondary" : "secondary80"}
-          onClick={() => {
-            setDeleteLocation(location.location_name);
-            setOpenAlert(true);
-          }}
-        />
-      </div>
-    ));
+    locations.length > 0 && (
+      <>
+        <div className="location-title-list">
+          {Translate("registeredLocations", language)}
+        </div>
+        {locations.map((location, index) => {
+          const active =
+            location.location_name === currentCoordinate.location_name;
+          return (
+            <div
+              key={index}
+              className={`location-bar ${
+                active ? "location-bar-selected" : ""
+              } ${I18nManager.isRTL ? "rtl" : "ltr"}`}
+              onClick={() => setCurrentCoordinate(location)}
+            >
+              <span className={`location-bar-name${active ? "-selected" : ""}`}>
+                <Room color={active ? "white" : "secondary"} />
+                <span className="location-text">{location.location_name}</span>
+              </span>
+              <Delete
+                color={active ? "white" : "secondary"}
+                onClick={openAlert}
+              />
+            </div>
+          );
+        })}
+      </>
+    );
 
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setCurrentCoordinate({
-          ...currentCoordinate,
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-      },
-      (err) => openSnackbar(err)
-    );
-    isPress && stateManager.isError && openSnackbar(stateManager.error);
-    setLocations(stateManager.locations);
-  }, [stateManager.locations, stateManager.isError, navigator.geolocation]);
+    dispatch(fetchLocations());
+  }, []);
 
   return (
     <>
-      <AppBar label={Translate("location", language)} />
+      <AppBar label="location" />
       <MapContainer
         center={{
           lat: currentCoordinate.latitude,
@@ -139,7 +175,8 @@ const Location = () => {
         }}
         zoom={13}
         scrollWheelZoom={false}
-        style={styles.map}
+        className="location-map"
+        style={{ height: window.innerHeight / 1.75 }}
       >
         <SettingMap />
         <LocateControl />
@@ -162,149 +199,66 @@ const Location = () => {
       </MapContainer>
       <Button
         label={Translate("addNewLocation", language)}
-        onClick={() => setModalVisible(true)}
+        onClick={openModal}
       />
       <Modal modalVisible={modalVisible} setModalVisible={setModalVisible}>
-        <h2 style={styles.textAddLocation}>
+        <h2 className="location-title-modal">
           {Translate("addNewLocation", language)}
         </h2>
-        {/*********************** two text input ***********************/}
-        <div style={styles.containerTextInputBar(I18nManager.isRTL)}>
-          <div style={styles.containerTextInput(I18nManager.isRTL)}>
-            <Input
-              customStyle={{ width: "100%" }}
-              label={Translate("nameLocation", language)}
-              placeholder={Translate("nameLocation", language)}
-              value={currentCoordinate.location_name}
-              Icon={() => <Room size={30} color="secondary80" />}
-              setValue={(text) =>
-                setCurrentCoordinate({
-                  ...currentCoordinate,
-                  location_name: text,
-                })
-              }
-            />
-          </div>
-          <div style={styles.containerTextInput(I18nManager.isRTL)}>
-            <Input
-              customStyle={{ width: "100%" }}
-              label={Translate("radius", language)}
-              placeholder={Translate("radius", language)}
-              type="number"
-              value={currentCoordinate.radius.toString()}
-              Icon={() => (
-                <RadioButtonUnchecked size={30} color="secondary80" />
-              )}
-              IconEnd={() => (
-                <span style={{ color: "#000" }}>
-                  {Translate("meter", language)}
-                </span>
-              )}
-              setValue={(text) => {
-                setCurrentCoordinate({
-                  ...currentCoordinate,
-                  radius: text
-                    ? isNaN(parseInt(text))
-                      ? 0
-                      : parseInt(text)
-                    : 0,
-                });
-              }}
-            />
-          </div>
-        </div>
-        {/*********************** two button ***********************/}
-        <div style={styles.containerButton(I18nManager.isRTL)}>
+        <Input
+          customStyle={{ width: "100%" }}
+          label={Translate("nameLocation", language)}
+          placeholder={Translate("nameLocation", language)}
+          value={currentCoordinate.location_name}
+          setValue={onChangeNameLocation}
+          Icon={() => <Room size={30} color="secondary80" />}
+        />
+        <Input
+          customStyle={{ width: "100%" }}
+          label={Translate("radius", language)}
+          placeholder={Translate("radius", language)}
+          value={currentCoordinate.radius.toString()}
+          setValue={onChangeRadius}
+          type="number"
+          Icon={() => <RadioButtonUnchecked size={30} color="secondary80" />}
+          IconEnd={iconEnd}
+        />
+        <div
+          className={`container_btn_row ${I18nManager.isRTL ? "rtl" : "ltr"}`}
+        >
           <Button
             label={Translate("ok", language)}
             customStyle={{ width: "40%" }}
-            isLoading={stateManager.isLoading}
-            onClick={() => {
-              setIsPress(true);
-              dispatch(
-                addLocation(
-                  currentCoordinate.latitude,
-                  currentCoordinate.longitude,
-                  currentCoordinate.location_name,
-                  currentCoordinate.radius,
-                  setModalVisible,
-                  setIsPress
-                )
-              );
-            }}
+            isLoading={isLoading}
+            onClick={handleAddLocation}
           />
           <Button
             label={Translate("cancel", language)}
             customStyle={{ width: "40%" }}
             type="SECONDARY"
-            onClick={() => setModalVisible(false)}
+            onClick={closeModal}
           />
         </div>
       </Modal>
+      <LocationList />
       <Alert
         title={Translate("deleteLocation", language)}
         description={Translate("deleteLocationDescription", language)}
-        open={openAlert}
-        setOpen={setOpenAlert}
+        open={isOpenAlert}
+        setOpen={setIsOpenAlert}
+        Icon={() => <div>icon</div>} //-----------------------------need icon ----------------
         ButtonAction={[
           {
-            text: Translate("no", language),
+            text: Translate("yes", language),
+            onClick: handleDeleteLocation,
           },
           {
-            text: Translate("yes", language),
-            onClick: () => {
-              setIsPress(true);
-              dispatch(DeleteLocation(deleteLocation, setIsPress));
-            },
+            text: Translate("no", language),
+            type: "SECONDARY",
           },
         ]}
       />
-      <LocationList />
     </>
   );
 };
 export default Location;
-const styles = {
-  map: {
-    width: "100%",
-    height: window.innerHeight / 1.75,
-  },
-  containerTextInputBar: (isRTL) => ({
-    direction: isRTL ? "rtl" : "ltr",
-    justifyContent: "space-evenly",
-    alignSelf: "stretch",
-    marginVertical: 10,
-    display: "flex",
-  }),
-  containerTextInput: (isRTL) => ({
-    direction: isRTL ? "rtl" : "ltr",
-    alignItems: "baseline",
-    display: "flex",
-    width: "100%",
-  }),
-  containerButton: (isRTL) => ({
-    direction: isRTL ? "rtl" : "ltr",
-    justifyContent: "space-evenly",
-    alignSelf: "stretch",
-    display: "flex",
-  }),
-  containerLocationList: (isRTL) => ({
-    direction: isRTL ? "rtl" : "ltr",
-    alignItems: "center",
-    alignSelf: "stretch",
-    justifyContent: "space-between",
-    margin: 10,
-    padding: 10,
-    display: "flex",
-    borderRadius: 5,
-  }),
-  textAddLocation: {
-    color: "#000",
-    fontSize: 20,
-    marginTop: 5,
-    marginBottom: 5,
-    fontWeight: "bold",
-    paddingBottom: 10,
-    textAlign: "center",
-  },
-};

@@ -1,0 +1,17 @@
+#alert-dialog-title {
+  color: #f6931e;
+  padding: 0px;
+  font-weight: 800;
+  font-size: 17px;
+  font-family: Vazirmatn, sans-serif;
+}
+#alert-dialog-description {
+  font-weight: 500;
+  font-size: 14px;
+  color: #000;
+  margin-top: 9px;
+  font-family: Vazirmatn, sans-serif;
+}
+#alert-dialog-actions {
+  width: 90%;
+}

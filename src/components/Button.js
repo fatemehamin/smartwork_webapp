@@ -1,8 +1,8 @@
 import React from "react";
-import "./Button.css";
+import "./button.css";
 import loadingImg from "../assets/images/buttonLoading.gif";
 
-export default ({
+const Button = ({
   label,
   onClick,
   disabled,
@@ -10,26 +10,24 @@ export default ({
   type = "PRIMARY",
   customStyle,
 }) => {
-  const styles = {
-    text_color: {
-      color: disabled ? "#ffffff90" : type == "PRIMARY" ? "#fff" : "#269dd8",
-    },
-  };
-
   return (
     <button
-      className={`Btn_container Btn_container_${disabled ? "DISABLE" : type}`}
+      className={`btn-container btn-container-${disabled ? "DISABLE" : type}`}
       style={customStyle}
       disabled={disabled}
       onClick={onClick}
     >
       {isLoading && !disabled ? (
-        <img className="Btn_loading" src={loadingImg} alt="loading" />
+        <img className="btn-loading" src={loadingImg} alt="loading" />
       ) : (
-        <h1 className="Btn_text" style={styles.text_color}>
+        <h1
+          className={`btn-text btn-text-color-${disabled ? "DISABLE" : type}`}
+        >
           {label}
         </h1>
       )}
     </button>
   );
 };
+
+export default Button;

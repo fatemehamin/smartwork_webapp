@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AppBar from "../components/AppBar";
+import AppBar from "../components/appBar";
 import Calendar from "../components/picker";
 import * as XLSX from "xlsx";
 // import Snackbar from "react-native-snackbar";
@@ -12,27 +12,34 @@ import {
 } from "@mui/icons-material";
 import { Checkbox, Collapse, FormControlLabel, FormGroup } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { exportExcel } from "../redux/action/managerAction";
+import { exportExcel } from "../features/reports/action";
 import jMoment from "moment-jalaali";
 import Modal from "../components/modal";
-import Button from "../components/Button";
-import { Translate } from "../i18n";
+import Button from "../components/button";
+import { Translate } from "../features/i18n/translate";
 // import Share from "react-native-share";
 // import Spinner from "../components/spinner";
-import { getProject } from "../redux/action/employeeAction";
+// import { getProject } from "../redux/action/employeeAction";
 // import Collapsible from "react-native-collapsible";
+import "./exportExcel.css";
+import { useSnackbar } from "react-simple-snackbar";
 
 const ExportExcel = () => {
-  const [year, setYear] = useState(jMoment(new Date()).jYear());
-  const [month, setMonth] = useState(jMoment(new Date()).jMonth());
-  const stateManager = useSelector((state) => state.managerReducer);
-  const { language, I18nManager } = useSelector((state) => state.configReducer);
+  const [jYear, setJYear] = useState(jMoment(new Date()).jYear());
+  const [jMonth, setJMonth] = useState(jMoment(new Date()).jMonth());
+  const { users } = useSelector((state) => state.users);
+  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { projects, isLoading } = useSelector((state) => state.projects);
+  const { excelReport } = useSelector((state) => state.reports);
+
   const [modalVisible, setModalVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading1, setIsLoading] = useState(false);
   const [isSnackbar, setIsSnackbar] = useState(false);
   const [indexEmployeeCurrent, setIndexEmployeeCurrent] = useState(0);
   const [isCollapse, setIsCollapse] = useState(false);
   const [FilterProject, setFilterProject] = useState(["entry"]);
+  const [openSnackbar] = useSnackbar();
+
   const [employees, setEmployees] = useState({
     name: [""],
     number: [],
@@ -44,26 +51,26 @@ const ExportExcel = () => {
   }, []);
   const pad = (n) => (n < 10 ? "0" + n : n);
   const nowTime = new Date().getTime();
-  const filename = `${employees.name[indexEmployeeCurrent]}_${year}${pad(
-    month + 1
+  const filename = `${employees.name[indexEmployeeCurrent]}_${jYear}${pad(
+    jMonth + 1
   )}_${nowTime}`;
   const getEmployee = () => {
     let number = [];
     let name = [];
     let data = [];
-    stateManager.employees.forEach((employee) => {
+    users.forEach((employee) => {
       number = [...number, employee.phone_number];
       name = [...name, `${employee.first_name} ${employee.last_name}`];
       data = [...data, ""];
     });
     setEmployees(() => ({ number, name, data }));
     setIndexEmployeeCurrent(indexEmployeeCurrent);
-    dispatch(getProject());
+    // dispatch(getProject());
   };
   const exportFile = (filename) => {
     const wb = XLSX.utils.book_new();
-    let ws = XLSX.utils.aoa_to_sheet(stateManager.report.data);
-    ws["!merges"] = stateManager.report.config;
+    let ws = XLSX.utils.aoa_to_sheet(excelReport.data);
+    ws["!merges"] = excelReport.config;
     XLSX.utils.book_append_sheet(wb, ws, "ReportSheet");
     XLSX.writeFile(wb, `${filename}.xlsx`);
   };
@@ -92,9 +99,13 @@ const ExportExcel = () => {
   //     });
   // };
   const ExcelFileView = () =>
-    stateManager.report != null && (
+    excelReport != null && (
       <div style={styles.excelFile}>
-        <img src={require("../assets/images/excel.png")} style={styles.img} />
+        <img
+          src={require("../assets/images/excel.png")}
+          style={styles.img}
+          alt="excel"
+        />
         <div
           style={{
             ...styles.text,
@@ -118,42 +129,67 @@ const ExportExcel = () => {
     );
   const onRemoveFilterHandler = () => {
     setModalVisible(false);
-    setYear(jMoment(new Date()).jYear());
-    setMonth(jMoment(new Date()).jMonth());
+    setJYear(jMoment(new Date()).jYear());
+    setJMonth(jMoment(new Date()).jMonth());
     setIndexEmployeeCurrent(0);
     setFilterProject(["entry"]);
   };
   const onExportFilterHandler = () => {
+    const changeToDate = (jYear, jMonth, day) => {
+      const d = jMoment(`${jYear}/${jMonth + 1}/${day}`, "jYYYY/jM/jD");
+      return `${d.year()}/${d.month() + 1}/${d.date()}`;
+    };
+    const daysInMonth = jMoment.jDaysInMonth(parseInt(jYear), jMonth);
+
     dispatch(
-      exportExcel(
-        parseInt(year),
-        month + 1,
-        jMoment.jDaysInMonth(parseInt(year), month),
-        employees.number[indexEmployeeCurrent],
-        employees.name[indexEmployeeCurrent],
-        setModalVisible,
-        FilterProject
-      )
-    );
+      exportExcel({
+        year: parseInt(jYear),
+        month: jMonth + 1,
+        daysInMonth,
+        startDate: changeToDate(jYear, jMonth, 1),
+        endDate: changeToDate(jYear, jMonth, daysInMonth),
+        phoneNumber: employees.number[indexEmployeeCurrent],
+        userName: employees.name[indexEmployeeCurrent],
+        FilterProject,
+      })
+    )
+      .unwrap()
+      .then((res) => {
+        if (res.reports.length <= 0) {
+          openSnackbar(Translate("notExistReport", language));
+          // dispatch(emptyReport());
+        } else {
+          setModalVisible(false);
+        }
+      })
+      .catch((error) => {
+        openSnackbar(
+          error.code === "ERR_NETWORK"
+            ? Translate("connectionFailed", language)
+            : error.message
+        );
+      });
   };
+
+  const openModal = () => setModalVisible(true);
 
   return (
     <>
-      <AppBar label={Translate("exportExcel", language)} />
-      <div style={styles.container}>
-        <div style={styles.text}>
-          {Translate("selectDateMemberProject", language)}
+      <AppBar label="exportExcel" />
+      <div className="excel-container">
+        <div className="excel-text">
+          {Translate("selectDateUserProject", language)}
         </div>
         <Button
-          onClick={() => setModalVisible(true)}
+          onClick={openModal}
           label={Translate("exportExcel", language)}
         />
-        {stateManager.report != null ? (
+        {/* {stateManager.report != null ? (
           <div style={styles.text}>
-            {Translate("excel", language)} {year}/{month + 1}{" "}
+            {Translate("excel", language)} {JYear}/{jMonth + 1}{" "}
             {employees.name[indexEmployeeCurrent]} :
           </div>
-        ) : null}
+        ) : null} */}
         <ExcelFileView />
         <Modal
           modalVisible={modalVisible}
@@ -169,6 +205,7 @@ const ExportExcel = () => {
                 {Translate("removeFilter", language)}
               </div>
             </div>
+
             <div style={{ ...styles.textHeaderModal, paddingRight: 15 }}>
               {Translate("export", language)}
             </div>
@@ -181,16 +218,16 @@ const ExportExcel = () => {
           >
             <div style={styles.text}>{Translate("date", language)} : </div>
             <Calendar
-              month={month}
-              setMonth={setMonth}
-              year={year}
-              setYear={setYear}
+              month={jMonth}
+              setMonth={setJMonth}
+              year={jYear}
+              setYear={setJYear}
               isCalendar
             />
           </div>
           <div style={styles.sectionContainerModal(I18nManager.isRTL)}>
             <Calendar
-              label={`${Translate("member", language)} : `}
+              label={`${Translate("user", language)} : `}
               onePicker={{
                 data: employees.name,
                 init: indexEmployeeCurrent,
@@ -220,7 +257,8 @@ const ExportExcel = () => {
                     label={Translate("dailyReport", language)}
                   />
                   {getCheckBoxProject(
-                    stateManager,
+                    projects,
+                    isLoading,
                     FilterProject,
                     setFilterProject
                   )}
@@ -231,24 +269,30 @@ const ExportExcel = () => {
           <Button
             label={Translate("export", language)}
             onClick={onExportFilterHandler}
-            isLoading={stateManager.isLoading}
+            // isLoading={stateManager.isLoading}
           />
         </Modal>
-        {/* <Spinner isLoading={isLoading} /> */}
+        {/* <Spinner isLoading={isLoading1} /> */}
       </div>
     </>
   );
 };
-const getCheckBoxProject = (stateManager, FilterProject, setFilterProject) =>
-  stateManager.projects.map((project, index) => {
+const getCheckBoxProject = (
+  projects,
+  isLoading,
+  FilterProject,
+  setFilterProject
+) => {
+  // const { projects, isLoading } = useSelector((state) => state.projects);
+  return projects.map((project, index) => {
     const [toggle, setToggle] = useState(false);
     useEffect(() => {
       setToggle(
-        FilterProject.filter((proFilter) => proFilter == project.project_name)
+        FilterProject.filter((proFilter) => proFilter === project.project_name)
           .length > 0
       );
     }, [
-      FilterProject.filter((proFilter) => proFilter == project.project_name)
+      FilterProject.filter((proFilter) => proFilter === project.project_name)
         .length > 0,
     ]);
     return (
@@ -257,7 +301,7 @@ const getCheckBoxProject = (stateManager, FilterProject, setFilterProject) =>
         control={
           <Checkbox
             checked={toggle}
-            disabled={stateManager.isLoading}
+            disabled={isLoading}
             onChange={(e) => {
               toggle
                 ? setFilterProject(
@@ -272,12 +316,8 @@ const getCheckBoxProject = (stateManager, FilterProject, setFilterProject) =>
       />
     );
   });
+};
 const styles = {
-  container: {
-    justifyContent: "center",
-    display: "flex",
-    flexWrap: "wrap",
-  },
   removeFilter: { alignItems: "center", display: "flex" },
   textHeaderModal: {
     color: "#fff",

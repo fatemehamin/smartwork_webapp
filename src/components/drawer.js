@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import ImgDrawer from "../assets/images/texture.jpeg";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../redux/action/authAction";
-import Alert from "./Alert";
+import { logout } from "../features/auth/authSlice";
+import Alert from "./alert";
+import { useDispatch, useSelector } from "react-redux";
+import { Translate } from "../features/i18n/translate";
+import "./drawer.css";
 import {
   Box,
   SwipeableDrawer,
@@ -14,16 +17,14 @@ import {
   ListItemText,
 } from "@mui/material";
 import {
-  Stars,
-  LocationSearching,
-  TaskAlt,
-  Assessment,
-  InsertDriveFile,
   Dns,
-  Home,
+  PlaceOutlined,
+  TaskAlt,
+  ChatBubbleOutlineOutlined,
+  FolderOpenOutlined,
+  HomeOutlined,
+  ExitToAppOutlined,
 } from "@mui/icons-material";
-import { useDispatch, useSelector } from "react-redux";
-import { Translate } from "../i18n";
 
 const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
   const iOS =
@@ -31,9 +32,15 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
     /iPad|iPhone|iPod/.test(navigator.userAgent);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const position = useSelector((state) => state.authReducer.type);
-  const { language, I18nManager } = useSelector((state) => state.configReducer);
-  const [isAlert, setIsAlert] = useState(false);
+  const position = useSelector((state) => state.auth.type);
+  const { language } = useSelector((state) => state.i18n);
+  const [logoutAlert, setLogoutAlert] = useState(false);
+
+  const handelLogout = () => {
+    dispatch(logout());
+    navigate("/login");
+  };
+
   const toggleDrawer = (open) => (event) => {
     if (
       event &&
@@ -44,109 +51,85 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
     }
     setOpenDrawer(open);
   };
-  const list = () => {
-    const Item = ({ label, Icon, onClick }) => {
-      return (
-        <ListItem
-          disablePadding
-          style={{
-            backgroundColor: CurrentLabel == label && "#f6921e20",
-            color: CurrentLabel == label ? "#f6921e" : "#777777",
-            ...styles.list,
-          }}
-        >
-          <ListItemButton onClick={onClick}>
-            {/* <ListItemIcon style={{ color: CurrentLabel == label && "#f6921e" }}>
-              <Icon size="small" />
-            </ListItemIcon> */}
-            <ListItemText
-              primary={label}
-              style={{ textAlign: I18nManager.isRTL ? "right" : "left" }}
-            />
-          </ListItemButton>
-        </ListItem>
-      );
-    };
+
+  const getList = () => {
     return (
       <Box
-        sx={styles.drawer}
+        className="drawer"
         role="presentation"
         onClick={toggleDrawer(false)}
         onKeyDown={toggleDrawer(false)}
       >
         <List>
-          <img src={ImgDrawer} style={styles.img} alt="SmartWorkDrawer" />
-          <div style={styles.labelDrawer}>
-            <p style={{ ...styles.text, fontWeight: "bold" }}>Smart Work</p>
-            <p style={styles.text}>v1.1.0</p>
+          <img src={ImgDrawer} className="drawer-img" alt="SmartWorkDrawer" />
+          <div className="drawer-label">
+            <p className="drawer-text drawer-text-bold">Smart Work</p>
+            <p className="drawer-text">v1.1.0</p>
           </div>
           {position === "boss" && (
             <Item
-              label={Translate("home", language)}
-              Icon={Home}
+              label="home"
+              Icon={HomeOutlined}
               onClick={() => navigate("/manager")}
+              CurrentLabel={CurrentLabel}
             />
           )}
           <Item
-            label={Translate(
-              position === "boss" ? "myTasks" : "home",
-              language
-            )}
+            label={position === "boss" ? "myTasks" : "home"}
             Icon={TaskAlt}
             onClick={() => navigate("/myTasks")}
+            CurrentLabel={CurrentLabel}
           />
           <Item
-            label={Translate("myReport", language)}
-            Icon={Assessment}
+            label="myReport"
+            Icon={ChatBubbleOutlineOutlined}
             onClick={() => navigate("/myReport")}
+            CurrentLabel={CurrentLabel}
           />
           {position === "boss" && (
             <>
-              {/* <Item
-                label="List of projects"
-                Icon={Dns}
-                onClick={() => navigate("/listOfProjects")}
-              /> */}
+              {/* <Item label="List of projects" Icon={Dns}  onClick={() => navigate("/listOfProjects")}  /> */}
               <Item
-                label={Translate("location", language)}
-                Icon={LocationSearching}
+                label="location"
+                Icon={PlaceOutlined}
                 onClick={() => navigate("/location")}
+                CurrentLabel={CurrentLabel}
               />
-              {/* <Item label="VIP" Icon={Stars} onClick={() => navigate("/VIP")} /> */}
             </>
           )}
           {(position === "financial" || position === "boss") && (
             <Item
-              label={Translate("exportExcel", language)}
-              Icon={InsertDriveFile}
+              label="exportExcel"
+              Icon={FolderOpenOutlined}
               onClick={() => navigate("/exportExcel")}
+              CurrentLabel={CurrentLabel}
             />
           )}
         </List>
         <Divider />
         <List>
           <Item
-            label={Translate("logout", language)}
-            Icon={Alert}
-            onClick={() => setIsAlert(true)}
+            label="logout"
+            Icon={ExitToAppOutlined}
+            onClick={() => setLogoutAlert(true)}
+            CurrentLabel={CurrentLabel}
           />
         </List>
         <Alert
-          open={isAlert}
-          setOpen={setIsAlert}
+          open={logoutAlert}
+          setOpen={setLogoutAlert}
           title={Translate("logout", language)}
           description={Translate("logoutDescription", language)}
+          Icon={() => <div>icon</div>} // ----------------- not complete --------------
           ButtonAction={[
-            { text: Translate("no", language) },
-            {
-              text: Translate("yes", language),
-              onClick: () => dispatch(logout(navigate)),
-            },
+            { text: Translate("yes", language), onClick: handelLogout },
+            { text: Translate("no", language), type: "SECONDARY" },
           ]}
         />
       </Box>
     );
   };
+
   return (
     <SwipeableDrawer
       anchor="left"
@@ -156,24 +139,42 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
       disableBackdropTransition={!iOS}
       disableDiscovery={iOS}
     >
-      {list()}
+      {getList()}
     </SwipeableDrawer>
   );
 };
 
-const styles = {
-  drawer: { width: 250 },
-  img: { height: 210, width: "100%", marginTop: -8 },
-  labelDrawer: {
-    position: "absolute",
-    backgroundColor: "#00000060",
-    height: 60,
-    width: "100%",
-    top: 150,
-    paddingLeft: 10,
-  },
-  text: { color: "#fff", lineHeight: 0.25 },
-  list: { borderRadius: 5, width: 230, marginLeft: 10 },
+const Item = ({ label, Icon, onClick, CurrentLabel }) => {
+  const { I18nManager, language } = useSelector((state) => state.i18n);
+  const styles = { itemIcon: { color: "#33333370", minWidth: 0 } };
+
+  return (
+    <ListItem
+      disablePadding
+      className={`drawer-item ${
+        CurrentLabel === label ? "drawer-indicator" : ""
+      }`}
+    >
+      <ListItemButton
+        onClick={onClick}
+        className={I18nManager.isRTL ? "rtl" : "ltr"}
+        style={{ alignItems: "stretch" }}
+      >
+        <ListItemIcon style={styles.itemIcon}>
+          <Icon
+            size="small"
+            className={
+              CurrentLabel === label ? "drawer-item-icon-indicator" : ""
+            }
+          />
+        </ListItemIcon>
+        <ListItemText
+          primary={Translate(label, language)}
+          className={I18nManager.isRTL ? "text-right" : "text-left"}
+        />
+      </ListItemButton>
+    </ListItem>
+  );
 };
 
 export default Drawer;

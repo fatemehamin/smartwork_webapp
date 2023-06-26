@@ -1,170 +1,162 @@
-import React, { useState, useEffect } from "react";
-import AppBar from "../components/AppBar";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { report } from "../redux/action/employeeAction";
 import moment from "moment";
 import jMoment from "moment-jalaali";
-import Button from "../components/Button";
+import AppBar from "../components/appBar";
+import Tabs from "../components/tabs";
+import Button from "../components/button";
 import Calendar from "../components/picker";
 import TextEdit from "../components/textEdit";
 import { useSnackbar } from "react-simple-snackbar";
-import { Translate } from "../i18n";
+import { Translate } from "../features/i18n/translate";
+import { fetchReports } from "../features/reports/action";
+import { emptyReport } from "../features/reports/reportsSlice";
 import "./myReport.css";
 
 const MyReport = () => {
-  const employeeState = useSelector((state) => state.employeeReducer);
-  const { language, I18nManager } = useSelector((state) => state.configReducer);
+  const [activeFilter, setActiveFilter] = useState("summaryStatus");
+  const [jYear, setJYear] = useState(jMoment(new Date()).jYear());
+  const [jMonth, setJMonth] = useState(jMoment(new Date()).jMonth());
+  const [openSnackbar] = useSnackbar();
+  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { userInfo } = useSelector((state) => state.auth);
+  const { detailedReport, summeryReport, isLoading } = useSelector(
+    (state) => state.reports
+  );
   const dispatch = useDispatch();
-  const [activeFilter, setActiveFilter] = useState("Summary");
-  const [year, setYear] = useState(jMoment(new Date()).jYear());
-  const [month, setMonth] = useState(jMoment(new Date()).jMonth());
-  const [openSnackbar, closeSnackbar] = useSnackbar();
-  const [isPress, setIsPress] = useState(false);
-
   const pad = (n) => (n < 10 ? "0" + n : n);
-  useEffect(() => {
-    isPress && employeeState.isError && openSnackbar(employeeState.error);
-  }, [employeeState.isError]);
 
-  //--------------------------------------- Details Report ---------------------------------------//
+  const handleResultReport = () => {
+    const changeToDate = (jYear, jMonth, day) => {
+      const d = jMoment(`${jYear}/${jMonth + 1}/${day}`, "jYYYY/jM/jD");
+      return `${d.year()}/${d.month() + 1}/${d.date()}`;
+    };
+    const daysInMonth = jMoment.jDaysInMonth(parseInt(jYear), jMonth);
+    dispatch(
+      fetchReports({
+        jYear: parseInt(jYear),
+        jMonth: jMonth + 1,
+        daysInMonth,
+        startDate: changeToDate(jYear, jMonth, 1),
+        endDate: changeToDate(jYear, jMonth, daysInMonth),
+        phoneNumber: userInfo.phoneNumber,
+      })
+    )
+      .unwrap()
+      .then((res) => {
+        if (res.reports.length <= 0) {
+          openSnackbar(Translate("notExistReport", language));
+          dispatch(emptyReport());
+        }
+      })
+      .catch((error) => {
+        openSnackbar(
+          error.code === "ERR_NETWORK"
+            ? Translate("connectionFailed", language)
+            : error.message
+        );
+      });
+  };
+
   const getDetailsReport = () =>
-    employeeState.report != null &&
-    employeeState.report
+    detailedReport != null &&
+    detailedReport
       // sort list in date
       // .sort(
       //   (a, b) =>
       //     parseInt(Object.keys(a)[0].slice(8, 10)) -
-      //     parseInt(Object.keys(b)[0].slice(8, 10)),
+      //     parseInt(Object.keys(b)[0].slice(8, 10))
       // )
-      .map((value, index) => {
-        const date = Object.keys(value)[0];
+      .map((report, index) => {
+        const date = Object.keys(report)[0];
         return (
           <div key={index} className="MR_report">
-            <p className="MR_date" style={styles.textAlign(I18nManager.isRTL)}>
-              {date}
-            </p>
-            {value[date].reportDay.length > 0 &&
-              value[date].reportDay.map((v, i) => {
-                const duration = moment.duration(v.duration);
+            <p className={className.date}>{date}</p>
+            {report[date].reportDay.length > 0 &&
+              report[date].reportDay.map((r, i) => {
+                const duration = moment.duration(r.duration);
                 return (
-                  duration != 0 && (
-                    <p
-                      style={styles.textAlign(I18nManager.isRTL)}
-                      key={i}
-                      className="MR_textReport"
-                    >{`${v.project_name} : ${pad(duration.hours())}:${pad(
+                  r.duration !== 0 && (
+                    <p key={i} className={className.textReport}>{`${
+                      r.project_name === "entry"
+                        ? Translate("totalWorkingTime", language)
+                        : r.project_name
+                    } : ${pad(duration.hours())}:${pad(
                       duration.minutes()
                     )}:${pad(duration.seconds())}`}</p>
                   )
                 );
               })}
             <TextEdit
+              jDate={date}
               report={
-                value[date].dailyReport != undefined
-                  ? value[date].dailyReport
+                report[date].dailyReport !== undefined
+                  ? report[date].dailyReport
                   : ""
               }
-              date={date}
-              jDate={date}
             />
           </div>
         );
       });
-  //--------------------------------------- Summary Report ---------------------------------------//
+
   const getSummaryReport = () =>
-    employeeState.reportInMonth != null && (
+    summeryReport != null && (
       <div>
-        <p
-          className="MR_date MR_textReport"
-          style={styles.textAlign(I18nManager.isRTL)}
-        >
+        <p className={className.textTitle}>
           {Translate("summaryOfTheMonthlyReport", language)}
         </p>
-        {Object.keys(employeeState.reportInMonth)
-          .sort()
-          .map((project, index) => {
-            const duration = moment.duration(
-              employeeState.reportInMonth[project]
-            );
-            return (
-              <p
-                key={index}
-                className="MR_textReport"
-                style={styles.textAlign(I18nManager.isRTL)}
-              >
-                {project == "entry" ? "Total Work Time" : project} :{" "}
-                {pad(parseInt(duration.asHours()))}:{pad(duration.minutes())}:
-                {pad(duration.seconds())}
-              </p>
-            );
-          })}
+        {Object.keys(summeryReport).map((project, index) => {
+          const duration = moment.duration(summeryReport[project]);
+          return (
+            <p key={index} className={className.textReport}>
+              {project === "entry"
+                ? Translate("totalWorkingTime", language)
+                : project}{" "}
+              : {pad(parseInt(duration.asHours()))}:{pad(duration.minutes())}:
+              {pad(duration.seconds())}
+            </p>
+          );
+        })}
       </div>
     );
-  //----------------------------------------- Filter View ----------------------------------------//
-  const FilterView = () =>
-    employeeState.report != null && (
-      <div className="MR_filterContainer">
-        <div
-          key="Summery"
-          className={`MR_filter ${
-            activeFilter == "Summary" && "MR_activeFilter"
-          }`}
-          onClick={() => setActiveFilter("Summary")}
-        >
-          <span className="MR_filterText">
-            {Translate("summaryStatus", language)}
-          </span>
-        </div>
-        <div
-          key="Details"
-          className={`MR_filter ${
-            activeFilter == "Details" && "MR_activeFilter"
-          }`}
-          onClick={() => setActiveFilter("Details")}
-        >
-          <span className="MR_filterText">
-            {Translate("moreDetails", language)}
-          </span>
-        </div>
-      </div>
-    );
+
+  const className = {
+    date: `MR_date text-${I18nManager.isRTL ? "right" : "left"}`,
+    textReport: `MR_textReport ${
+      I18nManager.isRTL ? "text-right rtl" : "text-left ltr"
+    }`,
+    textTitle: `MR_date MR_textReport text-${
+      I18nManager.isRTL ? "right" : "left"
+    }`,
+  };
+
   return (
     <>
-      <AppBar label={Translate("myReport", language)} />
+      <AppBar label="myReport" />
       <div className="MR_container">
         <Calendar
-          year={year}
-          setYear={setYear}
-          setMonth={setMonth}
-          month={month}
+          year={jYear}
+          setYear={setJYear}
+          setMonth={setJMonth}
+          month={jMonth}
           isCalendar
         />
         <Button
           label={Translate("showResult", language)}
-          isLoading={employeeState.isLoading}
-          onClick={() => {
-            setIsPress(true);
-            dispatch(
-              report(
-                parseInt(year),
-                month + 1,
-                jMoment.jDaysInMonth(parseInt(year), month),
-                setIsPress
-              )
-            );
-          }}
+          isLoading={isLoading}
+          onClick={handleResultReport}
         />
-        <FilterView />
-        {activeFilter == "Details" ? getDetailsReport() : getSummaryReport()}
+        <Tabs
+          titles={["summaryStatus", "moreDetails"]}
+          activeFilter={activeFilter}
+          setActiveFilter={setActiveFilter}
+        />
+        {activeFilter === "moreDetails"
+          ? getDetailsReport()
+          : getSummaryReport()}
       </div>
     </>
   );
-};
-
-const styles = {
-  textAlign: (isRTL) => ({
-    textAlign: isRTL ? "right" : "left",
-  }),
 };
 
 export default MyReport;

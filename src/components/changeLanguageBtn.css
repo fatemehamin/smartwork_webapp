@@ -3,6 +3,8 @@
   width: 130px;
   height: 40px;
   text-align: center;
+  align-items: center;
+  justify-content: center;
   background-color: #269dd850;
   border-radius: 50px;
   margin: 20px 0px;
@@ -11,8 +13,8 @@
 }
 .language_section {
   display: flex;
-  align-items: center;
   padding: 0px 10px;
+  margin-top: 3px;
 }
 .image_country {
   width: 20px;
@@ -22,6 +24,7 @@
 .text_change_lang_btn {
   color: #fff;
   font-weight: bold;
+  margin: 0px;
 }
 .select_lang {
   position: absolute;

@@ -1,0 +1,9 @@
+.cartable-container {
+  margin: 40px 16px;
+  border-radius: 12px;
+  background: #dbeaf1;
+  padding: 10px 13px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}

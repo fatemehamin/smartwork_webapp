@@ -1,7 +1,7 @@
 import React from "react";
 import { Drawer } from "@mui/material";
 
-export default ({ modalVisible, setModalVisible, customStyle, ...props }) => {
+const Modal = ({ modalVisible, setModalVisible, customStyle, ...props }) => {
   const toggleDrawer = (open) => (event) => {
     if (
       event.type === "keydown" &&
@@ -11,6 +11,15 @@ export default ({ modalVisible, setModalVisible, customStyle, ...props }) => {
     }
     setModalVisible(open);
   };
+
+  const styles = {
+    modal: {
+      borderTopLeftRadius: 50,
+      borderTopRightRadius: 50,
+      paddingBottom: 3,
+    },
+  };
+
   return (
     <Drawer
       anchor="bottom"
@@ -22,11 +31,4 @@ export default ({ modalVisible, setModalVisible, customStyle, ...props }) => {
     </Drawer>
   );
 };
-
-const styles = {
-  modal: {
-    borderTopLeftRadius: 50,
-    borderTopRightRadius: 50,
-    paddingBottom: 3,
-  },
-};
+export default Modal;

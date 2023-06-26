@@ -1,49 +1,56 @@
 import React, { useState } from "react";
-import AppBar from "../components/AppBar";
-import Input from "../components/Input";
-import Button from "../components/Button";
+import AppBar from "../components/appBar";
+import Input from "../components/input";
+import Button from "../components/button";
 import { LockOutlined } from "@mui/icons-material";
 import msgError from "../utils/msgError";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "react-simple-snackbar";
-import { changePassword } from "../redux/action/authAction";
-import { useEffect } from "react";
-import { Translate } from "../i18n";
+import { changePassword } from "../features/auth/action";
+import { Translate } from "../features/i18n/translate";
 
 const ChangePassword = () => {
   const [password, setPassword] = useState("");
   const [rePassword, setRePassword] = useState("");
   const [isPress, setIsPress] = useState(false);
-  const [openSnackbar, closeSnackbar] = useSnackbar();
-  const stateAuth = useSelector((state) => state.authReducer);
-  const { language } = useSelector((state) => state.configReducer);
+  const [openSnackbar] = useSnackbar();
+  const stateAuth = useSelector((state) => state.auth);
+  const { language } = useSelector((state) => state.i18n);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    stateAuth.isError && openSnackbar(stateAuth.error);
-  }, [stateAuth.isError]);
-
-  const onChangePassHandler = () => {
-    setIsPress(true);
-    !(
+  const HandleChangePass = () => {
+    const canSave = !(
       msgError.rePassword(rePassword, password) || msgError.password(password)
-    ) &&
-      dispatch(changePassword(stateAuth.user.phoneNumber, password, navigate));
+    );
+    setIsPress(true);
+    canSave &&
+      dispatch(
+        changePassword({ username: stateAuth.userInfo.phoneNumber, password })
+      )
+        .unwrap()
+        .then((res) => navigate("/login"))
+        .catch((error) =>
+          openSnackbar(
+            error.code === "ERR_NETWORK"
+              ? Translate("connectionFailed", language)
+              : error.message
+          )
+        );
   };
 
   return (
     <>
-      <AppBar label={Translate("changePassword", language)} type="back" />
+      <AppBar label="changePassword" type="back" />
       <Input
         value={password}
         setValue={setPassword}
         label={Translate("password", language)}
         placeholder={Translate("password", language)}
         type="password"
-        msgError={isPress && Translate(msgError.password(password), language)}
         Icon={LockOutlined}
+        msgError={isPress && Translate(msgError.password(password), language)}
       />
       <Input
         value={rePassword}
@@ -51,16 +58,16 @@ const ChangePassword = () => {
         label={Translate("repeatPassword", language)}
         placeholder={Translate("repeatPassword", language)}
         type="password"
+        Icon={LockOutlined}
         msgError={
           isPress &&
           Translate(msgError.rePassword(rePassword, password), language)
         }
-        Icon={LockOutlined}
       />
       <Button
         label={Translate("changePassword", language)}
         disabled={!(password && rePassword)}
-        onClick={onChangePassHandler}
+        onClick={HandleChangePass}
         isLoading={stateAuth.isLoading}
       />
     </>

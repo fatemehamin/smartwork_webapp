@@ -1,0 +1,49 @@
+.location-title-modal {
+  color: #000;
+  font-size: 20px;
+  margin: 20px 0px;
+  font-weight: bold;
+  text-align: center;
+}
+.location-icon {
+  color: #000;
+}
+.location-map {
+  width: 100%;
+  z-index: 0;
+}
+.location-title-list {
+  font-weight: bold;
+  font-size: 18px;
+  padding: 10px;
+  background-color: #fff;
+  position: sticky;
+  top: 56px;
+}
+.location-bar {
+  border: 1px solid #f6921e;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px;
+  padding: 10px;
+  display: flex;
+  border-radius: 5px;
+}
+.location-bar-selected {
+  background-color: #f6921e;
+}
+.location-bar-name {
+  display: flex;
+  width: 90%;
+  color: #000;
+}
+.location-bar-name-selected {
+  display: flex;
+  width: 90%;
+  color: #fff;
+}
+.location-text {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

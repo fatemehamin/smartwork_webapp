@@ -3,39 +3,21 @@ import { animated, useSpring } from "@react-spring/web";
 import IR from "../assets/images/iran.png";
 import UK from "../assets/images/united-kingdom.png";
 import { useDispatch, useSelector } from "react-redux";
-import { changeLanguage } from "../redux/action/configAction";
+import { changeLanguage } from "../features/i18n/i18nSlice";
 import "./changeLanguageBtn.css";
 
 const ChangeLanguageBtn = () => {
-  const { language } = useSelector((state) => state.configReducer);
+  const { language } = useSelector((state) => state.i18n);
   const [selectLang, setSelectLang] = useState(language);
   const dispatch = useDispatch();
+  const translateX = useSpring({ x: selectLang === "EN" ? 0 : 65 });
 
   useEffect(() => {
     dispatch(changeLanguage(selectLang));
   }, [dispatch, selectLang]);
 
-  const selectEn = () => {
-    api.start({
-      from: { x: 65 },
-      to: { x: 0 },
-    });
-
-    setSelectLang("EN");
-  };
-
-  const selectPr = () => {
-    api.start({
-      from: { x: 0 },
-      to: { x: 65 },
-    });
-
-    setSelectLang("FA");
-  };
-
-  const [translateX, api] = useSpring(() => ({
-    from: { x: selectLang === "EN" ? 0 : 65 },
-  }));
+  const selectEn = () => setSelectLang("EN");
+  const selectPr = () => setSelectLang("FA");
 
   return (
     <div className="container_change_lang_btn">

@@ -1,6 +1,6 @@
 {
   "name": "smartwork_webapp",
-  "homepage": "https://smartwork.smartbyhub.com",
+  "homepage": "https://smartworkapp.ir",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -10,7 +10,7 @@
     "@mui/material": "^5.10.14",
     "@mui/styled-engine-sc": "^5.10.14",
     "@react-spring/web": "^9.6.1",
-    "@reduxjs/toolkit": "^1.9.3",
+    "@reduxjs/toolkit": "^1.9.5",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -29,11 +29,11 @@
     "react-scripts": "5.0.1",
     "react-simple-snackbar": "^1.1.11",
     "react-spring": "^9.6.1",
+    "react-swipeable": "^7.0.1",
     "react-transition-group": "^4.4.5",
-    "redux": "^4.2.0",
     "redux-persist": "^6.0.0",
-    "redux-thunk": "^2.4.2",
     "styled-components": "^5.3.6",
+    "vazirmatn": "^33.0.3",
     "web-vitals": "^2.1.4",
     "xlsx": "^0.18.5"
   },

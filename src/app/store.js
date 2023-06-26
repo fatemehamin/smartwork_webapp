@@ -1,0 +1,33 @@
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import storage from "redux-persist/lib/storage";
+import { persistReducer, persistStore } from "redux-persist";
+import thunk from "redux-thunk";
+import i18nReducer from "../features/i18n/i18nSlice";
+import authReducer from "../features/auth/authSlice";
+import usersReducer from "../features/users/usersSlice";
+import projectsReducer from "../features/projects/projectsSlice";
+import locationsReducer from "../features/locations/locationsSlice";
+import tasksReducer from "../features/tasks/tasksSlice";
+import reportsReducer from "../features/reports/reportsSlice";
+
+const rootReducer = combineReducers({
+  i18n: i18nReducer,
+  auth: authReducer,
+  users: usersReducer,
+  projects: projectsReducer,
+  locations: locationsReducer,
+  tasks: tasksReducer,
+  reports: reportsReducer,
+});
+
+const persistConfig = { key: "root", storage };
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+export const store = configureStore({
+  reducer: persistedReducer,
+  devTools: process.env.NODE_ENV !== "production",
+  middleware: [thunk],
+});
+
+export const persistor = persistStore(store);
