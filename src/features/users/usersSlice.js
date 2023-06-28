@@ -33,6 +33,15 @@ const initialState = {
 const usersSlice = createSlice({
   name: "users",
   initialState,
+  reducers: {
+    updateNowActiveProject: (state, action) => {
+      state.users = state.users.map((u) =>
+        u.phone_number === action.payload.phoneNumber
+          ? { ...u, now_active_project: action.payload.nowActiveProject }
+          : u
+      );
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchUsers.pending, (state) => {
       state.isLoading = true;
@@ -216,4 +225,5 @@ const usersSlice = createSlice({
   },
 });
 
+export const { updateNowActiveProject } = usersSlice.actions;
 export default usersSlice.reducer;

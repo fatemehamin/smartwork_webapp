@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  checkType,
   createUserLoading,
   forgotPassword,
   login,
@@ -63,6 +64,17 @@ const authSlice = createSlice({
       localStorage.setItem("userInfo", JSON.stringify(state.userInfo));
     });
     builder.addCase(login.rejected, (state) => {
+      state.isLoading = false;
+    });
+    builder.addCase(checkType.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(checkType.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.type = action.payload;
+      localStorage.setItem("type", action.payload);
+    });
+    builder.addCase(checkType.rejected, (state) => {
       state.isLoading = false;
     });
     builder.addCase(phoneNumberCheck.pending, (state) => {

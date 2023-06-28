@@ -8,8 +8,9 @@ const Tab = ({ titles, activeFilter, setActiveFilter }) => {
 
   return (
     <div className="filterContainer">
-      {titles.map((title) => (
+      {titles.map((title, index) => (
         <div
+          key={index}
           className={`filter ${activeFilter === title && "activeFilter"}`}
           style={{ width: `${100 / titles.length}%` }}
           onClick={() => setActiveFilter(title)}

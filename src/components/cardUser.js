@@ -3,15 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import personDelete from "../assets/images/person_delete.svg";
 import Avatar from "../assets/images/Avatar.svg";
-import { Collapse } from "@mui/material";
-import Input from "./input";
-import Button from "./button";
 import Alert from "./alert";
 import { Translate } from "../features/i18n/translate";
-import Modal from "./modal";
 import { useSnackbar } from "react-simple-snackbar";
 import { animated, useSpring } from "@react-spring/web";
 import { deleteUsers } from "../features/users/action";
+import { endTime, exit } from "../features/tasks/action";
+import MsgModal from "./msgModal";
 import "./cardUser.css";
 import {
   SettingsOutlined,
@@ -19,22 +17,15 @@ import {
   ErrorOutlineRounded,
   Cancel,
   DoDisturb,
-  ExpandLess,
-  ChevronRightOutlined,
-  ChevronLeftOutlined,
 } from "@mui/icons-material";
-// import { endTime } from "../redux/action/employeeAction";
+import { updateNowActiveProject } from "../features/users/usersSlice";
 
 const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
   const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { userInfo } = useSelector((state) => state.auth);
   const [isPressMore, setIsPressMore] = useState(false);
   const [notifModalVisible, setNotifModalVisible] = useState(false);
-  const [notifExplain, setNotifExplain] = useState("");
-  const [notifProject, setNotifProject] = useState("");
-  const [isCollapse, setIsCollapse] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
-  const [isPress, setIsPress] = useState(false);
-  const [alertType, setAlertType] = useState("");
   const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -49,46 +40,41 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
     return () => document.removeEventListener("mousedown", handelCloseMore);
   }, []);
 
+  const openAlertRemove = () => setOpenAlert(true);
   const handelClickSettingIcon = () => navigate(`/statusMember/${phoneNumber}`);
+  const handelClickMoreIcon = () => setIsPressMore((isMore) => !isMore);
 
   const handleToggleNotifModal = () => {
     setNotifModalVisible((visible) => !visible);
-    setIsCollapse(false);
     setIsPressMore(false);
   };
 
-  const handleToggleCollapse = () => setIsCollapse(!isCollapse);
-
-  const handleSelectNotifProject = (nameProject) => {
-    setNotifProject(nameProject);
-    setIsCollapse(false);
-  };
-
-  const handelToggleAlertSendMessage = () => {
-    const canSend = notifExplain.trim() && notifProject;
-    if (!canSend) {
-      openSnackbar(Translate("errorSendNotif", language));
-    } else {
-      handleToggleNotifModal();
-      setOpenAlert(true);
-      setAlertType("sendMessage");
-    }
-  };
-
-  const handelSendMessage = () => {}; // ----------------------------- not Complete -------------------
-
-  const handelClickMoreIcon = () => setIsPressMore((isMore) => !isMore);
-
-  const handelClickStopTask = () => {
-    const nowTime = new Date().getTime();
-    // dispatch(
-    //   endTime(nowActiveProject, nowTime, undefined, setIsPress, phoneNumber)
-    // );
-  }; // ----------------------------- not Complete -------------------
-
-  const handelToggleAlertRemove = () => {
-    setOpenAlert(true);
-    setAlertType("delete");
+  const handelStopTask = () => {
+    dispatch(
+      nowActiveProject !== "entry"
+        ? endTime({ name: nowActiveProject, phoneNumber })
+        : exit({
+            phoneNumber,
+            isExitWithBoss: userInfo.phoneNumber !== phoneNumber,
+          })
+    )
+      .unwrap()
+      .then((res) => {
+        dispatch(
+          updateNowActiveProject({
+            phoneNumber,
+            nowActiveProject:
+              nowActiveProject !== "entry" ? "entry" : "nothing",
+          })
+        );
+      })
+      .catch((error) => {
+        openSnackbar(
+          error.code === "ERR_NETWORK"
+            ? Translate("connectionFailed", language)
+            : error.message
+        );
+      });
   };
 
   const handleRemoveUser = () => {
@@ -105,49 +91,13 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
       );
   };
 
-  const alert = {
-    delete: {
-      title: Translate("deleteUser", language),
-      description: Translate("deleteUserDescription", language),
-      Icon: () => <img src={personDelete} width={60} alt="Person Delete" />,
-      ButtonAction: [
-        {
-          text: Translate("continue", language),
-          onClick: handleRemoveUser,
-        },
-        { text: Translate("cancel", language), type: "SECONDARY" },
-      ],
+  const buttonActionAlert = [
+    {
+      text: Translate("continue", language),
+      onClick: handleRemoveUser,
     },
-    sendMessage: {
-      title: Translate("sendMessage", language),
-      description: "",
-      Icon: () => <img src={personDelete} width={60} alt="Person Delete" />, //----------------------------- not Complete -------------------
-      ButtonAction: [
-        {
-          text: Translate("continue", language),
-          onClick: handelSendMessage,
-        },
-        { text: Translate("cancel", language), type: "SECONDARY" },
-      ],
-    },
-  };
-
-  const { x } = useSpring({
-    from: { x: 0 },
-    x: isPressMore ? 1 : 0,
-    config: { duration: 400, friction: 80 },
-  });
-
-  const listEmployeeProjects = useSelector((state) =>
-    state.users.users.find((e) => e.phone_number === phoneNumber)
-  ).project_list?.map((p) => (
-    <div
-      className="card-user-notif-project"
-      onClick={() => handleSelectNotifProject(p.project_name)}
-    >
-      {p.project_name}
-    </div>
-  ));
+    { text: Translate("cancel", language), type: "SECONDARY" },
+  ];
 
   const className = {
     nowActiveProject: `card-user-text${
@@ -156,13 +106,14 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
     moreTask: `card-user-option display-flex-center ${
       I18nManager.isRTL ? "rtl" : "ltr"
     }`,
-    collapseBtn: `card-user-btn-collapse ${
-      isCollapse ? "card-user-border-top" : ""
-    } ${I18nManager.isRTL ? "rtl" : "ltr"}`,
-    collapseBtnText: `card-user-btn-collapse-title${isCollapse ? "-open" : ""}`,
-    containerBtn: `container_btn_row ${I18nManager.isRTL ? "rtl" : "ltr"}`,
     more: `card-user-icon${isPressMore ? "-more" : ""}`,
   };
+
+  const { x } = useSpring({
+    from: { x: 0 },
+    x: isPressMore ? 1 : 0,
+    config: { duration: 400, friction: 80 },
+  });
 
   const animationStyle = {
     heightContainer: {
@@ -228,7 +179,7 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
         >
           <animated.div
             className={className.moreTask}
-            onClick={handelClickStopTask}
+            onClick={handelStopTask}
             style={animationStyle.displayItemStopTask}
           >
             <DoDisturb color="primary" />
@@ -238,7 +189,7 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
           </animated.div>
           <animated.div
             className={className.moreTask}
-            onClick={handelToggleAlertRemove}
+            onClick={openAlertRemove}
             style={animationStyle.displayItemRemove}
           >
             <Cancel color="primary" />
@@ -248,47 +199,19 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
           </animated.div>
         </animated.div>
       </animated.div>
-      <Modal
+      <MsgModal
         modalVisible={notifModalVisible}
         setModalVisible={setNotifModalVisible}
-      >
-        <h2 className="text-center">{Translate("notification", language)}</h2>
-        <div className="card-user-select-project">
-          <Collapse in={isCollapse}>{listEmployeeProjects}</Collapse>
-          <div className={className.collapseBtn} onClick={handleToggleCollapse}>
-            <span className={className.collapseBtnText}>
-              {notifProject ? notifProject : Translate("project", language)}
-            </span>
-            {isCollapse ? (
-              <ExpandLess />
-            ) : I18nManager.isRTL ? (
-              <ChevronLeftOutlined />
-            ) : (
-              <ChevronRightOutlined />
-            )}
-          </div>
-        </div>
-        <Input
-          value={notifExplain}
-          setValue={setNotifExplain}
-          placeholder={Translate("explain", language)}
-          multiline
-        />
-        <div className={className.containerBtn}>
-          <Button
-            label={Translate("send", language)}
-            customStyle={{ width: "40%" }}
-            onClick={handelToggleAlertSendMessage}
-          />
-          <Button
-            label={Translate("cancel", language)}
-            customStyle={{ width: "40%" }}
-            onClick={handleToggleNotifModal}
-            type="SECONDARY"
-          />
-        </div>
-      </Modal>
-      <Alert {...alert[alertType]} open={openAlert} setOpen={setOpenAlert} />
+        userPhoneNumber={phoneNumber}
+      />
+      <Alert
+        open={openAlert}
+        setOpen={setOpenAlert}
+        title={Translate("deleteUser", language)}
+        description={Translate("deleteUserDescription", language)}
+        Icon={() => <img src={personDelete} alt="Person Delete" />}
+        ButtonAction={buttonActionAlert}
+      />
     </>
   );
 };

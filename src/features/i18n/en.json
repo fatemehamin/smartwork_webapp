@@ -93,10 +93,9 @@
   "errorLocationNotCorrect": "You are not in a defined location. If you are in location, please restart your location.",
   "stopTask": "Stop Task",
   "remove": "Remove",
-  "notification": "notification",
   "explain": "Explain",
   "send": "Send",
-  "errorSendNotif": "Please select your project and enter the required description.",
+  "errorSendMsg": "Please select your user and project and enter the required description.",
   "sendMessage": "Send a message to the user",
   "connectionFailed": "Connection failed please check your network.",
   "enterPhoneNumberOrPassword": "Please enter your phone number or password.",
@@ -116,5 +115,6 @@
   "entryAndExit": "Entry & Exit",
   "locationNameExist": "This location name exists in the system. Please choose another name.",
   "registeredLocations": "Registered locations",
-  "notExistReport": "Not exist report on this date."
+  "notExistReport": "Not exist report on this date.",
+  "all": "All"
 }

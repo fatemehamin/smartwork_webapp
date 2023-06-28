@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ImgDrawer from "../assets/images/texture.jpeg";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../features/auth/authSlice";
 import Alert from "./alert";
 import { useDispatch, useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
+import { checkType } from "../features/auth/action";
+import LogoutIcon from "../assets/images/logout.svg";
 import "./drawer.css";
 import {
   Box,
@@ -35,6 +37,10 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
   const position = useSelector((state) => state.auth.type);
   const { language } = useSelector((state) => state.i18n);
   const [logoutAlert, setLogoutAlert] = useState(false);
+
+  useEffect(() => {
+    dispatch(checkType());
+  }, []);
 
   const handelLogout = () => {
     dispatch(logout());
@@ -120,7 +126,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
           setOpen={setLogoutAlert}
           title={Translate("logout", language)}
           description={Translate("logoutDescription", language)}
-          Icon={() => <div>icon</div>} // ----------------- not complete --------------
+          Icon={() => <img src={LogoutIcon} alt="logout" />}
           ButtonAction={[
             { text: Translate("yes", language), onClick: handelLogout },
             { text: Translate("no", language), type: "SECONDARY" },

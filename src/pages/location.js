@@ -11,6 +11,8 @@ import Icon from "../assets/images/marker-icon-2x-gold.png";
 import L from "leaflet";
 import LocateControl from "../utils/locatecontrol";
 import { Translate } from "../features/i18n/translate";
+import LocationRemoveIcon from "../assets/images/locationRemoveIcon.svg";
+import "./location.css";
 import {
   addLocation,
   deleteLocation,
@@ -24,7 +26,6 @@ import {
   Circle,
   useMap,
 } from "react-leaflet";
-import "./location.css";
 
 const Location = () => {
   const { language, I18nManager } = useSelector((state) => state.i18n);
@@ -116,7 +117,6 @@ const Location = () => {
       .unwrap()
       .then(closeModal)
       .catch((error) => {
-        console.log(error);
         openSnackbar(
           error.code === "ERR_NETWORK"
             ? Translate("connectionFailed", language)
@@ -128,7 +128,13 @@ const Location = () => {
   };
 
   const handleDeleteLocation = () =>
-    dispatch(deleteLocation(currentCoordinate.location_name));
+    dispatch(deleteLocation(currentCoordinate.location_name)).catch((error) => {
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message
+      );
+    });
 
   const LocationList = () =>
     locations.length > 0 && (
@@ -162,7 +168,13 @@ const Location = () => {
     );
 
   useEffect(() => {
-    dispatch(fetchLocations());
+    dispatch(fetchLocations()).catch((error) => {
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message
+      );
+    });
   }, []);
 
   return (
@@ -246,7 +258,7 @@ const Location = () => {
         description={Translate("deleteLocationDescription", language)}
         open={isOpenAlert}
         setOpen={setIsOpenAlert}
-        Icon={() => <div>icon</div>} //-----------------------------need icon ----------------
+        Icon={() => <img src={LocationRemoveIcon} alt="Location Remove" />}
         ButtonAction={[
           {
             text: Translate("yes", language),

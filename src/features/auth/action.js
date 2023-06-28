@@ -21,6 +21,11 @@ export const login = createAsyncThunk(
   }
 );
 
+export const checkType = createAsyncThunk("auth/checkType", async () => {
+  const res = await axiosAPI.get("/check_state/");
+  return res.data.place;
+});
+
 export const phoneNumberCheck = createAsyncThunk(
   "auth/phoneNumberCheck",
   async (phoneNumber) => {

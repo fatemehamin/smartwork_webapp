@@ -27,9 +27,6 @@
   align-items: center;
   padding: 0px 20px;
 }
-.MuiCollapse-wrapperInner {
-  max-height: none;
-}
 .chip-container {
   flex-wrap: wrap;
   display: flex;

@@ -1,0 +1,38 @@
+.msg-modal-select-project {
+  margin: 5px auto;
+  width: 55%;
+  border: 1px solid #f6931e;
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.12);
+  border-radius: 5px;
+}
+.msg-modal-project {
+  border: 1px solid #269cd9;
+  border-radius: 50px;
+  margin: 9px 10px;
+  padding: 6px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #269cd9;
+}
+.msg-modal-btn-collapse {
+  padding: 10px 0px;
+  margin: 0px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #f6931e;
+}
+.msg-modal-btn-collapse-title {
+  font-weight: 500;
+  font-size: 15px;
+  color: #000;
+}
+.msg-modal-btn-collapse-title-open {
+  font-weight: 500;
+  font-size: 15px;
+  color: #00000020;
+}
+.msg-modal-border-top {
+  border-top: 1px solid #94949450;
+}

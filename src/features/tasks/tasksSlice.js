@@ -55,10 +55,12 @@ const tasksSlice = createSlice({
     builder.addCase(exit.pending, (state) => {
       state.isLoading = true;
     });
-    builder.addCase(exit.fulfilled, (state) => {
+    builder.addCase(exit.fulfilled, (state, action) => {
       state.isLoading = false;
-      state.lastEntry = 0;
-      state.currentTask = { name: "", start: 0 };
+      state.lastEntry = action.payload ? state.lastEntry : 0;
+      state.currentTask = action.payload
+        ? state.currentTask
+        : { name: "", start: 0 };
     });
     builder.addCase(exit.rejected, (state) => {
       state.isLoading = false;

@@ -49,15 +49,17 @@ const Alert = ({ Icon, title, description, open, setOpen, ButtonAction }) => {
       aria-describedby="alert-dialog-description"
       sx={styles.dialogContainer}
     >
-      <Icon />
+      <div className="alert-icon">{Icon !== undefined && <Icon />}</div>
       <DialogTitle id="alert-dialog-title" style={styles.textAlign}>
         {title}
       </DialogTitle>
-      <DialogContent sx={styles.dialogContent} style={styles.direction}>
-        <DialogContentText id="alert-dialog-description">
-          {description}
-        </DialogContentText>
-      </DialogContent>
+      {description && (
+        <DialogContent sx={styles.dialogContent} style={styles.direction}>
+          <DialogContentText id="alert-dialog-description">
+            {description}
+          </DialogContentText>
+        </DialogContent>
+      )}
       <DialogActions id="alert-dialog-actions" sx={styles.direction}>
         {ButtonAction !== undefined &&
           ButtonAction.map((action) => (

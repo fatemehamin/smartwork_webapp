@@ -11,9 +11,13 @@ export const entry = createAsyncThunk("tasks/entry", async () => {
   return res.data.entry_time;
 });
 
-export const exit = createAsyncThunk("tasks/exit", async () => {
-  await axiosAPI.patch("/entry_exit/2525/");
-});
+export const exit = createAsyncThunk(
+  "tasks/exit",
+  async ({ phoneNumber, isExitWithBoss }) => {
+    await axiosAPI.patch("/entry_exit/2525/", { user_phone: phoneNumber });
+    return isExitWithBoss;
+  }
+);
 
 export const startTime = createAsyncThunk(
   "tasks/startTime",
