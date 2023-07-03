@@ -14,9 +14,11 @@
   color: #1a8de650;
   text-align: center;
   width: 70px;
+  height: 70px;
   background-color: #1a8de610;
   border-radius: 80px;
   margin-top: 10px;
+  fill: #1a8de6;
 }
 .card-user-name {
   color: #000;

@@ -9,6 +9,7 @@ import projectsReducer from "../features/projects/projectsSlice";
 import locationsReducer from "../features/locations/locationsSlice";
 import tasksReducer from "../features/tasks/tasksSlice";
 import reportsReducer from "../features/reports/reportsSlice";
+import msgReducer from "../features/msg/msgSlice";
 
 const rootReducer = combineReducers({
   i18n: i18nReducer,
@@ -18,6 +19,7 @@ const rootReducer = combineReducers({
   locations: locationsReducer,
   tasks: tasksReducer,
   reports: reportsReducer,
+  msg: msgReducer,
 });
 
 const persistConfig = { key: "root", storage };

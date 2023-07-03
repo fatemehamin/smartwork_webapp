@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import personDelete from "../assets/images/person_delete.svg";
-import Avatar from "../assets/images/Avatar.svg";
+import { ReactComponent as PersonDelete } from "../assets/images/person_delete.svg";
+import { ReactComponent as Avatar } from "../assets/images/Avatar.svg";
 import Alert from "./alert";
 import { Translate } from "../features/i18n/translate";
 import { useSnackbar } from "react-simple-snackbar";
@@ -150,7 +150,7 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
         ref={moreRef}
         style={animationStyle.heightContainer}
       >
-        <img src={Avatar} className="card-user-avatar" alt="Avatar" />
+        <Avatar className="card-user-avatar" />
         <div className="card-user-name">{`${firstName} ${lastName}`}</div>
         <div className="card-user-option card-user-active">
           <span className={className.nowActiveProject}>
@@ -209,7 +209,7 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
         setOpen={setOpenAlert}
         title={Translate("deleteUser", language)}
         description={Translate("deleteUserDescription", language)}
-        Icon={() => <img src={personDelete} alt="Person Delete" />}
+        Icon={PersonDelete}
         ButtonAction={buttonActionAlert}
       />
     </>

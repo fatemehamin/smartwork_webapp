@@ -49,7 +49,7 @@ const Alert = ({ Icon, title, description, open, setOpen, ButtonAction }) => {
       aria-describedby="alert-dialog-description"
       sx={styles.dialogContainer}
     >
-      <div className="alert-icon">{Icon !== undefined && <Icon />}</div>
+      {Icon !== undefined && <Icon className="alert-icon" />}
       <DialogTitle id="alert-dialog-title" style={styles.textAlign}>
         {title}
       </DialogTitle>

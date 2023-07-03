@@ -11,7 +11,7 @@ import Icon from "../assets/images/marker-icon-2x-gold.png";
 import L from "leaflet";
 import LocateControl from "../utils/locatecontrol";
 import { Translate } from "../features/i18n/translate";
-import LocationRemoveIcon from "../assets/images/locationRemoveIcon.svg";
+import { ReactComponent as LocationRemoveIcon } from "../assets/images/locationRemoveIcon.svg";
 import "./location.css";
 import {
   addLocation,
@@ -258,7 +258,7 @@ const Location = () => {
         description={Translate("deleteLocationDescription", language)}
         open={isOpenAlert}
         setOpen={setIsOpenAlert}
-        Icon={() => <img src={LocationRemoveIcon} alt="Location Remove" />}
+        Icon={LocationRemoveIcon}
         ButtonAction={[
           {
             text: Translate("yes", language),

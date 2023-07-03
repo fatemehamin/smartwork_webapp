@@ -9,6 +9,9 @@
   color: #1d1d1d;
   font-size: 16px;
   font-weight: 700;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .msg-time {
   color: #1d1d1d;
@@ -27,4 +30,32 @@
 .msg-text {
   color: #1d1d1d;
   font-size: 15px;
+  margin: 8px 0px;
+}
+.msg-action {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.msg-action-icon {
+  cursor: pointer;
+  fill: #f6931e;
+  width: 30px;
+  height: 30px;
+  margin: 0px 2px;
+  padding: auto;
+}
+.msg-action-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+.msg-action-reject {
+  fill: #da0001;
+  color: #da0001;
+  cursor: default;
+}
+.msg-action-accept {
+  fill: #239f40;
+  color: #239f40;
+  cursor: default;
 }

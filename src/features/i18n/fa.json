@@ -116,5 +116,11 @@
   "locationNameExist": "این نام موقعیت مکانی در سیستم وجود دارد. لطفا نام دیگری انتخاب نمایید.",
   "registeredLocations": "مکان های ثبت شده",
   "notExistReport": "در این تاریخ گزارشی یافت نشد.",
-  "all": "همه"
+  "all": "همه",
+  "accept": "تایید شد",
+  "reject": "لغو شد",
+  "acceptRequestUser": "تایید درخواست کاربر",
+  "rejectRequestUser": "لغو درخواست کاربر",
+  "acceptRequestUserDescription": "در صورت تایید، امکان تغییر وجود نخواهد داشت.",
+  "rejectRequestUserDescription": "در صورت تایید، امکان لغو درخواست وجود نخواهد داشت."
 }

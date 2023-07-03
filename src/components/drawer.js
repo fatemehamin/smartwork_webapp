@@ -6,7 +6,7 @@ import Alert from "./alert";
 import { useDispatch, useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
 import { checkType } from "../features/auth/action";
-import LogoutIcon from "../assets/images/logout.svg";
+import { ReactComponent as LogoutIcon } from "../assets/images/logout.svg";
 import "./drawer.css";
 import {
   Box,
@@ -126,7 +126,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
           setOpen={setLogoutAlert}
           title={Translate("logout", language)}
           description={Translate("logoutDescription", language)}
-          Icon={() => <img src={LogoutIcon} alt="logout" />}
+          Icon={LogoutIcon}
           ButtonAction={[
             { text: Translate("yes", language), onClick: handelLogout },
             { text: Translate("no", language), type: "SECONDARY" },

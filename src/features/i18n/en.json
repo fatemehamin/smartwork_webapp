@@ -116,5 +116,11 @@
   "locationNameExist": "This location name exists in the system. Please choose another name.",
   "registeredLocations": "Registered locations",
   "notExistReport": "Not exist report on this date.",
-  "all": "All"
+  "all": "All",
+  "accept": "Accept",
+  "reject": "Reject",
+  "acceptRequestUser": "Accept request user",
+  "rejectRequestUser": "Reject request user",
+  "acceptRequestUserDescription": "If approved, it will not be possible to change.",
+  "rejectRequestUserDescription": "If approved, it will not be possible to cancel the request."
 }
