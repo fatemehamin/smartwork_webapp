@@ -10,6 +10,7 @@ import { animated, useSpring } from "@react-spring/web";
 import { deleteUsers } from "../features/users/action";
 import { endTime, exit } from "../features/tasks/action";
 import MsgModal from "./msgModal";
+import { updateNowActiveProject } from "../features/users/usersSlice";
 import "./cardUser.css";
 import {
   SettingsOutlined,
@@ -18,7 +19,6 @@ import {
   Cancel,
   DoDisturb,
 } from "@mui/icons-material";
-import { updateNowActiveProject } from "../features/users/usersSlice";
 
 const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
   const { language, I18nManager } = useSelector((state) => state.i18n);
@@ -50,31 +50,32 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
   };
 
   const handelStopTask = () => {
-    dispatch(
-      nowActiveProject !== "entry"
-        ? endTime({ name: nowActiveProject, phoneNumber })
-        : exit({
-            phoneNumber,
-            isExitWithBoss: userInfo.phoneNumber !== phoneNumber,
-          })
-    )
-      .unwrap()
-      .then((res) => {
-        dispatch(
-          updateNowActiveProject({
-            phoneNumber,
-            nowActiveProject:
-              nowActiveProject !== "entry" ? "entry" : "nothing",
-          })
-        );
-      })
-      .catch((error) => {
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.message
-        );
-      });
+    nowActiveProject !== "nothing" &&
+      dispatch(
+        nowActiveProject !== "entry"
+          ? endTime({ name: nowActiveProject, phoneNumber })
+          : exit({
+              phoneNumber,
+              isExitWithBoss: userInfo.phoneNumber !== phoneNumber,
+            })
+      )
+        .unwrap()
+        .then((res) => {
+          dispatch(
+            updateNowActiveProject({
+              phoneNumber,
+              nowActiveProject:
+                nowActiveProject !== "entry" ? "entry" : "nothing",
+            })
+          );
+        })
+        .catch((error) => {
+          openSnackbar(
+            error.code === "ERR_NETWORK"
+              ? Translate("connectionFailed", language)
+              : error.message
+          );
+        });
   };
 
   const handleRemoveUser = () => {
@@ -105,6 +106,9 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
     }`,
     moreTask: `card-user-option display-flex-center ${
       I18nManager.isRTL ? "rtl" : "ltr"
+    }`,
+    stopTaskText: `card-user-icon-text ${
+      nowActiveProject === "nothing" ? "card-user-icon-text-disable" : ""
     }`,
     more: `card-user-icon${isPressMore ? "-more" : ""}`,
   };
@@ -182,8 +186,10 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
             onClick={handelStopTask}
             style={animationStyle.displayItemStopTask}
           >
-            <DoDisturb color="primary" />
-            <span className="card-user-icon-text">
+            <DoDisturb
+              color={nowActiveProject === "nothing" ? "primary50" : "primary"}
+            />
+            <span className={className.stopTaskText}>
               {Translate("stopTask", language)}
             </span>
           </animated.div>

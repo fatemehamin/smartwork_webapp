@@ -3,7 +3,7 @@
   border-radius: 5px;
   border-width: 0px;
   margin: 10px auto;
-  height: 45px;
+  height: 40px;
   cursor: pointer;
 }
 .btn-container-PRIMARY {
@@ -19,7 +19,7 @@
   background-color: #269dd860;
 }
 .btn-text {
-  font-size: 16px;
+  font-size: 14px;
   text-align: center;
   font-weight: bold;
   font-family: Vazirmatn, sans-serif;

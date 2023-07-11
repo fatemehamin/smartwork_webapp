@@ -35,6 +35,7 @@ const Alert = ({ Icon, title, description, open, setOpen, ButtonAction }) => {
     customStyle: { width: "40%" },
     textAlign: {
       textAlign: I18nManager.isRTL ? "right" : "left",
+      direction: I18nManager.isRTL ? "rtl" : "ltr",
     },
     direction: {
       direction: I18nManager.isRTL ? "rtl" : "ltr",

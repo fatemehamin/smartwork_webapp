@@ -97,6 +97,7 @@
   "send": "ارسال",
   "errorSendMsg": "لطفا کاربر و پروژه خود را انتخاب و توضیحات لازم را وارد نمایید.",
   "sendMessage": "ارسال پیام به کاربر",
+  "sendMessage?": "ارسال پیام ؟",
   "connectionFailed": "اتصال به سیستم قطع می باشد. لطفاً اینترنت خود را بررسی کنید.",
   "enterPhoneNumberOrPassword": "لطفا شماره تلفن یا رمز خود را وارد نمایید.",
   "incorrectPhoneNumberOrPassword": "شماره تلفن یا رمز عبور نادرست است.",
@@ -122,5 +123,18 @@
   "acceptRequestUser": "تایید درخواست کاربر",
   "rejectRequestUser": "لغو درخواست کاربر",
   "acceptRequestUserDescription": "در صورت تایید، امکان تغییر وجود نخواهد داشت.",
-  "rejectRequestUserDescription": "در صورت تایید، امکان لغو درخواست وجود نخواهد داشت."
+  "rejectRequestUserDescription": "در صورت تایید، امکان لغو درخواست وجود نخواهد داشت.",
+  "group": "گروه",
+  "noMessage": "هنوز پیامی در اینجا وجود ندارد...",
+  "automation": "اتوماسیون",
+  "taskRequest": "درخواست وظیفه",
+  "leaveRequest": "درخواست مرخصی",
+  "progress": "پیشرفت",
+  "illness": "استعلاجی",
+  "daily": "روزانه",
+  "hours": "ساعتی",
+  "startDate": "تاریخ شروع",
+  "endDate": "تاریخ پایان",
+  "startTime": "ساعت شروع",
+  "endTime": "ساعت پایان"
 }

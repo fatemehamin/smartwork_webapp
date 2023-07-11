@@ -12,6 +12,7 @@ injectStore(store);
 const theme = createTheme({
   palette: {
     primary: { main: "#269dd8" },
+    primary50: { main: "#269dd850" },
     secondary: { main: "#f6921e" },
     secondary60: { main: "#f6921e60" },
     secondary80: { main: "#f6921e80" },

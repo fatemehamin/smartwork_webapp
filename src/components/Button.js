@@ -1,6 +1,7 @@
 import React from "react";
 import "./button.css";
 import loadingImg from "../assets/images/buttonLoading.gif";
+import { animated } from "@react-spring/web";
 
 const Button = ({
   label,
@@ -11,10 +12,12 @@ const Button = ({
   customStyle,
 }) => {
   return (
-    <button
-      className={`btn-container btn-container-${disabled ? "DISABLE" : type}`}
+    <animated.button
+      className={`btn-container btn-container-${
+        disabled || isLoading ? "DISABLE" : type
+      }`}
       style={customStyle}
-      disabled={disabled}
+      disabled={disabled || isLoading}
       onClick={onClick}
     >
       {isLoading && !disabled ? (
@@ -26,7 +29,7 @@ const Button = ({
           {label}
         </h1>
       )}
-    </button>
+    </animated.button>
   );
 };
 

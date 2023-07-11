@@ -2,40 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { changeStatus, deleteMsg, fetchMsg, sendMsg } from "./action";
 
 const initialState = {
-  msg: [
-    // {
-    //   id: 1,
-    //   msg: "سلام لطفا امروز بخش فروشگاهی سایت تکمیل گردد.",
-    //   from: "+989121234567",
-    //   to: "+989101234567",
-    //   time: 1688296600633,
-    //   project: "SmartWork",
-    // },
-    // {
-    //   id: 2,
-    //   msg: "سلام لطفا تسک مدساکو برای من تعریف کنید.",
-    //   from: "+989101234567",
-    //   to: "+989121234567",
-    //   time: 1688296600633,
-    //   project: "باکس ایت ول",
-    // },
-    // {
-    //   id: 3,
-    //   msg: "Hi, please say hi.",
-    //   from: "+989121234567",
-    //   to: "+9833109582",
-    //   time: new Date().getTime(),
-    //   project: "BoxItWell",
-    // },
-    // {
-    //   id: 4,
-    //   msg: "Hi, please say hi.",
-    //   from: "+989121234567",
-    //   to: "+9833109582",
-    //   time: new Date().getTime(),
-    //   project: "BoxItWell",
-    // },
-  ],
+  msg: [],
   isLoading: false,
   error: null,
 };
@@ -58,16 +25,8 @@ const msgSlice = createSlice({
       state.isLoading = true;
     });
     builder.addCase(sendMsg.fulfilled, (state, action) => {
-      const { id, from, to, explain, project, date } = action.payload;
       state.isLoading = false;
-      // state.msg.push({
-      //   id,
-      //   from,
-      //   to,
-      //   msg: explain,
-      //   time: date,
-      //   project,
-      // });
+      state.msg.push(action.payload);
     });
     builder.addCase(sendMsg.rejected, (state) => {
       state.isLoading = false;

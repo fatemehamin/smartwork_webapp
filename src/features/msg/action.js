@@ -6,10 +6,17 @@ export const fetchMsg = createAsyncThunk("msg/fetchMsg", async () => {
   return res.data.msg;
 });
 
-export const sendMsg = createAsyncThunk("msg/sendMsg", async () => {
-  // const res = await axiosAPI.get("/msg/");
-  // return res.data.msg;
-});
+export const sendMsg = createAsyncThunk(
+  "msg/sendMsg",
+  async ({ from, to, msg, project }) => {
+    const res = await axiosAPI.post("/msg/", {
+      to_user: to,
+      message: msg,
+      project_name: project,
+    });
+    return { ...res.data, from, to, msg, project };
+  }
+);
 
 export const deleteMsg = createAsyncThunk("msg/deleteMsg", async (id) => {
   await axiosAPI.delete(`/msg/${id}/`);

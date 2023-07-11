@@ -34,10 +34,11 @@
   font-weight: 500;
   font-size: 15px;
   color: #000;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 .msg-modal-btn-collapse-title-open {
-  font-weight: 500;
-  font-size: 15px;
   color: #00000020;
 }
 .msg-modal-border-top {

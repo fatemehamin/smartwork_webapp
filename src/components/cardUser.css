@@ -79,4 +79,8 @@
   padding: 0px 8px;
   font-weight: 400;
   font-size: 13px;
+  color: #000;
+}
+.card-user-icon-text-disable {
+  color: #00000050;
 }

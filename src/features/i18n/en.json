@@ -97,6 +97,7 @@
   "send": "Send",
   "errorSendMsg": "Please select your user and project and enter the required description.",
   "sendMessage": "Send a message to the user",
+  "sendMessage?": "Send a message ?",
   "connectionFailed": "Connection failed please check your network.",
   "enterPhoneNumberOrPassword": "Please enter your phone number or password.",
   "incorrectPhoneNumberOrPassword": "Phone number or password is incorrect.",
@@ -122,5 +123,18 @@
   "acceptRequestUser": "Accept request user",
   "rejectRequestUser": "Reject request user",
   "acceptRequestUserDescription": "If approved, it will not be possible to change.",
-  "rejectRequestUserDescription": "If approved, it will not be possible to cancel the request."
+  "rejectRequestUserDescription": "If approved, it will not be possible to cancel the request.",
+  "group": "Group",
+  "noMessage": "No message here yet...",
+  "automation": "Automation",
+  "taskRequest": "Task request",
+  "progress": "Progress",
+  "leaveRequest": "Leave request",
+  "illness": "Illness",
+  "daily": "Daily",
+  "hours": "Hours",
+  "startDate": "Start Date",
+  "endDate": "End Date",
+  "startTime": "Start Time",
+  "endTime": "End Time"
 }
