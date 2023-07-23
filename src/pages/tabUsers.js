@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import FloatingButton from "../components/floatingButton";
-import AddUserModal from "../components/addUserModal";
-import AddProjectModal from "../components/addProjectModal";
-import CardUser from "../components/cardUser";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
 import { fetchUsers } from "../features/users/action";
 import { Translate } from "../features/i18n/translate";
-import "./users.css";
+import FloatingButton from "../components/floatingButton";
+import AddUserModal from "../components/addUserModal";
+import AddProjectModal from "../components/addProjectModal";
+import CardUser from "../components/cardUser";
+import "./tabUsers.css";
 
 const Users = () => {
   const [modalVisibleUser, setModalVisibleUser] = useState(false);

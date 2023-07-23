@@ -1,8 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { changeStatus, deleteMsg, fetchMsg, sendMsg } from "./action";
+import {
+  changeStatusMsg,
+  deleteMsg,
+  fetchMsg,
+  fetchIsNewMsg,
+  sendMsg,
+} from "./action";
 
 const initialState = {
   msg: [],
+  isNewMsg: false,
   isLoading: false,
   error: null,
 };
@@ -41,15 +48,25 @@ const msgSlice = createSlice({
     builder.addCase(deleteMsg.rejected, (state) => {
       state.isLoading = false;
     });
-    builder.addCase(changeStatus.pending, (state) => {
+    builder.addCase(changeStatusMsg.pending, (state) => {
       state.isLoading = true;
     });
-    builder.addCase(changeStatus.fulfilled, (state, action) => {
+    builder.addCase(changeStatusMsg.fulfilled, (state, action) => {
       const { id, status } = action.payload;
       state.isLoading = false;
       state.msg = state.msg.map((m) => (m.id === id ? { ...m, status } : m));
     });
-    builder.addCase(changeStatus.rejected, (state) => {
+    builder.addCase(changeStatusMsg.rejected, (state) => {
+      state.isLoading = false;
+    });
+    builder.addCase(fetchIsNewMsg.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(fetchIsNewMsg.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.isNewMsg = action.payload;
+    });
+    builder.addCase(fetchIsNewMsg.rejected, (state) => {
       state.isLoading = false;
     });
   },

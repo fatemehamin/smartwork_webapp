@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
-import AppBar from "../components/appBar";
-import Button from "../components/button";
-import Modal from "../components//modal";
 import { Room, Delete, RadioButtonUnchecked } from "@mui/icons-material";
 import { useSnackbar } from "react-simple-snackbar";
 import { useDispatch, useSelector } from "react-redux";
+import { Translate } from "../features/i18n/translate";
+import { ReactComponent as LocationRemoveIcon } from "../assets/images/locationRemoveIcon.svg";
+import AppBar from "../components/appBar";
+import Button from "../components/button";
+import Modal from "../components//modal";
 import Alert from "../components/alert";
 import Input from "../components/input";
 import Icon from "../assets/images/marker-icon-2x-gold.png";
 import L from "leaflet";
 import LocateControl from "../utils/locatecontrol";
-import { Translate } from "../features/i18n/translate";
-import { ReactComponent as LocationRemoveIcon } from "../assets/images/locationRemoveIcon.svg";
 import "./location.css";
 import {
   addLocation,
@@ -30,7 +30,7 @@ import {
 const Location = () => {
   const { language, I18nManager } = useSelector((state) => state.i18n);
   const { locations, isLoading } = useSelector((state) => state.locations);
-  const { phoneNumber } = useSelector((state) => state.auth.userInfo);
+  const phoneNumber = useSelector((state) => state.auth.userInfo?.phoneNumber);
   const dispatch = useDispatch();
   const [openSnackbar] = useSnackbar();
   const [modalVisible, setModalVisible] = useState(false);
@@ -41,6 +41,18 @@ const Location = () => {
     location_name: "",
     radius: "",
   });
+
+  useEffect(() => {
+    dispatch(fetchLocations()).catch(_error);
+  }, []);
+
+  const _error = (error) => {
+    openSnackbar(
+      error.code === "ERR_NETWORK"
+        ? Translate("connectionFailed", language)
+        : error.message
+    );
+  };
 
   const goldIcon = L.icon({
     iconUrl: Icon,
@@ -113,28 +125,23 @@ const Location = () => {
   };
 
   const handleAddLocation = () => {
-    dispatch(addLocation({ ...currentCoordinate, phoneNumber }))
-      .unwrap()
-      .then(closeModal)
-      .catch((error) => {
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.code === "ERR_BAD_REQUEST"
-            ? Translate("locationNameExist", language)
-            : error.message
-        );
-      });
-  };
-
-  const handleDeleteLocation = () =>
-    dispatch(deleteLocation(currentCoordinate.location_name)).catch((error) => {
+    const _error = (error) => {
       openSnackbar(
         error.code === "ERR_NETWORK"
           ? Translate("connectionFailed", language)
+          : error.code === "ERR_BAD_REQUEST"
+          ? Translate("locationNameExist", language)
           : error.message
       );
-    });
+    };
+    dispatch(addLocation({ ...currentCoordinate, phoneNumber }))
+      .unwrap()
+      .then(closeModal)
+      .catch(_error);
+  };
+
+  const handleDeleteLocation = () =>
+    dispatch(deleteLocation(currentCoordinate.location_name)).catch(_error);
 
   const LocationList = () =>
     locations.length > 0 && (
@@ -166,16 +173,6 @@ const Location = () => {
         })}
       </>
     );
-
-  useEffect(() => {
-    dispatch(fetchLocations()).catch((error) => {
-      openSnackbar(
-        error.code === "ERR_NETWORK"
-          ? Translate("connectionFailed", language)
-          : error.message
-      );
-    });
-  }, []);
 
   return (
     <>

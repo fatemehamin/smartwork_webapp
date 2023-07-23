@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { AppBar, styled, Typography, Toolbar, IconButton } from "@mui/material";
 import { ArrowBackIos, Menu } from "@mui/icons-material/";
 import { useNavigate } from "react-router-dom";
-import Drawer from "./drawer";
 import { useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
+import Drawer from "./drawer";
 
 const CustomAppBar = ({ label, type = "Menu" }) => {
   const [openDrawer, setOpenDrawer] = useState(false);

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import ImgDrawer from "../assets/images/texture.jpeg";
+import TokenChecker from "../components/tokenChecker";
+import Alert from "./alert";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../features/auth/authSlice";
-import Alert from "./alert";
 import { useDispatch, useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
 import { checkType } from "../features/auth/action";
@@ -145,6 +146,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
       disableBackdropTransition={!iOS}
       disableDiscovery={iOS}
     >
+      <TokenChecker />
       {getList()}
     </SwipeableDrawer>
   );

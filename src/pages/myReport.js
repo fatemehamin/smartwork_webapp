@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useSnackbar } from "react-simple-snackbar";
+import { Translate } from "../features/i18n/translate";
+import { fetchReports } from "../features/reports/action";
+import { emptyReport } from "../features/reports/reportsSlice";
 import moment from "moment";
 import jMoment from "moment-jalaali";
 import AppBar from "../components/appBar";
@@ -7,10 +11,6 @@ import Tabs from "../components/tabs";
 import Button from "../components/button";
 import Calendar from "../components/picker";
 import TextEdit from "../components/textEdit";
-import { useSnackbar } from "react-simple-snackbar";
-import { Translate } from "../features/i18n/translate";
-import { fetchReports } from "../features/reports/action";
-import { emptyReport } from "../features/reports/reportsSlice";
 import "./myReport.css";
 
 const MyReport = () => {
@@ -32,31 +32,34 @@ const MyReport = () => {
       return `${d.year()}/${d.month() + 1}/${d.date()}`;
     };
     const daysInMonth = jMoment.jDaysInMonth(parseInt(jYear), jMonth);
-    dispatch(
-      fetchReports({
-        jYear: parseInt(jYear),
-        jMonth: jMonth + 1,
-        daysInMonth,
-        startDate: changeToDate(jYear, jMonth, 1),
-        endDate: changeToDate(jYear, jMonth, daysInMonth),
-        phoneNumber: userInfo.phoneNumber,
-      })
-    )
-      .unwrap()
-      .then((res) => {
-        if (res.reports.length <= 0) {
-          openSnackbar(Translate("notExistReport", language));
-          dispatch(emptyReport());
-        }
-      })
-      .catch((error) => {
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.message
-        );
-      });
+
+    const _error = (error) => {
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message
+      );
+    };
+
+    const _then = (res) => {
+      if (res.reports.length <= 0) {
+        openSnackbar(Translate("notExistReport", language));
+        dispatch(emptyReport());
+      }
+    };
+
+    const args = {
+      jYear: parseInt(jYear),
+      jMonth: jMonth + 1,
+      daysInMonth,
+      startDate: changeToDate(jYear, jMonth, 1),
+      endDate: changeToDate(jYear, jMonth, daysInMonth),
+      phoneNumber: userInfo.phoneNumber,
+    };
+
+    dispatch(fetchReports(args)).unwrap().then(_then).catch(_error);
   };
+  // console.log("gg");
 
   const getDetailsReport = () =>
     detailedReport != null &&
@@ -147,7 +150,7 @@ const MyReport = () => {
           onClick={handleResultReport}
         />
         <Tabs
-          titles={["summaryStatus", "moreDetails"]}
+          tabs={[{ title: "summaryStatus" }, { title: "moreDetails" }]}
           activeFilter={activeFilter}
           setActiveFilter={setActiveFilter}
         />

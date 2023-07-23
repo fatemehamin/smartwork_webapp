@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import AppBar from "../components/appBar";
-import Input from "../components/input";
-import Button from "../components/button";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { forgotPassword } from "../features/auth/action";
 import { useSnackbar } from "react-simple-snackbar";
 import { Translate } from "../features/i18n/translate";
+import AppBar from "../components/appBar";
+import Input from "../components/input";
+import Button from "../components/button";
 import "./forgotPassword.css";
 
 const ForgotPassword = () => {
@@ -20,18 +20,19 @@ const ForgotPassword = () => {
   const dispatch = useDispatch();
 
   const handelSendCode = () => {
-    dispatch(forgotPassword({ callingCode, phoneNumber, country }))
+    const _error = (error) =>
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message.slice(-3) === "404"
+          ? Translate("phoneNumberNotExists", language)
+          : error.message
+      );
+    const args = { callingCode, phoneNumber, country };
+    dispatch(forgotPassword(args))
       .unwrap()
       .then((res) => navigate(`/verifyCode/${phoneNumber}/forgotPassword`))
-      .catch((error) =>
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.message.slice(-3) === "404"
-            ? Translate("phoneNumberNotExists", language)
-            : error.message
-        )
-      );
+      .catch(_error);
   };
 
   return (

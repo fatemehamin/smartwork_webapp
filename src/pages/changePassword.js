@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import AppBar from "../components/appBar";
-import Input from "../components/input";
-import Button from "../components/button";
 import { LockOutlined } from "@mui/icons-material";
-import msgError from "../utils/msgError";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "react-simple-snackbar";
 import { changePassword } from "../features/auth/action";
 import { Translate } from "../features/i18n/translate";
+import AppBar from "../components/appBar";
+import Input from "../components/input";
+import Button from "../components/button";
+import msgError from "../utils/msgError";
 
 const ChangePassword = () => {
   const [password, setPassword] = useState("");
@@ -24,20 +24,22 @@ const ChangePassword = () => {
     const canSave = !(
       msgError.rePassword(rePassword, password) || msgError.password(password)
     );
+
+    const _error = (error) =>
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message
+      );
+
+    const args = { username: stateAuth.userInfo.phoneNumber, password };
+
     setIsPress(true);
     canSave &&
-      dispatch(
-        changePassword({ username: stateAuth.userInfo.phoneNumber, password })
-      )
+      dispatch(changePassword(args))
         .unwrap()
         .then((res) => navigate("/login"))
-        .catch((error) =>
-          openSnackbar(
-            error.code === "ERR_NETWORK"
-              ? Translate("connectionFailed", language)
-              : error.message
-          )
-        );
+        .catch(_error);
   };
 
   return (

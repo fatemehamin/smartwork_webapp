@@ -23,6 +23,8 @@ import { Translate } from "../features/i18n/translate";
 // import Collapsible from "react-native-collapsible";
 import "./exportExcel.css";
 import { useSnackbar } from "react-simple-snackbar";
+import { fetchProject } from "../features/projects/action";
+import { fetchUsers } from "../features/users/action";
 
 const ExportExcel = () => {
   const [jYear, setJYear] = useState(jMoment(new Date()).jYear());
@@ -55,6 +57,7 @@ const ExportExcel = () => {
     jMonth + 1
   )}_${nowTime}`;
   const getEmployee = () => {
+    dispatch(fetchUsers());
     let number = [];
     let name = [];
     let data = [];
@@ -65,7 +68,7 @@ const ExportExcel = () => {
     });
     setEmployees(() => ({ number, name, data }));
     setIndexEmployeeCurrent(indexEmployeeCurrent);
-    // dispatch(getProject());
+    dispatch(fetchProject());
   };
   const exportFile = (filename) => {
     const wb = XLSX.utils.book_new();
@@ -98,6 +101,8 @@ const ExportExcel = () => {
   //       Alert.alert("Share Error", "Error " + err.message);
   //     });
   // };
+  // console.log("gg");
+
   const ExcelFileView = () =>
     excelReport != null && (
       <div style={styles.excelFile}>

@@ -84,3 +84,7 @@
 .card-user-icon-text-disable {
   color: #00000050;
 }
+.card-user-icon-stop-task {
+  width: 60px;
+  height: 60px;
+}

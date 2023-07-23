@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Collapse } from "@mui/material";
-import Input from "./input";
-import Button from "./button";
-import Alert from "./alert";
 import { Translate } from "../features/i18n/translate";
-import Modal from "./modal";
 import { useSnackbar } from "react-simple-snackbar";
 import { ReactComponent as MsgIcon } from "../assets/images/msg-send.svg";
 import { sendMsg } from "../features/msg/action";
 import { fetchProject } from "../features/projects/action";
+import Input from "./input";
+import Button from "./button";
+import Alert from "./alert";
+import Modal from "./modal";
 import "./msgModal.css";
 import {
   ExpandLess,
@@ -45,6 +45,14 @@ const MsgModal = ({ modalVisible, setModalVisible, userPhoneNumber = "" }) => {
   const closeCollapseUser = () => setIsCollapseUser(false);
   const openAlert = () => setIsAlert(true);
 
+  const _error = (error) => {
+    openSnackbar(
+      error.code === "ERR_NETWORK"
+        ? Translate("connectionFailed", language)
+        : error.message
+    );
+  };
+
   const handelCancel = () => {
     closeModal();
     closeCollapseProject();
@@ -64,22 +72,14 @@ const MsgModal = ({ modalVisible, setModalVisible, userPhoneNumber = "" }) => {
   };
 
   const handelAlertSendMessage = () => {
-    dispatch(
-      sendMsg({
-        from: userInfo.phoneNumber,
-        to: user.phoneNumber,
-        msg: explain,
-        project,
-      })
-    )
-      .unwrap()
-      .catch((error) => {
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.message
-        );
-      });
+    const args = {
+      from: userInfo.phoneNumber,
+      to: user.phoneNumber,
+      msg: explain,
+      project,
+    };
+
+    dispatch(sendMsg(args)).unwrap().catch(_error);
   };
 
   const getListProject = () => {
@@ -117,26 +117,18 @@ const MsgModal = ({ modalVisible, setModalVisible, userPhoneNumber = "" }) => {
 
   const getListUser = () => {
     const handelSelectAll = () => {
-      dispatch(fetchProject())
-        .unwrap()
-        .then((res) => {
-          setUser({
-            name: Translate("all", language),
-            phoneNumber: null,
-            project_list: res,
-          });
-          setProject("");
-          closeCollapseUser();
-        })
-        .catch((error) => {
-          openSnackbar(
-            error.code === "ERR_NETWORK"
-              ? Translate("connectionFailed", language)
-              : error.message
-          );
+      const _then = (res) => {
+        setUser({
+          name: Translate("all", language),
+          phoneNumber: null,
+          project_list: res,
         });
-    };
+        setProject("");
+        closeCollapseUser();
+      };
 
+      dispatch(fetchProject()).unwrap().then(_then).catch(_error);
+    };
     const all = (
       <div
         key="all"

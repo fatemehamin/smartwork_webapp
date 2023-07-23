@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import Input from "./input";
-import Modal from "./modal";
-import Button from "./button";
-import msgError from "../utils/msgError";
 import { useSnackbar } from "react-simple-snackbar";
 import { useDispatch, useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
 import { PersonOutlineOutlined, LockOutlined } from "@mui/icons-material";
 import { addUsers } from "../features/users/action";
+import Input from "./input";
+import Modal from "./modal";
+import Button from "./button";
+import msgError from "../utils/msgError";
 
 const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
   const [firstName, setFirstName] = useState("");
@@ -22,6 +22,7 @@ const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
   const { isLoading, error } = useSelector((state) => state.users);
   const { language, I18nManager } = useSelector((state) => state.i18n);
   const dispatch = useDispatch();
+  const closeAddUserModal = () => setModalVisibleUser(false);
 
   const disabledAddBtn = !(
     password &&
@@ -31,44 +32,42 @@ const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
     lastName.trim()
   );
 
-  const closeAddUserModal = () => setModalVisibleUser(false);
-
   const handleAddUser = () => {
     setIsPress(true);
     const canSave = !(
       msgError.password(password) || msgError.rePassword(rePassword, password)
     );
 
-    canSave &&
-      dispatch(
-        addUsers({
-          firstName,
-          lastName,
-          password,
-          callingCode,
-          country,
-          phoneNumber,
-        })
-      )
-        .unwrap()
-        .then((res) => {
-          setIsPress(false);
-          setFirstName("");
-          setLastName("");
-          setPassword("");
-          setRePassword("");
-          setPhoneNumber("");
-          setModalVisibleUser(false);
-          openSnackbar(Translate("NewUserAddedSuccessfully", language));
-        })
-        .catch((error) => {
-          error.message.slice(-3) !== "409" &&
-            openSnackbar(
-              error.code === "ERR_NETWORK"
-                ? Translate("connectionFailed", language)
-                : error.message
-            );
-        });
+    const args = {
+      firstName,
+      lastName,
+      password,
+      callingCode,
+      country,
+      phoneNumber,
+    };
+
+    const _then = (res) => {
+      setIsPress(false);
+      setFirstName("");
+      setLastName("");
+      setPassword("");
+      setRePassword("");
+      setPhoneNumber("");
+      setModalVisibleUser(false);
+      openSnackbar(Translate("NewUserAddedSuccessfully", language));
+    };
+
+    const _error = (error) => {
+      error.message.slice(-3) !== "409" &&
+        openSnackbar(
+          error.code === "ERR_NETWORK"
+            ? Translate("connectionFailed", language)
+            : error.message
+        );
+    };
+
+    canSave && dispatch(addUsers(args)).unwrap().then(_then).catch(_error);
   };
 
   return (

@@ -26,6 +26,9 @@
   font-weight: 700;
   width: fit-content;
   margin: 5px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .msg-text {
   color: #1d1d1d;
@@ -58,4 +61,17 @@
   fill: #239f40;
   color: #239f40;
   cursor: default;
+}
+.msg-date {
+  border-radius: 50px;
+  border: 1px solid #f6931e;
+  box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.12);
+  padding: 1px 8px;
+  padding-top: 4px;
+  margin: 4px;
+}
+.msg-date-text {
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 13px;
+  font-weight: 500;
 }

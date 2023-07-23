@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { animated, useSpring } from "@react-spring/web";
-import IR from "../assets/images/iran.png";
-import UK from "../assets/images/united-kingdom.png";
 import { useDispatch, useSelector } from "react-redux";
 import { changeLanguage } from "../features/i18n/i18nSlice";
+import IR from "../assets/images/iran.png";
+import UK from "../assets/images/united-kingdom.png";
 import "./changeLanguageBtn.css";
 
 const ChangeLanguageBtn = () => {

@@ -136,5 +136,14 @@
   "startDate": "تاریخ شروع",
   "endDate": "تاریخ پایان",
   "startTime": "ساعت شروع",
-  "endTime": "ساعت پایان"
+  "endTime": "ساعت پایان",
+  "today": "امروز",
+  "notExistLocation": "موقعیت مکانی وجود ندارد.",
+  "notExistProject": "پروژه ای وجود ندارد.",
+  "confirmRequest": "ثبت درخواست",
+  "confirmRequestDescription": "پس از تایید توسط مدیریت  به شما اطلاع رسانی می گردد.",
+  "to": "تا",
+  "dateTimeNotAcceptable": "تاریخ یا زمان غیر قابل قبول می باشد.",
+  "errorEndDateSmaller": "این تاریخ کوچکتر از تاریخ شروع است.",
+  "errorEndTimeSmaller": "این زمان کوچکتر از زمان شروع است."
 }

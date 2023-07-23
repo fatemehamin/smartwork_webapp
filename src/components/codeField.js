@@ -13,6 +13,27 @@ const CodeFiled = ({ cellCount, code, setCode }) => {
   const onKeyDownHandler = (event) =>
     event.key === "Backspace" && setCode(code.slice(0, -1));
 
+  const styles = {
+    Input: styled(TextField)({
+      margin: 10,
+      "& .MuiInput-input": {
+        marginBottom: 3,
+        paddingBottom: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        borderBottomColor: "#eee",
+      },
+      "& .MuiInput-underline:after": {
+        borderBottomColor: "#bd10e0",
+      },
+    }),
+    textInput: {
+      textAlign: "center",
+      fontWeight: "bold",
+      fontSize: 30,
+    },
+  };
+
   return (
     <div className="codeField">
       {inputs.map((input, index) =>
@@ -37,27 +58,6 @@ const CodeFiled = ({ cellCount, code, setCode }) => {
       )}
     </div>
   );
-};
-
-const styles = {
-  Input: styled(TextField)({
-    margin: 10,
-    "& .MuiInput-input": {
-      marginBottom: 3,
-      paddingBottom: 1,
-      alignItems: "center",
-      justifyContent: "center",
-      borderBottomColor: "#eee",
-    },
-    "& .MuiInput-underline:after": {
-      borderBottomColor: "#bd10e0",
-    },
-  }),
-  textInput: {
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 30,
-  },
 };
 
 export default CodeFiled;

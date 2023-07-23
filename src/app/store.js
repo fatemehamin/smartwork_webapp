@@ -10,8 +10,9 @@ import locationsReducer from "../features/locations/locationsSlice";
 import tasksReducer from "../features/tasks/tasksSlice";
 import reportsReducer from "../features/reports/reportsSlice";
 import msgReducer from "../features/msg/msgSlice";
+import leaveRequestReducer from "../features/leaveRequests/leaveRequestSlice";
 
-const rootReducer = combineReducers({
+const combineReducer = combineReducers({
   i18n: i18nReducer,
   auth: authReducer,
   users: usersReducer,
@@ -20,7 +21,15 @@ const rootReducer = combineReducers({
   tasks: tasksReducer,
   reports: reportsReducer,
   msg: msgReducer,
+  leaveRequest: leaveRequestReducer,
 });
+
+const rootReducer = (state, action) => {
+  if (action.type === "auth/logout") {
+    state = undefined;
+  }
+  return combineReducer(state, action);
+};
 
 const persistConfig = { key: "root", storage };
 

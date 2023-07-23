@@ -18,42 +18,50 @@ const SelectProjectToUser = ({ userCurrent, CustomCollapse }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchProject())
-      .unwrap()
-      .catch((error) => {
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.message
-        );
-      });
+    dispatch(fetchProject()).unwrap().catch(_error);
   }, []);
+
+  const _error = (error) => {
+    openSnackbar(
+      error.code === "ERR_NETWORK"
+        ? Translate("connectionFailed", language)
+        : error.message
+    );
+  };
 
   const contentCollapse = () => (
     <Stack direction="row" className="chip-container" spacing={1} rowGap={2}>
-      {projects.map((project, i) => {
-        const selectProject = userCurrent.project_list.find(
-          (p) => p.project_name === project.project_name
-        );
-        return selectProject !== undefined ? (
-          <Chip
-            key={i}
-            label={project.project_name}
-            deleteIcon={<Done />}
-            onDelete={() => handleToggleProject(project.project_name, "delete")}
-            disabled={isLoading}
-            style={{ backgroundColor: "#f6921e60" }}
-          />
-        ) : (
-          <Chip
-            key={i}
-            label={project.project_name}
-            variant="outlined"
-            disabled={isLoading}
-            onClick={() => handleToggleProject(project.project_name)}
-          />
-        );
-      })}
+      {projects.length > 0 ? (
+        projects.map((project, i) => {
+          const selectProject = userCurrent.project_list.find(
+            (p) => p.project_name === project.project_name
+          );
+          return selectProject !== undefined ? (
+            <Chip
+              key={i}
+              label={project.project_name}
+              deleteIcon={<Done />}
+              onDelete={() =>
+                handleToggleProject(project.project_name, "delete")
+              }
+              disabled={isLoading}
+              style={{ backgroundColor: "#f6921e60" }}
+            />
+          ) : (
+            <Chip
+              key={i}
+              label={project.project_name}
+              variant="outlined"
+              disabled={isLoading}
+              onClick={() => handleToggleProject(project.project_name)}
+            />
+          );
+        })
+      ) : (
+        <div className={`noItemText ${I18nManager.isRTL ? "rtl" : "ltr"}`}>
+          {Translate("notExistProject", language)}
+        </div>
+      )}
     </Stack>
   );
 
@@ -66,13 +74,7 @@ const SelectProjectToUser = ({ userCurrent, CustomCollapse }) => {
       type === "select" ? addProjectToUsers(arg) : deleteProjectToUsers(arg)
     )
       .unwrap()
-      .catch((error) => {
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.message
-        );
-      });
+      .catch(_error);
   };
 
   const className = {

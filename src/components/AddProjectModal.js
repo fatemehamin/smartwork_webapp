@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import Input from "./input";
-import Modal from "./modal";
-import Button from "./button";
 import { useSnackbar } from "react-simple-snackbar";
 import { useDispatch, useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
 import { addProjects } from "../features/projects/action";
+import Input from "./input";
+import Modal from "./modal";
+import Button from "./button";
 
 const AddProjectModal = ({ modalVisibleProject, setModalVisibleProject }) => {
   const [projectName, setProjectName] = useState("");
@@ -13,26 +13,26 @@ const AddProjectModal = ({ modalVisibleProject, setModalVisibleProject }) => {
   const { language, I18nManager } = useSelector((state) => state.i18n);
   const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
-
   const closeAddProjectModal = () => setModalVisibleProject(false);
 
   const handleAddProject = () => {
-    dispatch(addProjects(projectName))
-      .unwrap()
-      .then((res) => {
-        setProjectName("");
-        setModalVisibleProject(false);
-        openSnackbar(Translate("NewProjectAddedSuccessfully", language));
-      })
-      .catch((error) => {
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.message.slice(-3) === "403"
-            ? Translate("projectExists", language)
-            : error.message
-        );
-      });
+    const _then = (res) => {
+      setProjectName("");
+      setModalVisibleProject(false);
+      openSnackbar(Translate("NewProjectAddedSuccessfully", language));
+    };
+
+    const _error = (error) => {
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message.slice(-3) === "403"
+          ? Translate("projectExists", language)
+          : error.message
+      );
+    };
+
+    dispatch(addProjects(projectName)).unwrap().then(_then).catch(_error);
   };
 
   return (
@@ -65,4 +65,5 @@ const AddProjectModal = ({ modalVisibleProject, setModalVisibleProject }) => {
     </Modal>
   );
 };
+
 export default AddProjectModal;

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import AppBar from "../components/appBar";
 import { useNavigate, useParams } from "react-router-dom";
-import Button from "../components/button";
-import CodeField from "../components/codeField";
-import "./verifyCode.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
 import { Translate } from "../features/i18n/translate";
+import AppBar from "../components/appBar";
+import Button from "../components/button";
+import CodeField from "../components/codeField";
+import "./verifyCode.css";
 import {
   createUserLoading,
   forgotPassword,
@@ -40,16 +40,15 @@ const VerifyCode = () => {
     setIsResendCode(true);
     setStartTime(() => new Date().getTime());
     setTime(120);
-    type === "forgotPassword"
-      ? dispatch(
-          forgotPassword({
+
+    const args =
+      type === "forgotPassword"
+        ? {
             callingCode: stateAuth.userInfo.callingCode,
             phoneNumber: stateAuth.userInfo.phoneNumber,
             country: stateAuth.userInfo.country,
-          })
-        )
-      : dispatch(
-          createUserLoading({
+          }
+        : {
             firstName: stateAuth.userInfo.firstName,
             lastName: stateAuth.userInfo.lastName,
             companyName: stateAuth.userInfo.companyName,
@@ -57,26 +56,31 @@ const VerifyCode = () => {
             callingCode: stateAuth.userInfo.callingCode,
             phoneNumber: stateAuth.userInfo.phoneNumber,
             password: stateAuth.userInfo.password,
-          })
-        );
+          };
+    type === "forgotPassword"
+      ? dispatch(forgotPassword(args))
+      : dispatch(createUserLoading(args));
   };
 
   const HandleVerifyCode = () => {
+    const _error = (error) =>
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message.slice(-3) === "401"
+          ? Translate("verifyCodeIncorrect", language)
+          : error.message
+      );
+
+    const args = { type, code, userInfo: stateAuth.userInfo };
+
     setIsResendCode(false);
-    dispatch(verifyCode({ type, code, userInfo: stateAuth.userInfo }))
+    dispatch(verifyCode(args))
       .unwrap()
       .then((res) =>
         navigate(type === "createUser" ? "/login" : "/changePassword")
       )
-      .catch((error) =>
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.message.slice(-3) === "401"
-            ? Translate("verifyCodeIncorrect", language)
-            : error.message
-        )
-      );
+      .catch(_error);
   };
 
   const className = {

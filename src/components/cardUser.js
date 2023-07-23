@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as PersonDelete } from "../assets/images/person_delete.svg";
 import { ReactComponent as Avatar } from "../assets/images/Avatar.svg";
-import Alert from "./alert";
 import { Translate } from "../features/i18n/translate";
 import { useSnackbar } from "react-simple-snackbar";
 import { animated, useSpring } from "@react-spring/web";
 import { deleteUsers } from "../features/users/action";
 import { endTime, exit } from "../features/tasks/action";
-import MsgModal from "./msgModal";
 import { updateNowActiveProject } from "../features/users/usersSlice";
+import MsgModal from "./msgModal";
+import Alert from "./alert";
 import "./cardUser.css";
 import {
   SettingsOutlined,
@@ -26,6 +26,7 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
   const [isPressMore, setIsPressMore] = useState(false);
   const [notifModalVisible, setNotifModalVisible] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
+  const [alertType, setAlertType] = useState("");
   const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -50,55 +51,46 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
   };
 
   const handelStopTask = () => {
-    nowActiveProject !== "nothing" &&
+    const _error = (error) => {
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message
+      );
+    };
+
+    const _then = (res) => {
       dispatch(
-        nowActiveProject !== "entry"
-          ? endTime({ name: nowActiveProject, phoneNumber })
-          : exit({
-              phoneNumber,
-              isExitWithBoss: userInfo.phoneNumber !== phoneNumber,
-            })
-      )
-        .unwrap()
-        .then((res) => {
-          dispatch(
-            updateNowActiveProject({
-              phoneNumber,
-              nowActiveProject:
-                nowActiveProject !== "entry" ? "entry" : "nothing",
-            })
-          );
+        updateNowActiveProject({
+          phoneNumber,
+          nowActiveProject: nowActiveProject !== "entry" ? "entry" : "nothing",
         })
-        .catch((error) => {
-          openSnackbar(
-            error.code === "ERR_NETWORK"
-              ? Translate("connectionFailed", language)
-              : error.message
-          );
-        });
+      );
+    };
+
+    const args =
+      nowActiveProject !== "entry"
+        ? { phoneNumber, name: nowActiveProject }
+        : { phoneNumber, isExitWithBoss: userInfo.phoneNumber !== phoneNumber };
+
+    dispatch(nowActiveProject !== "entry" ? endTime(args) : exit(args))
+      .unwrap()
+      .then(_then)
+      .catch(_error);
   };
 
   const handleRemoveUser = () => {
-    dispatch(deleteUsers(phoneNumber))
-      .unwrap()
-      .catch((error) =>
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.message.slice(-3) === "403"
-            ? Translate("canNotRemoveَAdmin", language)
-            : error.message
-        )
+    const _error = (error) =>
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message.slice(-3) === "403"
+          ? Translate("canNotRemoveَAdmin", language)
+          : error.message
       );
-  };
 
-  const buttonActionAlert = [
-    {
-      text: Translate("continue", language),
-      onClick: handleRemoveUser,
-    },
-    { text: Translate("cancel", language), type: "SECONDARY" },
-  ];
+    dispatch(deleteUsers(phoneNumber)).unwrap().catch(_error);
+  };
 
   const className = {
     nowActiveProject: `card-user-text${
@@ -118,6 +110,42 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
     x: isPressMore ? 1 : 0,
     config: { duration: 400, friction: 80 },
   });
+
+  const alert = {
+    stopTask: {
+      title: Translate("stopTask", language),
+      Icon: () => (
+        <DoDisturb color="secondary" className="card-user-icon-stop-task" />
+      ),
+      ButtonAction: [
+        { text: Translate("ok", language), onClick: handelStopTask },
+      ],
+    },
+    deleteUser: {
+      title: Translate("deleteUser", language),
+      description: Translate("deleteUserDescription", language),
+      Icon: PersonDelete,
+      ButtonAction: [
+        {
+          text: Translate("continue", language),
+          onClick: handleRemoveUser,
+        },
+        { text: Translate("cancel", language), type: "SECONDARY" },
+      ],
+    },
+  };
+
+  const handleAlertRemove = () => {
+    openAlertRemove();
+    setAlertType("deleteUser");
+  };
+
+  const handleAlertStopTask = () => {
+    if (nowActiveProject !== "nothing") {
+      setAlertType("stopTask");
+      openAlertRemove();
+    }
+  };
 
   const animationStyle = {
     heightContainer: {
@@ -183,7 +211,7 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
         >
           <animated.div
             className={className.moreTask}
-            onClick={handelStopTask}
+            onClick={handleAlertStopTask}
             style={animationStyle.displayItemStopTask}
           >
             <DoDisturb
@@ -195,7 +223,7 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
           </animated.div>
           <animated.div
             className={className.moreTask}
-            onClick={openAlertRemove}
+            onClick={handleAlertRemove}
             style={animationStyle.displayItemRemove}
           >
             <Cancel color="primary" />
@@ -210,14 +238,7 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
         setModalVisible={setNotifModalVisible}
         userPhoneNumber={phoneNumber}
       />
-      <Alert
-        open={openAlert}
-        setOpen={setOpenAlert}
-        title={Translate("deleteUser", language)}
-        description={Translate("deleteUserDescription", language)}
-        Icon={PersonDelete}
-        ButtonAction={buttonActionAlert}
-      />
+      <Alert open={openAlert} setOpen={setOpenAlert} {...alert[alertType]} />
     </>
   );
 };

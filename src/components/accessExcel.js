@@ -13,21 +13,23 @@ const AccessExcel = ({ userCurrent }) => {
   const dispatch = useDispatch();
 
   const handleToggleExcel = (e) => {
-    dispatch(
-      accessExcel({
-        phoneNumber: userCurrent.phone_number,
-        toggleExcel: !isChecked,
-      })
-    )
+    const _error = (error) => {
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message
+      );
+    };
+
+    const args = {
+      phoneNumber: userCurrent.phone_number,
+      toggleExcel: !isChecked,
+    };
+
+    dispatch(accessExcel(args))
       .unwrap()
       .then(() => setIsChecked(!isChecked))
-      .catch((error) => {
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.message
-        );
-      });
+      .catch(_error);
   };
 
   const className = {

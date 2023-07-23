@@ -16,11 +16,11 @@ const Login = () => {
   const [callingCode, setCallingCode] = useState("+98");
   const [phoneNumber, setPhoneNumber] = useState("+98");
   const [password, setPassword] = useState("");
+  const [openSnackbar] = useSnackbar();
+  const { isLoading } = useSelector((state) => state.auth);
+  const { language, I18nManager } = useSelector((state) => state.i18n);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [openSnackbar] = useSnackbar();
-  const stateAuth = useSelector((state) => state.auth);
-  const { language, I18nManager } = useSelector((state) => state.i18n);
 
   const className = {
     forgotPass: `forgotPassword_btn ${
@@ -31,22 +31,26 @@ const Login = () => {
   const handleSignup = () => navigate("/signup");
 
   const handleLogin = () => {
-    dispatch(login({ country, callingCode, phoneNumber, password }))
+    const _error = (error) => {
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message.slice(-3) === "400"
+          ? Translate("enterPhoneNumberOrPassword", language)
+          : error.message.slice(-3) === "401"
+          ? Translate("incorrectPhoneNumberOrPassword", language)
+          : error.message
+      );
+    };
+
+    const args = { country, callingCode, phoneNumber, password };
+
+    dispatch(login(args))
       .unwrap()
       .then((res) => {
         navigate(res.type === "boss" ? "/manager" : "/myTasks");
       })
-      .catch((error) => {
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.message.slice(-3) === "400"
-            ? Translate("enterPhoneNumberOrPassword", language)
-            : error.message.slice(-3) === "401"
-            ? Translate("incorrectPhoneNumberOrPassword", language)
-            : error.message
-        );
-      });
+      .catch(_error);
   };
 
   return (
@@ -77,7 +81,7 @@ const Login = () => {
         <Button
           label={Translate("login", language)}
           onClick={handleLogin}
-          isLoading={stateAuth.isLoading}
+          isLoading={isLoading}
         />
         <Button
           label={Translate("signup", language)}

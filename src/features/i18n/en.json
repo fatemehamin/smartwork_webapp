@@ -136,5 +136,14 @@
   "startDate": "Start Date",
   "endDate": "End Date",
   "startTime": "Start Time",
-  "endTime": "End Time"
+  "endTime": "End Time",
+  "today": "Today",
+  "notExistLocation": "There is no location",
+  "notExistProject": "There is no project",
+  "confirmRequest": "Confirm request",
+  "confirmRequestDescription": "You will be notified after approval by the management.",
+  "to": "To",
+  "dateTimeNotAcceptable": "Date or Time is not acceptable.",
+  "errorEndDateSmaller": "This date is smaller than the start date.",
+  "errorEndTimeSmaller": "This time is smaller than the start time."
 }

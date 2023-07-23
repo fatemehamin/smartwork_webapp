@@ -13,6 +13,7 @@ import {
 const Alert = ({ Icon, title, description, open, setOpen, ButtonAction }) => {
   const { I18nManager } = useSelector((state) => state.i18n);
   const closeAlert = () => setOpen(false);
+
   const HandleClickAction = (onClick) => {
     setOpen(false);
     onClick !== undefined && onClick();

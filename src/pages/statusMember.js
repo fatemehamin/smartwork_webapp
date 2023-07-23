@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import AppBar from "../components/appBar";
-import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
 import PersonalInformation from "../components/personalInformation";
 import AccessExcel from "../components/accessExcel";
 import AccessLocation from "../components/accessLocation";
 import SelectProjectToUser from "../components/selectProjectToUser";
+import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Collapse } from "@mui/material";
 import { ExpandMore, ExpandLess } from "@mui/icons-material";
 import "./statusMember.css";

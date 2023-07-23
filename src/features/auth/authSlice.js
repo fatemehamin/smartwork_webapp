@@ -28,21 +28,10 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("userInfo");
-      localStorage.removeItem("type");
-      localStorage.removeItem("projectNow");
-      localStorage.removeItem("startTime");
-      localStorage.removeItem("entry");
-      state.accessToken = null;
-      state.refreshToken = null;
-      state.userInfo = null;
-      state.type = null;
-      state.isAuthentication = false;
+      localStorage.clear();
     },
     getAccessToken: (state, action) => {
-      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("accessToken", action.payload);
       state.accessToken = action.payload;
     },
   },

@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import AppBar from "../components/appBar";
-import Input from "../components/input";
-import Button from "../components/button";
-import msgError from "../utils/msgError";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "react-simple-snackbar";
 import { Translate } from "../features/i18n/translate";
 import { createUserLoading, phoneNumberCheck } from "../features/auth/action";
+import AppBar from "../components/appBar";
+import Input from "../components/input";
+import Button from "../components/button";
+import msgError from "../utils/msgError";
 import {
   PersonOutlineOutlined,
   WorkOutlineOutlined,
@@ -47,33 +47,36 @@ const Signup = () => {
 
   const HandleSignup = () => {
     setIsPress(true);
-    !(
+    const canSave = !(
       msgError.password(password) ||
       msgError.rePassword(rePassword, password) ||
       error
-    ) &&
-      dispatch(
-        createUserLoading({
-          firstName,
-          lastName,
-          companyName,
-          country,
-          callingCode,
-          phoneNumber,
-          password,
-        })
-      )
+    );
+
+    const args = {
+      firstName,
+      lastName,
+      companyName,
+      country,
+      callingCode,
+      phoneNumber,
+      password,
+    };
+
+    const _error = (error) =>
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message.slice(-3) === "406"
+          ? Translate("businessNameExists", language)
+          : error.message
+      );
+
+    canSave &&
+      dispatch(createUserLoading(args))
         .unwrap()
         .then((res) => navigate(`/verifyCode/${phoneNumber}/createUser`))
-        .catch((error) =>
-          openSnackbar(
-            error.code === "ERR_NETWORK"
-              ? Translate("connectionFailed", language)
-              : error.message.slice(-3) === "406"
-              ? Translate("businessNameExists", language)
-              : error.message
-          )
-        );
+        .catch(_error);
   };
 
   return (

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import Input from "../components/input";
-import Button from "../components/button";
 import { useDispatch, useSelector } from "react-redux";
-import msgError from "../utils/msgError";
 import { useSnackbar } from "react-simple-snackbar";
 import { Translate } from "../features/i18n/translate";
 import { PersonOutlineOutlined, EmailOutlined } from "@mui/icons-material";
 import { phoneNumberCheck } from "../features/auth/action";
 import { editUsers } from "../features/users/action";
+import Input from "../components/input";
+import Button from "../components/button";
+import msgError from "../utils/msgError";
 
 const PersonalInformation = ({ userCurrent, setUserCurrentPhone }) => {
   const [errorPhone, setErrorPhone] = useState(null);
@@ -16,10 +16,10 @@ const PersonalInformation = ({ userCurrent, setUserCurrentPhone }) => {
   const [email, setEmail] = useState(userCurrent.email);
   const [phoneNumber, setPhoneNumber] = useState(userCurrent.phone_number);
   const [country, setCountry] = useState(userCurrent.calling_code.slice(0, 2));
+  const [isEdit, setIsEdit] = useState(false);
   const [callingCode, setCallingCode] = useState(
     userCurrent.calling_code.slice(2)
   );
-  const [isEdit, setIsEdit] = useState(false);
   const [openSnackbar] = useSnackbar();
   const { language, I18nManager } = useSelector((state) => state.i18n);
   const { isLoading } = useSelector((state) => state.users);
@@ -47,31 +47,32 @@ const PersonalInformation = ({ userCurrent, setUserCurrentPhone }) => {
 
   const handelClickEditInfo = () => {
     const canSave = !msgError.email(email) && !errorPhone;
-    canSave &&
-      dispatch(
-        editUsers({
-          first_name: firstName,
-          last_name: lastName,
-          email: email,
-          callingCode: callingCode,
-          country: country,
-          old_phone_number: userCurrent.phone_number,
-          new_phone_number: phoneNumber,
-        })
-      )
-        .unwrap()
-        .then((res) => {
-          userCurrent.phone_number !== phoneNumber &&
-            setUserCurrentPhone(phoneNumber);
-          setIsEdit(false);
-        })
-        .catch((error) => {
-          openSnackbar(
-            error.code === "ERR_NETWORK"
-              ? Translate("connectionFailed", language)
-              : error.message
-          );
-        });
+
+    const args = {
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      callingCode: callingCode,
+      country: country,
+      old_phone_number: userCurrent.phone_number,
+      new_phone_number: phoneNumber,
+    };
+
+    const _then = (res) => {
+      userCurrent.phone_number !== phoneNumber &&
+        setUserCurrentPhone(phoneNumber);
+      setIsEdit(false);
+    };
+
+    const _error = (error) => {
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message
+      );
+    };
+
+    canSave && dispatch(editUsers(args)).unwrap().then(_then).catch(_error);
   };
 
   const handelClickCancel = () => {

@@ -4,16 +4,21 @@
   width: 100%;
   box-shadow: 0px 3px 5px 0px #00000050;
   z-index: 2;
+  display: flex;
 }
 .filter {
   display: inline-block;
   background-color: #269dd8;
   height: 50px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .activeFilter {
   background-color: #176085;
 }
 .filterText {
   color: #fff;
+  margin: 2px;
 }

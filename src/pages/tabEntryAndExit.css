@@ -1,24 +1,6 @@
-.my-task {
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-  justify-content: space-evenly;
-  padding-bottom: 20px;
-}
 .map {
   width: 100%;
   z-index: 0;
-}
-.labelModal {
-  font-weight: bold;
-  color: #000;
-  margin: 10px 0px;
-  font-size: 20px;
-  text-align: center;
-}
-.text {
-  margin-top: 30px;
-  color: #777;
 }
 .exit-entry-row {
   justify-content: center;

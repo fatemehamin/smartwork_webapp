@@ -4,9 +4,9 @@ import SnackbarProvider from "react-simple-snackbar";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { store, persistor } from "./app/store";
 import { Provider } from "react-redux";
-import "./App.css";
 import { PersistGate } from "redux-persist/integration/react";
 import { injectStore } from "./services/API";
+import "./App.css";
 injectStore(store);
 
 const theme = createTheme({

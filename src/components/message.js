@@ -4,51 +4,30 @@ import { ReactComponent as AcceptIcon } from "../assets/images/acceptIcon.svg";
 import { ReactComponent as RejectIcon } from "../assets/images/rejectIcon.svg";
 import { ReactComponent as AcceptMsgIcon } from "../assets/images/accept_msg_icon.svg";
 import { ReactComponent as RejectMsgIcon } from "../assets/images/reject_msg_icon.svg";
-import { useDispatch, useSelector } from "react-redux";
-import { changeStatus, deleteMsg } from "../features/msg/action";
+import { useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
 import { Grid } from "@mui/material";
-import { useSnackbar } from "react-simple-snackbar";
 import moment from "moment";
 import Alert from "../components/alert";
 import "./message.css";
 
-const Message = ({ id, msg, name, time, project, typeRequest, statusMsg }) => {
+const Message = ({
+  msg,
+  name,
+  time,
+  project,
+  typeRequest,
+  status,
+  handelStatus,
+  leaveTime,
+}) => {
   const { I18nManager, language } = useSelector((state) => state.i18n);
   const { type } = useSelector((state) => state.auth);
-  const [status, setStatus] = useState(statusMsg);
   const [isAlert, setIsAlert] = useState(false);
   const [alertType, setAlertType] = useState("accept");
-  const [openSnackbar] = useSnackbar();
-  const dispatch = useDispatch();
   const pad = (n) => (n < 10 ? "0" + n : n);
   const Time = pad(moment(time).hours()) + ":" + pad(moment(time).minutes());
   const openAlert = () => setIsAlert(true);
-
-  const handelStatus = (status) => {
-    if (type === "boss") {
-      dispatch(changeStatus({ id, status }))
-        .unwrap()
-        .then(() => setStatus(status))
-        .catch((error) => {
-          openSnackbar(
-            error.code === "ERR_NETWORK"
-              ? Translate("connectionFailed", language)
-              : error.message
-          );
-        });
-    } else {
-      dispatch(deleteMsg(id))
-        .unwrap()
-        .catch((error) => {
-          openSnackbar(
-            error.code === "ERR_NETWORK"
-              ? Translate("connectionFailed", language)
-              : error.message
-          );
-        });
-    }
-  };
 
   const alert = {
     accept: {
@@ -77,13 +56,14 @@ const Message = ({ id, msg, name, time, project, typeRequest, statusMsg }) => {
     },
   };
 
-  const getActionBtn = () => {
+  const ActionBtn = () => {
     const handleActionBtn = (type) => {
       if (status === null) {
         openAlert();
         setAlertType(type);
       }
     };
+
     return (
       typeRequest === "userRequest" &&
       (type === "boss" ? (
@@ -148,10 +128,28 @@ const Message = ({ id, msg, name, time, project, typeRequest, statusMsg }) => {
       <Grid item xs={3} className={className.time}>
         {Time}
       </Grid>
-      <Grid item xs={9}>
-        <div className="msg-project">{project}</div>
+      <Grid container item xs={9}>
+        {project.map((p, i) => (
+          <div className="msg-project" key={i}>
+            {p}
+          </div>
+        ))}
       </Grid>
-      {getActionBtn()}
+      <ActionBtn />
+      {leaveTime !== undefined && (
+        <Grid container alignItems="center">
+          <div className="msg-date msg-date-text">
+            {leaveTime.endDate ? leaveTime.startDate : leaveTime.startTime}
+          </div>
+          <div>{Translate("to", language)}</div>
+          <div className="msg-date msg-date-text">
+            {leaveTime.endDate ? leaveTime.endDate : leaveTime.endTime}
+          </div>
+          {leaveTime.endDate === undefined && (
+            <div className="msg-date-text">{leaveTime.startDate}</div>
+          )}
+        </Grid>
+      )}
       <Grid container className={className.msg}>
         {msg}
       </Grid>

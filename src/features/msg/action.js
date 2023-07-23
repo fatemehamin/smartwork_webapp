@@ -23,10 +23,15 @@ export const deleteMsg = createAsyncThunk("msg/deleteMsg", async (id) => {
   return id;
 });
 
-export const changeStatus = createAsyncThunk(
-  "msg/changeStatus",
+export const changeStatusMsg = createAsyncThunk(
+  "msg/changeStatusMsg",
   async ({ id, status }) => {
     await axiosAPI.put(`/msg/${id}/${status}/`);
     return { id, status };
   }
 );
+
+export const fetchIsNewMsg = createAsyncThunk("msg/fetchIsNewMsg", async () => {
+  const res = await axiosAPI.get("/is-new-msg/");
+  return res.data.isNewMsg;
+});

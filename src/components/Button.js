@@ -1,7 +1,7 @@
 import React from "react";
-import "./button.css";
 import loadingImg from "../assets/images/buttonLoading.gif";
 import { animated } from "@react-spring/web";
+import "./button.css";
 
 const Button = ({
   label,

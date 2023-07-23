@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
-import jMoment from "moment-jalaali";
 import { Input, InputAdornment } from "@mui/material";
 import { Check, Close } from "@mui/icons-material";
 import { Translate } from "../features/i18n/translate";
 import { setDailyReport } from "../features/reports/action";
+import jMoment from "moment-jalaali";
 import "./textEdit.css";
 
 const TextEdit = ({ report, jDate }) => {
@@ -36,16 +36,18 @@ const TextEdit = ({ report, jDate }) => {
   };
 
   const handleCheck = () => {
+    const _error = (error) => {
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message
+      );
+    };
+
     dispatch(setDailyReport({ date, dailyReport: DReport, jDate }))
       .unwrap()
       .then(() => setIsEdit(false))
-      .catch((error) => {
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.message
-        );
-      });
+      .catch(_error);
     setNotSave(false);
   };
 
