@@ -18,7 +18,7 @@ const MyReport = () => {
   const [jYear, setJYear] = useState(jMoment(new Date()).jYear());
   const [jMonth, setJMonth] = useState(jMoment(new Date()).jMonth());
   const [openSnackbar] = useSnackbar();
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const { userInfo } = useSelector((state) => state.auth);
   const { detailedReport, summeryReport, isLoading } = useSelector(
     (state) => state.reports
@@ -74,13 +74,16 @@ const MyReport = () => {
         const date = Object.keys(report)[0];
         return (
           <div key={index} className="MR_report">
-            <p className={className.date}>{date}</p>
+            <p className="MR_date text-align">{date}</p>
             {report[date].reportDay.length > 0 &&
               report[date].reportDay.map((r, i) => {
                 const duration = moment.duration(r.duration);
                 return (
                   r.duration !== 0 && (
-                    <p key={i} className={className.textReport}>{`${
+                    <p
+                      key={i}
+                      className="MR_textReport text-align direction"
+                    >{`${
                       r.project_name === "entry"
                         ? Translate("totalWorkingTime", language)
                         : r.project_name
@@ -105,13 +108,13 @@ const MyReport = () => {
   const getSummaryReport = () =>
     summeryReport != null && (
       <div>
-        <p className={className.textTitle}>
+        <p className="MR_date MR_textReport text-align">
           {Translate("summaryOfTheMonthlyReport", language)}
         </p>
         {Object.keys(summeryReport).map((project, index) => {
           const duration = moment.duration(summeryReport[project]);
           return (
-            <p key={index} className={className.textReport}>
+            <p key={index} className="MR_textReport text-align direction">
               {project === "entry"
                 ? Translate("totalWorkingTime", language)
                 : project}{" "}
@@ -122,16 +125,6 @@ const MyReport = () => {
         })}
       </div>
     );
-
-  const className = {
-    date: `MR_date text-${I18nManager.isRTL ? "right" : "left"}`,
-    textReport: `MR_textReport ${
-      I18nManager.isRTL ? "text-right rtl" : "text-left ltr"
-    }`,
-    textTitle: `MR_date MR_textReport text-${
-      I18nManager.isRTL ? "right" : "left"
-    }`,
-  };
 
   return (
     <>

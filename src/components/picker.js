@@ -14,7 +14,7 @@ const Calender = ({
   onePicker,
   label,
 }) => {
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const sx = { m: 1, minWidth: 150 };
   const onChangeYear = (event) => setYear(event.target.value);
   const onChangeMonth = (event) => setMonth(event.target.value);
@@ -23,13 +23,13 @@ const Calender = ({
   const jMonth = [
     Translate("Farvardin", language),
     Translate("Ordibehesht", language),
-    Translate("Khordad", language),
+    Translate("Khordaad", language),
     Translate("Tir", language),
-    Translate("Mordad", language),
+    Translate("Amordaad", language),
     Translate("Shahrivar", language),
     Translate("Mehr", language),
-    Translate("Aban", language),
-    Translate("Azar", language),
+    Translate("Aabaan", language),
+    Translate("Aazar", language),
     Translate("Dey", language),
     Translate("Bahman", language),
     Translate("Esfand", language),
@@ -44,7 +44,7 @@ const Calender = ({
   };
 
   return !isCalendar ? (
-    <div className={`picker ${I18nManager.isRTL ? "rtl" : "ltr"}`}>
+    <div className="picker">
       <div className="picker-text">{label}</div>
       <FormControl sx={sx}>
         <InputLabel>{Translate("user", language)}</InputLabel>

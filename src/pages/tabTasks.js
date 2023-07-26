@@ -15,7 +15,7 @@ import Alert from "../components/alert";
 import "./tabTasks.css";
 
 const TabTasks = ({ setActiveFilter }) => {
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const { userInfo } = useSelector((state) => state.auth);
   const { dailyReport, isLoading } = useSelector((state) => state.reports);
   const { tasks, currentTask, lastEntry } = useSelector((state) => state.tasks);
@@ -89,10 +89,6 @@ const TabTasks = ({ setActiveFilter }) => {
     },
   ];
 
-  const className = {
-    containerBtn: `container_btn_row ${I18nManager.isRTL ? "rtl" : "ltr"}`,
-  };
-
   return (
     <>
       <div className="my-task">{getTasks()}</div>
@@ -109,7 +105,7 @@ const TabTasks = ({ setActiveFilter }) => {
           autoFocus
           multiline
         />
-        <div className={className.containerBtn}>
+        <div className="container_btn_row direction">
           <Button
             label={Translate("ok", language)}
             customStyle={{ width: "40%" }}

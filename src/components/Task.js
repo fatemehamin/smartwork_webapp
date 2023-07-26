@@ -4,8 +4,8 @@ import { endTime, startTime } from "../features/tasks/action";
 import { useSnackbar } from "react-simple-snackbar";
 import { animated, useSpring } from "@react-spring/web";
 import moment from "moment";
-import "./task.css";
 import { Translate } from "../features/i18n/translate";
+import "./task.css";
 
 const Task = ({
   name,
@@ -93,36 +93,35 @@ const Task = ({
     );
   };
 
-  const _error = (error) => {
-    openSnackbar(
-      error.code === "ERR_NETWORK"
-        ? Translate("connectionFailed", language)
-        : error.message
-    );
-  };
-
   const onClickHandler = () => {
     const entryFirstHandler = () => setOpenAlert(true);
-
     const handleStartTask = () => {
+      const _error = (error) => {
+        emptyWidth();
+        error.code === "ERR_NETWORK"
+          ? openSnackbar(Translate("connectionFailed", language))
+          : error.message.slice(-3) === "406"
+          ? entryFirstHandler()
+          : openSnackbar(error.message);
+      };
       fillWidth();
-      dispatch(startTime(name))
-        .unwrap()
-        .catch((error) => {
-          emptyWidth();
-          _error(error);
-        });
+      dispatch(startTime(name)).unwrap().catch(_error);
     };
 
     const handleEndTask = (name, _then) => {
+      const _error = (error) => {
+        fillWidth();
+        openSnackbar(
+          error.code === "ERR_NETWORK"
+            ? Translate("connectionFailed", language)
+            : error.message
+        );
+      };
+
+      const args = { name, phoneNumber };
+
       _then !== undefined ? setIsEnd(true) : emptyWidth();
-      dispatch(endTime({ name, phoneNumber }))
-        .unwrap()
-        .then(_then)
-        .catch((error) => {
-          fillWidth();
-          _error(error);
-        });
+      dispatch(endTime(args)).unwrap().then(_then).catch(_error);
     };
 
     currentTask.name === name // برای زمانی که روی خود تسک دوباره کلیک می کنی تا غیر فعال و یا دوباره فعال بشود

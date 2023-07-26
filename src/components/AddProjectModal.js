@@ -10,8 +10,9 @@ import Button from "./button";
 const AddProjectModal = ({ modalVisibleProject, setModalVisibleProject }) => {
   const [projectName, setProjectName] = useState("");
   const { isLoading } = useSelector((state) => state.users);
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const [openSnackbar] = useSnackbar();
+  const disableAddProject = !projectName.trim();
   const dispatch = useDispatch();
   const closeAddProjectModal = () => setModalVisibleProject(false);
 
@@ -35,6 +36,12 @@ const AddProjectModal = ({ modalVisibleProject, setModalVisibleProject }) => {
     dispatch(addProjects(projectName)).unwrap().then(_then).catch(_error);
   };
 
+  const onKeyDown = (e) => {
+    if (e.keyCode === 13 && !disableAddProject) {
+      handleAddProject();
+    }
+  };
+
   return (
     <Modal
       modalVisible={modalVisibleProject}
@@ -46,14 +53,15 @@ const AddProjectModal = ({ modalVisibleProject, setModalVisibleProject }) => {
         setValue={setProjectName}
         autoFocus
         placeholder={Translate("projectName", language)}
+        onKeyDown={onKeyDown}
       />
-      <div className={`container_btn_row ${I18nManager.isRTL ? "rtl" : "ltr"}`}>
+      <div className="container_btn_row direction">
         <Button
           label={Translate("add", language)}
           customStyle={{ width: "40%" }}
           isLoading={isLoading}
           onClick={handleAddProject}
-          disabled={!projectName.trim()}
+          disabled={disableAddProject}
         />
         <Button
           label={Translate("cancel", language)}

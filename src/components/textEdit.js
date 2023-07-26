@@ -12,7 +12,7 @@ const TextEdit = ({ report, jDate }) => {
   const [isEdit, setIsEdit] = useState(false);
   const [notSave, setNotSave] = useState(false);
   const [DReport, setDReport] = useState(report);
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
   const Date = jMoment(
@@ -65,13 +65,8 @@ const TextEdit = ({ report, jDate }) => {
   );
 
   const className = {
-    container: `TE_container ${notSave ? "TE_notSave" : ""} ${
-      I18nManager.isRTL ? "rtl" : "ltr"
-    }`,
-    input: `TE_textReportDefault TE_textReportEditable text-${
-      I18nManager.isRTL ? "right" : "left"
-    }`,
-    text: `TE_textReportDefault text-${I18nManager.isRTL ? "right" : "left"} ${
+    container: `TE_container ${notSave ? "TE_notSave" : ""} direction`,
+    text: `TE_textReportDefault text-align ${
       DReport ? "TE_textReportNotEditable" : "TE_textNoReport"
     }`,
   };
@@ -83,7 +78,7 @@ const TextEdit = ({ report, jDate }) => {
           <Input
             multiline
             disableUnderline
-            className={className.input}
+            className="TE_textReportDefault TE_textReportEditable text-align"
             defaultValue={DReport}
             onChange={handleChange}
             inputProps={{ onBlur: onBlurHandler }}

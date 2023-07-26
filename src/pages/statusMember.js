@@ -11,31 +11,21 @@ import { ExpandMore, ExpandLess } from "@mui/icons-material";
 import "./statusMember.css";
 
 const StatusMember = () => {
-  const { currentPhoneNumber } = useParams();
-  const [userCurrentPhone, setUserCurrentPhone] = useState(currentPhoneNumber);
+  const { currentId } = useParams();
   const [isCollapseLocation, setIsCollapseLocation] = useState(false);
   const [isCollapseProject, setIsCollapseProject] = useState(false);
   const { users } = useSelector((state) => state.users);
-
-  const userCurrent = users.filter(
-    (user) => user.phone_number === userCurrentPhone
-  )[0];
+  const userCurrent = users.filter((user) => user.id == currentId)[0];
 
   const CustomCollapse = ({ label, content, type = "location" }) => {
-    const { I18nManager } = useSelector((state) => state.i18n);
-
     const toggleCollapse = () =>
       type === "location"
         ? setIsCollapseLocation((isCollapse) => !isCollapse)
         : setIsCollapseProject((isCollapse) => !isCollapse);
 
-    const className = {
-      collapse: `collapse ${I18nManager.isRTL ? "rtl" : "ltr"}`,
-    };
-
     return (
       <>
-        <div className={className.collapse} onClick={toggleCollapse}>
+        <div className="collapse direction" onClick={toggleCollapse}>
           <span>{label}</span>
           <span style={{ color: "#f6921e" }}>
             {(type === "location" ? isCollapseLocation : isCollapseProject) ? (
@@ -61,10 +51,7 @@ const StatusMember = () => {
         type="back"
       />
       <div>
-        <PersonalInformation
-          userCurrent={userCurrent}
-          setUserCurrentPhone={setUserCurrentPhone}
-        />
+        <PersonalInformation userCurrent={userCurrent} />
         <AccessExcel userCurrent={userCurrent} />
         <AccessLocation
           userCurrent={userCurrent}

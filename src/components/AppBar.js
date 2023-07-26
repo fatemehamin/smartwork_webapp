@@ -19,7 +19,13 @@ const CustomAppBar = ({ label, type = "Menu" }) => {
       backgroundColor: "#269dd8",
       zIndex: 2,
     }),
-    label: { flexGrow: 1, mr: 5 },
+    label: {
+      flexGrow: 1,
+      mr: 5,
+      whiteSpace: "nowrap",
+      textOverflow: "ellipsis",
+      overflow: "hidden",
+    },
   };
 
   return (

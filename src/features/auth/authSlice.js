@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAction, createSlice } from "@reduxjs/toolkit";
 import {
   checkType,
   createUserLoading,
@@ -27,15 +27,18 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    logout: (state) => {
-      localStorage.clear();
-    },
     getAccessToken: (state, action) => {
       localStorage.setItem("accessToken", action.payload);
       state.accessToken = action.payload;
     },
+    updateUser: (state, action) => {
+      state.userInfo = action.payload;
+    },
   },
   extraReducers: (builder) => {
+    builder.addCase(logout, () => {
+      localStorage.clear();
+    });
     builder.addCase(login.pending, (state) => {
       state.isLoading = true;
     });
@@ -45,7 +48,7 @@ const authSlice = createSlice({
       state.accessToken = access;
       state.refreshToken = refresh;
       state.isAuthentication = true;
-      state.userInfo = { ...state.userInfo, ...userInfo };
+      state.userInfo = userInfo;
       state.type = type;
       localStorage.setItem("type", type);
       localStorage.setItem("refreshToken", refresh);
@@ -116,5 +119,6 @@ const authSlice = createSlice({
     });
   },
 });
-export const { logout, getAccessToken } = authSlice.actions;
+export const { getAccessToken, updateUser } = authSlice.actions;
+export const logout = createAction("auth/logout");
 export default authSlice.reducer;

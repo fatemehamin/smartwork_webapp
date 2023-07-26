@@ -60,7 +60,7 @@ export const changeStatusLeave = createAsyncThunk(
 export const fetchIsNewLeave = createAsyncThunk(
   "leaveRequest/fetchIsNewLeave",
   async () => {
-    const res = await axiosAPI.get("/is-new-leave/");
+    const res = await axiosAPI.get("/is_new_leave/");
     return res.data.isNewLeave;
   }
 );

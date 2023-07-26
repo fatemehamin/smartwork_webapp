@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Logo from "../assets/images/Logo.png";
 import Button from "../components/button";
 import Input from "../components/input";
@@ -18,15 +18,10 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [openSnackbar] = useSnackbar();
   const { isLoading } = useSelector((state) => state.auth);
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const className = {
-    forgotPass: `forgotPassword_btn ${
-      I18nManager.isRTL ? "text-right" : "text-left"
-    }`,
-  };
+  const passwordInputRef = useRef(null);
 
   const handleSignup = () => navigate("/signup");
 
@@ -53,6 +48,18 @@ const Login = () => {
       .catch(_error);
   };
 
+  const onKeyDownPhoneNumber = (e) => {
+    if (e.keyCode === 13) {
+      passwordInputRef.current.focus();
+    }
+  };
+
+  const onKeyDownPassword = (e) => {
+    if (e.keyCode === 13) {
+      handleLogin();
+    }
+  };
+
   return (
     <div className="login">
       <img src={Logo} className="login-Logo" alt="Logo" />
@@ -66,6 +73,7 @@ const Login = () => {
           setCountry={setCountry}
           callingCode={callingCode}
           setCallingCode={setCallingCode}
+          onKeyDown={onKeyDownPhoneNumber}
         />
         <Input
           value={password}
@@ -74,8 +82,10 @@ const Login = () => {
           placeholder={Translate("password", language)}
           type="password"
           Icon={LockOutlined}
+          onKeyDown={onKeyDownPassword}
+          ref={passwordInputRef}
         />
-        <Link to="/forgotPassword" className={className.forgotPass}>
+        <Link to="/forgotPassword" className="forgotPassword_btn text-align">
           {Translate("forgotPassword?", language)}
         </Link>
         <Button

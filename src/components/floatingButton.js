@@ -61,7 +61,6 @@ const FloatingButton = ({
     </Box>
   ) : type === "Add" ? (
     <Box className="FBtn">
-      <Backdrop open={open} />
       <SpeedDial
         ariaLabel="SpeedDial"
         FabProps={{ style: styles.btn }}
@@ -70,16 +69,18 @@ const FloatingButton = ({
         onOpen={handleOpen}
         open={open}
       >
-        {actions.map((action) => (
-          <SpeedDialAction
-            key={action.name}
-            icon={action.icon}
-            tooltipTitle={action.name}
-            tooltipOpen
-            onClick={action.onClick}
-            FabProps={{ style: styles.btn }}
-          />
-        ))}
+        <Backdrop open={open} />
+        {open &&
+          actions.map((action) => (
+            <SpeedDialAction
+              key={action.name}
+              icon={action.icon}
+              tooltipTitle={action.name}
+              tooltipOpen
+              onClick={action.onClick}
+              FabProps={{ style: styles.btn }}
+            />
+          ))}
       </SpeedDial>
     </Box>
   ) : (

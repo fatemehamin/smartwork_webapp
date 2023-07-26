@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
 import { Translate } from "../features/i18n/translate";
@@ -8,8 +8,9 @@ import { editUsers } from "../features/users/action";
 import Input from "../components/input";
 import Button from "../components/button";
 import msgError from "../utils/msgError";
+import { updateUser } from "../features/auth/authSlice";
 
-const PersonalInformation = ({ userCurrent, setUserCurrentPhone }) => {
+const PersonalInformation = ({ userCurrent }) => {
   const [errorPhone, setErrorPhone] = useState(null);
   const [firstName, setFirstName] = useState(userCurrent.first_name);
   const [lastName, setLastName] = useState(userCurrent.last_name);
@@ -21,15 +22,21 @@ const PersonalInformation = ({ userCurrent, setUserCurrentPhone }) => {
     userCurrent.calling_code.slice(2)
   );
   const [openSnackbar] = useSnackbar();
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const { isLoading } = useSelector((state) => state.users);
-  const { error } = useSelector((state) => state.auth);
+  const { error, userInfo } = useSelector((state) => state.auth);
+  const disableEdit = errorPhone || (email && msgError.email(email));
+  const lastNameInputRef = useRef(null);
+  const emailInputRef = useRef(null);
+  const phoneInputRef = useRef(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
     // check phoneNumber realtime
     phoneNumber !== userCurrent.phone_number &&
-      dispatch(phoneNumberCheck(phoneNumber));
+      dispatch(phoneNumberCheck(phoneNumber))
+        .unwrap()
+        .then(() => setErrorPhone(null));
 
     error != null &&
       phoneNumber !== userCurrent.phone_number &&
@@ -46,21 +53,29 @@ const PersonalInformation = ({ userCurrent, setUserCurrentPhone }) => {
   }, [firstName, lastName, email, phoneNumber, callingCode, error]);
 
   const handelClickEditInfo = () => {
-    const canSave = !msgError.email(email) && !errorPhone;
-
     const args = {
       first_name: firstName,
       last_name: lastName,
-      email: email,
-      callingCode: callingCode,
-      country: country,
+      email,
+      callingCode,
+      country,
       old_phone_number: userCurrent.phone_number,
       new_phone_number: phoneNumber,
     };
 
     const _then = (res) => {
-      userCurrent.phone_number !== phoneNumber &&
-        setUserCurrentPhone(phoneNumber);
+      if (userInfo.phoneNumber === userCurrent.phone_number) {
+        dispatch(
+          updateUser({
+            country,
+            callingCode,
+            phoneNumber,
+            first_name: firstName,
+            last_name: lastName,
+            email: email,
+          })
+        );
+      }
       setIsEdit(false);
     };
 
@@ -72,7 +87,7 @@ const PersonalInformation = ({ userCurrent, setUserCurrentPhone }) => {
       );
     };
 
-    canSave && dispatch(editUsers(args)).unwrap().then(_then).catch(_error);
+    dispatch(editUsers(args)).unwrap().then(_then).catch(_error);
   };
 
   const handelClickCancel = () => {
@@ -86,14 +101,33 @@ const PersonalInformation = ({ userCurrent, setUserCurrentPhone }) => {
     setErrorPhone(null);
   };
 
-  const className = {
-    title: `main-title text-${I18nManager.isRTL ? "right" : "left"}`,
-    btn: `container_btn_row ${I18nManager.isRTL ? "rtl" : "ltr"}`,
+  const onKeyDownFirstName = (e) => {
+    if (e.keyCode === 13) {
+      lastNameInputRef.current.focus();
+    }
+  };
+
+  const onKeyDownLastName = (e) => {
+    if (e.keyCode === 13) {
+      emailInputRef.current.focus();
+    }
+  };
+
+  const onKeyDownEmail = (e) => {
+    if (e.keyCode === 13) {
+      phoneInputRef.current.focus();
+    }
+  };
+
+  const onKeyDownPhone = (e) => {
+    if (e.keyCode === 13 && isEdit && !disableEdit) {
+      handelClickEditInfo();
+    }
   };
 
   return (
     <div className="section-container">
-      <div className={className.title}>
+      <div className="main-title text-align">
         {Translate("personalInformation", language)}
       </div>
       <Input
@@ -102,6 +136,7 @@ const PersonalInformation = ({ userCurrent, setUserCurrentPhone }) => {
         label={Translate("firstName", language)}
         placeholder={Translate("firstName", language)}
         Icon={PersonOutlineOutlined}
+        onKeyDown={onKeyDownFirstName}
       />
       <Input
         value={lastName}
@@ -109,6 +144,8 @@ const PersonalInformation = ({ userCurrent, setUserCurrentPhone }) => {
         label={Translate("lastName", language)}
         placeholder={Translate("lastName", language)}
         Icon={PersonOutlineOutlined}
+        ref={lastNameInputRef}
+        onKeyDown={onKeyDownLastName}
       />
       <Input
         value={email}
@@ -116,7 +153,9 @@ const PersonalInformation = ({ userCurrent, setUserCurrentPhone }) => {
         label={Translate("email", language)}
         placeholder={Translate("email", language)}
         Icon={EmailOutlined}
-        msgError={isEdit && Translate(msgError.email(email), language)}
+        msgError={isEdit && email && Translate(msgError.email(email), language)}
+        ref={emailInputRef}
+        onKeyDown={onKeyDownEmail}
       />
       <Input
         value={phoneNumber}
@@ -127,6 +166,8 @@ const PersonalInformation = ({ userCurrent, setUserCurrentPhone }) => {
         setCountry={setCountry}
         callingCode={callingCode}
         setCallingCode={setCallingCode}
+        ref={phoneInputRef}
+        onKeyDown={onKeyDownPhone}
         msgError={
           errorPhone === "phoneNumberExists"
             ? Translate("phoneNumberExists", language)
@@ -134,12 +175,13 @@ const PersonalInformation = ({ userCurrent, setUserCurrentPhone }) => {
         }
       />
       {isEdit && (
-        <div className={className.btn}>
+        <div className="container_btn_row direction">
           <Button
             label={Translate("ok", language)}
             customStyle={{ width: "40%" }}
             isLoading={isLoading}
             onClick={handelClickEditInfo}
+            disabled={disableEdit}
           />
           <Button
             label={Translate("cancel", language)}

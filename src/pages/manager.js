@@ -6,6 +6,7 @@ import TabCartable from "./tabCartable";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchIsNewMsg, fetchMsg } from "../features/msg/action";
 import { fetchUsers } from "../features/users/action";
+import { fetchTasksLog } from "../features/tasks/action";
 import {
   fetchIsNewLeave,
   fetchLeaveRequests,
@@ -22,6 +23,7 @@ const Manager = () => {
       dispatch(fetchLeaveRequests());
       dispatch(fetchMsg());
       dispatch(fetchUsers());
+      dispatch(fetchTasksLog());
     }
     dispatch(fetchIsNewMsg());
     dispatch(fetchIsNewLeave());

@@ -13,7 +13,7 @@ import {
 const SelectProjectToUser = ({ userCurrent, CustomCollapse }) => {
   const { isLoading } = useSelector((state) => state.users);
   const { projects } = useSelector((state) => state.projects);
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
 
@@ -29,6 +29,18 @@ const SelectProjectToUser = ({ userCurrent, CustomCollapse }) => {
     );
   };
 
+  const styles = {
+    check: {
+      backgroundColor: "#f6921e60",
+      fontWeight: 500,
+      fontFamily: "Vazirmatn, sans-serif",
+    },
+    unCheck: {
+      fontWeight: 500,
+      fontFamily: "Vazirmatn, sans-serif",
+    },
+  };
+
   const contentCollapse = () => (
     <Stack direction="row" className="chip-container" spacing={1} rowGap={2}>
       {projects.length > 0 ? (
@@ -40,12 +52,12 @@ const SelectProjectToUser = ({ userCurrent, CustomCollapse }) => {
             <Chip
               key={i}
               label={project.project_name}
-              deleteIcon={<Done />}
+              deleteIcon={<Done sx={{ color: "#b14a00 !important" }} />}
+              disabled={isLoading}
+              style={styles.check}
               onDelete={() =>
                 handleToggleProject(project.project_name, "delete")
               }
-              disabled={isLoading}
-              style={{ backgroundColor: "#f6921e60" }}
             />
           ) : (
             <Chip
@@ -54,11 +66,12 @@ const SelectProjectToUser = ({ userCurrent, CustomCollapse }) => {
               variant="outlined"
               disabled={isLoading}
               onClick={() => handleToggleProject(project.project_name)}
+              style={styles.unCheck}
             />
           );
         })
       ) : (
-        <div className={`noItemText ${I18nManager.isRTL ? "rtl" : "ltr"}`}>
+        <div className="noItemText direction">
           {Translate("notExistProject", language)}
         </div>
       )}
@@ -77,13 +90,11 @@ const SelectProjectToUser = ({ userCurrent, CustomCollapse }) => {
       .catch(_error);
   };
 
-  const className = {
-    title: `main-title text-${I18nManager.isRTL ? "right" : "left"}`,
-  };
-
   return (
     <div className="section-container">
-      <div className={className.title}>{Translate("project", language)}</div>
+      <div className="main-title text-align">
+        {Translate("project", language)}
+      </div>
       <CustomCollapse
         label={Translate("addProjectToUser", language)}
         content={contentCollapse}

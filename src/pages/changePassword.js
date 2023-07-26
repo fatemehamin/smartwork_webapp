@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { LockOutlined } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -19,8 +19,10 @@ const ChangePassword = () => {
   const { language } = useSelector((state) => state.i18n);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const rePasswordInputRef = useRef(null);
+  const disableChangePassword = !(password && rePassword);
 
-  const HandleChangePass = () => {
+  const HandleChangePassword = () => {
     const canSave = !(
       msgError.rePassword(rePassword, password) || msgError.password(password)
     );
@@ -42,6 +44,17 @@ const ChangePassword = () => {
         .catch(_error);
   };
 
+  const onKeyDownPassword = (e) => {
+    if (e.keyCode === 13) {
+      rePasswordInputRef.current.focus();
+    }
+  };
+  const onKeyDownRePassword = (e) => {
+    if (e.keyCode === 13 && !disableChangePassword) {
+      HandleChangePassword();
+    }
+  };
+
   return (
     <>
       <AppBar label="changePassword" type="back" />
@@ -53,6 +66,8 @@ const ChangePassword = () => {
         type="password"
         Icon={LockOutlined}
         msgError={isPress && Translate(msgError.password(password), language)}
+        onKeyDown={onKeyDownPassword}
+        autoFocus
       />
       <Input
         value={rePassword}
@@ -61,6 +76,8 @@ const ChangePassword = () => {
         placeholder={Translate("repeatPassword", language)}
         type="password"
         Icon={LockOutlined}
+        ref={rePasswordInputRef}
+        onKeyDown={onKeyDownRePassword}
         msgError={
           isPress &&
           Translate(msgError.rePassword(rePassword, password), language)
@@ -68,8 +85,8 @@ const ChangePassword = () => {
       />
       <Button
         label={Translate("changePassword", language)}
-        disabled={!(password && rePassword)}
-        onClick={HandleChangePass}
+        disabled={disableChangePassword}
+        onClick={HandleChangePassword}
         isLoading={stateAuth.isLoading}
       />
     </>

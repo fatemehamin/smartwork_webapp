@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchIsNewMsg, fetchMsg } from "../features/msg/action";
 import { fetchLeaveRequests } from "../features/leaveRequests/action";
 import { fetchUsers } from "../features/users/action";
+import { fetchIsNewLog, fetchTasksLog } from "../features/tasks/action";
 import AppBar from "../components/appBar";
 import Tabs from "../components/tabs";
 import TabEntryAndExit from "./tabEntryAndExit";
@@ -14,15 +15,17 @@ const MyTask = () => {
   const [isFirstLoading, setIsFirstLoading] = useState(true);
   const { isNewMsg } = useSelector((state) => state.msg);
   const { type } = useSelector((state) => state.auth);
-  const { lastEntry } = useSelector((state) => state.tasks);
+  const { lastEntry, isNewLog } = useSelector((state) => state.tasks);
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(fetchIsNewMsg());
+    dispatch(fetchIsNewLog());
     if (activeFilter === "cartable") {
       dispatch(fetchLeaveRequests());
       dispatch(fetchMsg());
       dispatch(fetchUsers());
+      dispatch(fetchTasksLog());
     }
     if (isFirstLoading) {
       setActiveFilter(lastEntry ? "tasks" : "entryAndExit");
@@ -42,7 +45,7 @@ const MyTask = () => {
             : [
                 { title: "entryAndExit" },
                 { title: "tasks" },
-                { title: "cartable", isBadge: isNewMsg },
+                { title: "cartable", isBadge: isNewMsg || isNewLog },
               ]
         }
       />

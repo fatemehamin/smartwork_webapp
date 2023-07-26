@@ -18,7 +18,7 @@ import {
 } from "@mui/icons-material";
 
 const MsgModal = ({ modalVisible, setModalVisible, userPhoneNumber = "" }) => {
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const { users } = useSelector((state) => state.users);
   const { tasks } = useSelector((state) => state.tasks);
   const { userInfo, type } = useSelector((state) => state.auth);
@@ -194,9 +194,7 @@ const MsgModal = ({ modalVisible, setModalVisible, userPhoneNumber = "" }) => {
           placeholder={Translate("explain", language)}
           multiline
         />
-        <div
-          className={`container_btn_row ${I18nManager.isRTL ? "rtl" : "ltr"}`}
-        >
+        <div className="container_btn_row direction">
           <Button
             label={Translate("send", language)}
             customStyle={{ width: "40%" }}
@@ -239,7 +237,7 @@ const CustomCollapse = ({ isCollapse, setIsCollapse, list, item, onClick }) => {
   const className = {
     collapseBtn: `msg-modal-btn-collapse ${
       isCollapse ? "msg-modal-border-top" : ""
-    } ${I18nManager.isRTL ? "rtl" : "ltr"}`,
+    } direction`,
     collapseBtnText: `msg-modal-btn-collapse-title ${
       isCollapse ? "msg-modal-btn-collapse-title-open" : ""
     }`,

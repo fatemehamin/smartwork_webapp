@@ -13,6 +13,7 @@ const Users = () => {
   const [modalVisibleUser, setModalVisibleUser] = useState(false);
   const [modalVisibleProject, setModalVisibleProject] = useState(false);
   const { users } = useSelector((state) => state.users);
+  const { phoneNumber } = useSelector((state) => state.auth.userInfo);
   const { language } = useSelector((state) => state.i18n);
   const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
@@ -29,20 +30,46 @@ const Users = () => {
       });
   }, []);
 
-  const getUsersCard = () =>
-    users
-      // .sort(a => (a.now_active_project == 'nothing' ? 1 : -1))
-      .map((user, index) => {
+  const getUsersCard = () => {
+    const idleUsers = users.filter(
+      (item) =>
+        item.now_active_project === "nothing" &&
+        item.phone_number !== phoneNumber
+    );
+    const busyUsers = users.filter(
+      (item) =>
+        item.now_active_project !== "nothing" &&
+        item.phone_number !== phoneNumber
+    );
+    const boss = users.find((item) => item.phone_number === phoneNumber);
+
+    const compareByName = (a, b) => {
+      const nameA = a.last_name.toUpperCase();
+      const nameB = b.last_name.toUpperCase();
+      return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+    };
+
+    idleUsers?.sort(compareByName);
+    busyUsers?.sort(compareByName);
+
+    const newUsers = [boss, ...busyUsers, ...idleUsers];
+
+    return (
+      boss !== undefined &&
+      newUsers.map((user, index) => {
         return (
           <CardUser
             key={index}
+            id={user.id}
             firstName={user.first_name}
             lastName={user.last_name}
             phoneNumber={user.phone_number}
             nowActiveProject={user.now_active_project}
           />
         );
-      });
+      })
+    );
+  };
 
   return (
     <>

@@ -1,9 +1,19 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { endTime, entry, exit, fetchTasks, startTime } from "./action";
+import {
+  endTime,
+  entry,
+  exit,
+  fetchIsNewLog,
+  fetchTasks,
+  fetchTasksLog,
+  startTime,
+} from "./action";
 
 const initialState = {
   tasks: [],
   currentTask: { name: "", start: 0 },
+  taskLogList: [],
+  isNewLog: false,
   isLoading: false,
   error: null,
   lastEntry: 0,
@@ -96,6 +106,26 @@ const tasksSlice = createSlice({
       );
     });
     builder.addCase(endTime.rejected, (state) => {
+      state.isLoading = false;
+    });
+    builder.addCase(fetchTasksLog.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(fetchTasksLog.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.taskLogList = action.payload;
+    });
+    builder.addCase(fetchTasksLog.rejected, (state) => {
+      state.isLoading = false;
+    });
+    builder.addCase(fetchIsNewLog.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(fetchIsNewLog.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.isNewLog = action.payload;
+    });
+    builder.addCase(fetchIsNewLog.rejected, (state) => {
       state.isLoading = false;
     });
   },

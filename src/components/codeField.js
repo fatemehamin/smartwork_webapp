@@ -2,16 +2,19 @@ import React from "react";
 import { TextField, styled } from "@mui/material";
 import "./codeField.css";
 
-const CodeFiled = ({ cellCount, code, setCode }) => {
+const CodeFiled = ({ cellCount, code, setCode, onKeyDownLastInput }) => {
   let inputs = new Array(cellCount).fill(0);
 
   const onChangeHandler = (event) => {
     /^(?=.*\d)[\d]*$/.test(event.target.value) && // for give just number
+      code.length < cellCount &&
       setCode(code + event.target.value);
   };
 
-  const onKeyDownHandler = (event) =>
+  const onKeyDownHandler = (event) => {
     event.key === "Backspace" && setCode(code.slice(0, -1));
+    code.length === cellCount && onKeyDownLastInput(event);
+  };
 
   const styles = {
     Input: styled(TextField)({
@@ -44,6 +47,7 @@ const CodeFiled = ({ cellCount, code, setCode }) => {
             type="tel"
             className="codeField_input"
             onChange={onChangeHandler}
+            value={code[index]}
             inputMode="numeric"
             autoFocus
             onKeyDown={onKeyDownHandler}

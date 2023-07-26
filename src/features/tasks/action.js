@@ -37,3 +37,19 @@ export const endTime = createAsyncThunk(
     return { name, last_duration: res.data.last_duration };
   }
 );
+
+export const fetchTasksLog = createAsyncThunk(
+  "tasks/fetchTasksLog",
+  async () => {
+    const res = await axiosAPI.get("/task_log/");
+    return res.data.task_log_list;
+  }
+);
+
+export const fetchIsNewLog = createAsyncThunk(
+  "tasks/fetchIsNewLog",
+  async () => {
+    const res = await axiosAPI.get("/is_new_log/");
+    return res.data.isNewTaskLog;
+  }
+);

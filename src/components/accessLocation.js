@@ -11,7 +11,7 @@ import {
 } from "../features/users/action";
 
 const AccessLocation = ({ userCurrent, CustomCollapse }) => {
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const { locations } = useSelector((state) => state.locations);
   const { isLoading } = useSelector((state) => state.users);
   const [openSnackbar] = useSnackbar();
@@ -59,18 +59,16 @@ const AccessLocation = ({ userCurrent, CustomCollapse }) => {
         />
       ))
     ) : (
-      <div className={`noItemText ${I18nManager.isRTL ? "rtl" : "ltr"}`}>
+      <div className="noItemText direction">
         {Translate("notExistLocation", language)}
       </div>
     );
 
-  const className = {
-    title: `main-title text-${I18nManager.isRTL ? "right" : "left"}`,
-  };
-
   return (
     <div className="section-container">
-      <div className={className.title}>{Translate("location", language)}</div>
+      <div className="main-title text-align">
+        {Translate("location", language)}
+      </div>
       <CustomCollapse
         label={Translate("addLocationToUser", language)}
         content={contentCollapse}

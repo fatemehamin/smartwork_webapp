@@ -13,19 +13,7 @@ import {
 } from "./action";
 
 const initialState = {
-  users: [
-    // {
-    //   first_name: "",
-    //   last_name: "",
-    //   email: "",
-    //   phone_number: "+98",
-    //   calling_code: "IR+98",
-    //   now_active_project: "nothing",
-    //   financial_group: false,
-    //   location: [],
-    //   project_list: [],
-    // },
-  ],
+  users: [],
   isLoading: false,
   error: null,
 };
@@ -100,9 +88,9 @@ const usersSlice = createSlice({
               last_name,
               calling_code,
               phone_number:
-                new_phone_number === undefined
-                  ? old_phone_number
-                  : new_phone_number,
+                new_phone_number !== undefined
+                  ? new_phone_number
+                  : old_phone_number,
             }
           : user
       );

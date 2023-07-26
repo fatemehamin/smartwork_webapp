@@ -1,5 +1,4 @@
 import React from "react";
-import { useSelector } from "react-redux";
 import Button from "./button";
 import "./alert.css";
 import {
@@ -11,7 +10,6 @@ import {
 } from "@mui/material";
 
 const Alert = ({ Icon, title, description, open, setOpen, ButtonAction }) => {
-  const { I18nManager } = useSelector((state) => state.i18n);
   const closeAlert = () => setOpen(false);
 
   const HandleClickAction = (onClick) => {
@@ -28,19 +26,8 @@ const Alert = ({ Icon, title, description, open, setOpen, ButtonAction }) => {
         padding: 1,
       },
     },
-    dialogContent: {
-      "& .MuiDialogContent-root": {
-        padding: 0,
-      },
-    },
+    dialogContent: { "& .MuiDialogContent-root": { padding: 0 } },
     customStyle: { width: "40%" },
-    textAlign: {
-      textAlign: I18nManager.isRTL ? "right" : "left",
-      direction: I18nManager.isRTL ? "rtl" : "ltr",
-    },
-    direction: {
-      direction: I18nManager.isRTL ? "rtl" : "ltr",
-    },
   };
 
   return (
@@ -52,17 +39,17 @@ const Alert = ({ Icon, title, description, open, setOpen, ButtonAction }) => {
       sx={styles.dialogContainer}
     >
       {Icon !== undefined && <Icon className="alert-icon" />}
-      <DialogTitle id="alert-dialog-title" style={styles.textAlign}>
+      <DialogTitle id="alert-dialog-title" className="text-align direction">
         {title}
       </DialogTitle>
       {description && (
-        <DialogContent sx={styles.dialogContent} style={styles.direction}>
+        <DialogContent sx={styles.dialogContent} className="direction">
           <DialogContentText id="alert-dialog-description">
             {description}
           </DialogContentText>
         </DialogContent>
       )}
-      <DialogActions id="alert-dialog-actions" sx={styles.direction}>
+      <DialogActions id="alert-dialog-actions" className="direction">
         {ButtonAction !== undefined &&
           ButtonAction.map((action) => (
             <Button

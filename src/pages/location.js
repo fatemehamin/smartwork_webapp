@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Room, Delete, RadioButtonUnchecked } from "@mui/icons-material";
 import { useSnackbar } from "react-simple-snackbar";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,7 +28,7 @@ import {
 } from "react-leaflet";
 
 const Location = () => {
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const { locations, isLoading } = useSelector((state) => state.locations);
   const phoneNumber = useSelector((state) => state.auth.userInfo?.phoneNumber);
   const dispatch = useDispatch();
@@ -41,10 +41,18 @@ const Location = () => {
     location_name: "",
     radius: "",
   });
+  const radiusRef = useRef(null);
+  const disableBtn = !(
+    currentCoordinate.location_name.trim() && currentCoordinate.radius
+  );
 
   useEffect(() => {
     dispatch(fetchLocations()).catch(_error);
   }, []);
+
+  useEffect(() => {
+    modalVisible && window.scrollTo(0, 0);
+  }, [modalVisible]);
 
   const _error = (error) => {
     openSnackbar(
@@ -140,8 +148,21 @@ const Location = () => {
       .catch(_error);
   };
 
-  const handleDeleteLocation = () =>
+  const handleDeleteLocation = () => {
     dispatch(deleteLocation(currentCoordinate.location_name)).catch(_error);
+  };
+
+  const onKeyDownLocationName = (e) => {
+    if (e.keyCode === 13) {
+      radiusRef.current.focus();
+    }
+  };
+
+  const onKeyDownLocationRadius = (e) => {
+    if (e.keyCode === 13 && !disableBtn) {
+      handleAddLocation();
+    }
+  };
 
   const LocationList = () =>
     locations.length > 0 && (
@@ -157,7 +178,7 @@ const Location = () => {
               key={index}
               className={`location-bar ${
                 active ? "location-bar-selected" : ""
-              } ${I18nManager.isRTL ? "rtl" : "ltr"}`}
+              } direction`}
               onClick={() => setCurrentCoordinate(location)}
             >
               <span className={`location-bar-name${active ? "-selected" : ""}`}>
@@ -221,25 +242,27 @@ const Location = () => {
           value={currentCoordinate.location_name}
           setValue={onChangeNameLocation}
           Icon={() => <Room size={30} color="secondary80" />}
+          onKeyDown={onKeyDownLocationName}
         />
         <Input
           customStyle={{ width: "100%" }}
           label={Translate("radius", language)}
           placeholder={Translate("radius", language)}
-          value={currentCoordinate.radius.toString()}
+          value={currentCoordinate.radius?.toString()}
           setValue={onChangeRadius}
           type="number"
           Icon={() => <RadioButtonUnchecked size={30} color="secondary80" />}
           IconEnd={iconEnd}
+          ref={radiusRef}
+          onKeyDown={onKeyDownLocationRadius}
         />
-        <div
-          className={`container_btn_row ${I18nManager.isRTL ? "rtl" : "ltr"}`}
-        >
+        <div className={`container_btn_row direction`}>
           <Button
             label={Translate("ok", language)}
             customStyle={{ width: "40%" }}
             isLoading={isLoading}
             onClick={handleAddLocation}
+            disabled={disableBtn}
           />
           <Button
             label={Translate("cancel", language)}

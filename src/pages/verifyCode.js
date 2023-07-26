@@ -20,7 +20,7 @@ const VerifyCode = () => {
   const [isResendCode, setIsResendCode] = useState(false);
   const [startTime, setStartTime] = useState(new Date().getTime());
   const stateAuth = useSelector((state) => state.auth);
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [openSnackbar] = useSnackbar();
@@ -83,19 +83,26 @@ const VerifyCode = () => {
       .catch(_error);
   };
 
-  const className = {
-    description: `Verify_description ${I18nManager.isRTL ? "rtl" : "ltr"}`,
+  const onKeyDownLastInput = (e) => {
+    if (e.keyCode === 13) {
+      HandleVerifyCode();
+    }
   };
 
   return (
     <>
       <AppBar label="verificationCode" type="back" />
-      <div className={className.description}>
+      <div className="Verify_description direction">
         {Translate("typeVerificationCode", language)}
         <br />
         {phoneNumber}
       </div>
-      <CodeField code={code} setCode={setCode} cellCount={5} />
+      <CodeField
+        code={code}
+        setCode={setCode}
+        cellCount={5}
+        onKeyDownLastInput={onKeyDownLastInput}
+      />
       <div className="Verify_timer">
         {time >= 0 ? (
           <span className="Verify_textResend">

@@ -15,9 +15,10 @@ const ForgotPassword = () => {
   const [callingCode, setCallingCode] = useState("+98");
   const [openSnackbar] = useSnackbar();
   const stateAuth = useSelector((state) => state.auth);
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const disableSendCode = phoneNumber === callingCode;
 
   const handelSendCode = () => {
     const _error = (error) =>
@@ -35,10 +36,16 @@ const ForgotPassword = () => {
       .catch(_error);
   };
 
+  const onKeyDown = (e) => {
+    if (e.keyCode === 13 && !disableSendCode) {
+      handelSendCode();
+    }
+  };
+
   return (
     <>
       <AppBar label="forgotPassword" type="back" />
-      <p className={`forgot_pass_text ${I18nManager.isRTL ? "rtl" : "ltr"}`}>
+      <p className="forgot_pass_text direction">
         {Translate("enterYourPhoneNumber", language)}
       </p>
       <Input
@@ -50,10 +57,12 @@ const ForgotPassword = () => {
         setCountry={setCountry}
         callingCode={callingCode}
         setCallingCode={setCallingCode}
+        onKeyDown={onKeyDown}
+        autoFocus
       />
       <Button
         label={Translate("sendCode", language)}
-        disabled={phoneNumber === callingCode}
+        disabled={disableSendCode}
         onClick={handelSendCode}
         isLoading={stateAuth.isLoading}
       />

@@ -153,7 +153,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
 };
 
 const Item = ({ label, Icon, onClick, CurrentLabel }) => {
-  const { I18nManager, language } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const styles = { itemIcon: { color: "#33333370", minWidth: 0 } };
 
   return (
@@ -165,7 +165,7 @@ const Item = ({ label, Icon, onClick, CurrentLabel }) => {
     >
       <ListItemButton
         onClick={onClick}
-        className={I18nManager.isRTL ? "rtl" : "ltr"}
+        className="direction"
         style={{ alignItems: "stretch" }}
       >
         <ListItemIcon style={styles.itemIcon}>
@@ -178,7 +178,7 @@ const Item = ({ label, Icon, onClick, CurrentLabel }) => {
         </ListItemIcon>
         <ListItemText
           primary={Translate(label, language)}
-          className={I18nManager.isRTL ? "text-right" : "text-left"}
+          className="text-align"
         />
       </ListItemButton>
     </ListItem>

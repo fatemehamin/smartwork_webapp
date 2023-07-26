@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,7 @@ import AppBar from "../components/appBar";
 import Input from "../components/input";
 import Button from "../components/button";
 import msgError from "../utils/msgError";
+import "./signup.css";
 import {
   PersonOutlineOutlined,
   WorkOutlineOutlined,
@@ -27,9 +28,14 @@ const Signup = () => {
   const [isPress, setIsPress] = useState(false);
   const [openSnackbar] = useSnackbar();
   const { isLoading, error } = useSelector((state) => state.auth);
-  const { language } = useSelector((state) => state.i18n);
+  const { language, I18nManager } = useSelector((state) => state.i18n);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const lastNameInputRef = useRef(null);
+  const businessInputRef = useRef(null);
+  const phoneInputRef = useRef(null);
+  const passwordInputRef = useRef(null);
+  const rePasswordInputRef = useRef(null);
 
   useEffect(() => {
     // check phoneNumber realtime
@@ -79,6 +85,37 @@ const Signup = () => {
         .catch(_error);
   };
 
+  const onKeyDownFirstName = (e) => {
+    if (e.keyCode === 13) {
+      lastNameInputRef.current.focus();
+    }
+  };
+  const onKeyDownLastName = (e) => {
+    if (e.keyCode === 13) {
+      businessInputRef.current.focus();
+    }
+  };
+  const onKeyDownBusiness = (e) => {
+    if (e.keyCode === 13) {
+      phoneInputRef.current.focus();
+    }
+  };
+  const onKeyDownPhone = (e) => {
+    if (e.keyCode === 13) {
+      passwordInputRef.current.focus();
+    }
+  };
+  const onKeyDownPassword = (e) => {
+    if (e.keyCode === 13) {
+      rePasswordInputRef.current.focus();
+    }
+  };
+  const onKeyDownRePassword = (e) => {
+    if (e.keyCode === 13 && !disableSignup) {
+      HandleSignup();
+    }
+  };
+
   return (
     <>
       <AppBar label="signup" type="AUTH" />
@@ -88,6 +125,8 @@ const Signup = () => {
         label={Translate("firstName", language)}
         placeholder={Translate("firstName", language)}
         Icon={PersonOutlineOutlined}
+        onKeyDown={onKeyDownFirstName}
+        autoFocus
       />
       <Input
         value={lastName}
@@ -95,6 +134,8 @@ const Signup = () => {
         label={Translate("lastName", language)}
         placeholder={Translate("lastName", language)}
         Icon={PersonOutlineOutlined}
+        ref={lastNameInputRef}
+        onKeyDown={onKeyDownLastName}
       />
       <Input
         value={companyName}
@@ -102,6 +143,8 @@ const Signup = () => {
         label={Translate("businessName", language)}
         placeholder={Translate("businessName", language)}
         Icon={WorkOutlineOutlined}
+        ref={businessInputRef}
+        onKeyDown={onKeyDownBusiness}
       />
       <Input
         value={phoneNumber}
@@ -112,6 +155,8 @@ const Signup = () => {
         setCountry={setCountry}
         callingCode={callingCode}
         setCallingCode={setCallingCode}
+        ref={phoneInputRef}
+        onKeyDown={onKeyDownPhone}
         msgError={
           error === "phoneNumberExists"
             ? Translate("phoneNumberExists", language)
@@ -125,6 +170,8 @@ const Signup = () => {
         placeholder={Translate("password", language)}
         type="password"
         Icon={LockOutlined}
+        ref={passwordInputRef}
+        onKeyDown={onKeyDownPassword}
         msgError={isPress && Translate(msgError.password(password), language)}
       />
       <Input
@@ -134,6 +181,8 @@ const Signup = () => {
         placeholder={Translate("repeatPassword", language)}
         type="password"
         Icon={LockOutlined}
+        ref={rePasswordInputRef}
+        onKeyDown={onKeyDownRePassword}
         msgError={
           isPress &&
           Translate(msgError.rePassword(rePassword, password), language)
@@ -145,6 +194,16 @@ const Signup = () => {
         onClick={HandleSignup}
         isLoading={isLoading}
       />
+      <div className="privacy-policy direction">
+        {!I18nManager.isRTL && Translate("acceptPrivacyPolicy", language)}
+        <span
+          onClick={() => navigate("/PrivacyPolicy")}
+          className="privacy-policy-btn"
+        >
+          {Translate("privacyPolicy", language)}
+        </span>
+        {I18nManager.isRTL && Translate("acceptPrivacyPolicy", language)}
+      </div>
     </>
   );
 };

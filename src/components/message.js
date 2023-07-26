@@ -67,7 +67,7 @@ const Message = ({
     return (
       typeRequest === "userRequest" &&
       (type === "boss" ? (
-        <Grid item xs={3} className={className.action}>
+        <Grid item xs={3} className="msg-action direction">
           {status !== null && (
             <div className={className.actionText}>
               {Translate(status, language)}
@@ -87,7 +87,7 @@ const Message = ({
           )}
         </Grid>
       ) : (
-        <Grid item xs={3} className={className.action}>
+        <Grid item xs={3} className="msg-action direction">
           {status !== null && (
             <div className={className.actionText}>
               {Translate(status, language)}
@@ -108,21 +108,17 @@ const Message = ({
   };
 
   const className = {
-    container: `msg-container ${I18nManager.isRTL ? "rtl" : "ltr"}`,
-    name: `msg-name text-${I18nManager.isRTL ? "right" : "left"}`,
     time: `msg-time text-${I18nManager.isRTL ? "left" : "right"}`,
-    action: `msg-action ${I18nManager.isRTL ? "rtl" : "ltr"}`,
-    msg: `msg-text ${I18nManager.isRTL ? "rtl" : "ltr"}`,
     actionText: `msg-action-text msg-action-${status}`,
     actionIcon: `msg-action-icon msg-action-${status}`,
   };
 
   return (
-    <Grid container className={className.container}>
+    <Grid container className="msg-container direction">
       <Grid item xs={1}>
         <MiniLogoIcon />
       </Grid>
-      <Grid item xs={8} className={className.name}>
+      <Grid item xs={8} className="msg-name text-align">
         {name}
       </Grid>
       <Grid item xs={3} className={className.time}>
@@ -150,7 +146,7 @@ const Message = ({
           )}
         </Grid>
       )}
-      <Grid container className={className.msg}>
+      <Grid container className="msg-text direction">
         {msg}
       </Grid>
       <Alert open={isAlert} setOpen={setIsAlert} {...alert[alertType]} />

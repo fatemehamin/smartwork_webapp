@@ -1,3 +1,7 @@
+:root {
+  --dir: ltr;
+  --align: left;
+}
 .App {
   text-align: center;
 }
@@ -20,11 +24,14 @@ body {
   display: flex;
   align-items: center;
 }
+.text-right {
+  text-align: right;
+}
 .text-left {
   text-align: left;
 }
-.text-right {
-  text-align: right;
+.text-align {
+  text-align: var(--align);
 }
 .rtl {
   direction: rtl;
@@ -32,6 +39,17 @@ body {
 .ltr {
   direction: ltr;
 }
+.direction {
+  direction: var(--dir);
+}
 #Vector {
   fill: inherit !important;
+}
+.Snackbar_snackbar__text__1Hx2a {
+  direction: var(--dir);
+  text-align: var(--align);
+  font-family: Vazirmatn, sans-serif;
+}
+.Snackbar_snackbar__GsYZl {
+  direction: var(--dir);
 }

@@ -7,8 +7,9 @@ import { useSnackbar } from "react-simple-snackbar";
 
 const AccessExcel = ({ userCurrent }) => {
   const [isChecked, setIsChecked] = useState(userCurrent.financial_group);
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const { isLoading } = useSelector((state) => state.users);
+  const { phoneNumber } = useSelector((state) => state.auth.userInfo);
   const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
 
@@ -32,19 +33,16 @@ const AccessExcel = ({ userCurrent }) => {
       .catch(_error);
   };
 
-  const className = {
-    title: `main-title text-${I18nManager.isRTL ? "right" : "left"}`,
-    row: `row_section ${I18nManager.isRTL ? "rtl" : "ltr"}`,
-  };
-
   return (
     <div className="section-container">
-      <div className={className.title}>{Translate("excel", language)}</div>
-      <div className={className.row}>
+      <div className="main-title text-align">
+        {Translate("excel", language)}
+      </div>
+      <div className="row_section direction">
         <div>{Translate("accessExcel", language)}</div>
         <Switch
-          checked={isChecked}
-          disabled={isLoading}
+          checked={phoneNumber === userCurrent.phone_number || isChecked}
+          disabled={phoneNumber === userCurrent.phone_number || isLoading}
           color="secondary"
           onChange={handleToggleExcel}
         />

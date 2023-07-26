@@ -32,6 +32,6 @@ export const changeStatusMsg = createAsyncThunk(
 );
 
 export const fetchIsNewMsg = createAsyncThunk("msg/fetchIsNewMsg", async () => {
-  const res = await axiosAPI.get("/is-new-msg/");
+  const res = await axiosAPI.get("/is_new_msg/");
   return res.data.isNewMsg;
 });

@@ -8,6 +8,7 @@ import Input from "./input";
 import Modal from "./modal";
 import Button from "./button";
 import msgError from "../utils/msgError";
+import { useRef } from "react";
 
 const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
   const [firstName, setFirstName] = useState("");
@@ -20,7 +21,11 @@ const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
   const [isPress, setIsPress] = useState(false);
   const [openSnackbar] = useSnackbar();
   const { isLoading, error } = useSelector((state) => state.users);
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
+  const lastNameInputRef = useRef(null);
+  const phoneInputRef = useRef(null);
+  const passwordInputRef = useRef(null);
+  const rePasswordInputRef = useRef(null);
   const dispatch = useDispatch();
   const closeAddUserModal = () => setModalVisibleUser(false);
 
@@ -70,6 +75,32 @@ const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
     canSave && dispatch(addUsers(args)).unwrap().then(_then).catch(_error);
   };
 
+  const onKeyDownFirstName = (e) => {
+    if (e.keyCode === 13) {
+      lastNameInputRef.current.focus();
+    }
+  };
+  const onKeyDownLastName = (e) => {
+    if (e.keyCode === 13) {
+      phoneInputRef.current.focus();
+    }
+  };
+  const onKeyDownPhone = (e) => {
+    if (e.keyCode === 13) {
+      passwordInputRef.current.focus();
+    }
+  };
+  const onKeyDownPassword = (e) => {
+    if (e.keyCode === 13) {
+      rePasswordInputRef.current.focus();
+    }
+  };
+  const onKeyDownRePassword = (e) => {
+    if (e.keyCode === 13 && !disabledAddBtn) {
+      handleAddUser();
+    }
+  };
+
   return (
     <Modal
       modalVisible={modalVisibleUser}
@@ -82,6 +113,8 @@ const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
         Icon={PersonOutlineOutlined}
         value={firstName}
         setValue={setFirstName}
+        onKeyDown={onKeyDownFirstName}
+        autoFocus
       />
       <Input
         label={Translate("lastName", language)}
@@ -89,6 +122,8 @@ const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
         Icon={PersonOutlineOutlined}
         value={lastName}
         setValue={setLastName}
+        onKeyDown={onKeyDownLastName}
+        ref={lastNameInputRef}
       />
       <Input
         label={Translate("phoneNumber", language)}
@@ -99,6 +134,8 @@ const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
         setValue={setPhoneNumber}
         country={country}
         setCountry={setCountry}
+        onKeyDown={onKeyDownPhone}
+        ref={phoneInputRef}
         msgError={
           error === "phoneNumberExists"
             ? Translate("phoneNumberExists", language)
@@ -109,9 +146,11 @@ const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
         label={Translate("password", language)}
         placeholder={Translate("password", language)}
         Icon={LockOutlined}
+        type="password"
         value={password}
         setValue={setPassword}
-        type="password"
+        onKeyDown={onKeyDownPassword}
+        ref={passwordInputRef}
         msgError={isPress && Translate(msgError.password(password), language)}
       />
       <Input
@@ -121,12 +160,14 @@ const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
         type="password"
         value={rePassword}
         setValue={setRePassword}
+        onKeyDown={onKeyDownRePassword}
+        ref={rePasswordInputRef}
         msgError={
           isPress &&
           Translate(msgError.rePassword(rePassword, password), language)
         }
       />
-      <div className={`container_btn_row ${I18nManager.isRTL ? "rtl" : "ltr"}`}>
+      <div className="container_btn_row direction">
         <Button
           label={Translate("add", language)}
           customStyle={{ width: "40%" }}

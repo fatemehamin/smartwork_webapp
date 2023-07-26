@@ -20,8 +20,14 @@ import {
   DoDisturb,
 } from "@mui/icons-material";
 
-const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+const CardUser = ({
+  id,
+  firstName,
+  lastName,
+  phoneNumber,
+  nowActiveProject,
+}) => {
+  const { language } = useSelector((state) => state.i18n);
   const { userInfo } = useSelector((state) => state.auth);
   const [isPressMore, setIsPressMore] = useState(false);
   const [notifModalVisible, setNotifModalVisible] = useState(false);
@@ -42,7 +48,7 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
   }, []);
 
   const openAlertRemove = () => setOpenAlert(true);
-  const handelClickSettingIcon = () => navigate(`/statusMember/${phoneNumber}`);
+  const handelClickSettingIcon = () => navigate(`/statusMember/${id}`);
   const handelClickMoreIcon = () => setIsPressMore((isMore) => !isMore);
 
   const handleToggleNotifModal = () => {
@@ -96,9 +102,7 @@ const CardUser = ({ firstName, lastName, phoneNumber, nowActiveProject }) => {
     nowActiveProject: `card-user-text${
       nowActiveProject === "nothing" ? "" : "-active"
     }`,
-    moreTask: `card-user-option display-flex-center ${
-      I18nManager.isRTL ? "rtl" : "ltr"
-    }`,
+    moreTask: "card-user-option display-flex-center direction",
     stopTaskText: `card-user-icon-text ${
       nowActiveProject === "nothing" ? "card-user-icon-text-disable" : ""
     }`,
