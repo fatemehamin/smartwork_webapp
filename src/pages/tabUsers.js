@@ -9,25 +9,28 @@ import AddProjectModal from "../components/addProjectModal";
 import CardUser from "../components/cardUser";
 import "./tabUsers.css";
 
-const Users = () => {
+const TabUsers = () => {
   const [modalVisibleUser, setModalVisibleUser] = useState(false);
   const [modalVisibleProject, setModalVisibleProject] = useState(false);
+
   const { users } = useSelector((state) => state.users);
   const { phoneNumber } = useSelector((state) => state.auth.userInfo);
   const { language } = useSelector((state) => state.i18n);
+
   const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchUsers())
-      .unwrap()
-      .catch((error) => {
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.message
-        );
-      });
+    const _error = (error) => {
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message
+      );
+    };
+
+    dispatch(fetchUsers()).unwrap().catch(_error);
+    window.scrollTo(0, 0);
   }, []);
 
   const getUsersCard = () => {
@@ -85,11 +88,12 @@ const Users = () => {
       {!(modalVisibleUser || modalVisibleProject) && (
         <FloatingButton
           setModalVisibleProject={setModalVisibleProject}
-          setModalVisibleEmployee={setModalVisibleUser}
+          setModalVisibleUser={setModalVisibleUser}
+          isOneAction={false}
         />
       )}
     </>
   );
 };
 
-export default Users;
+export default TabUsers;

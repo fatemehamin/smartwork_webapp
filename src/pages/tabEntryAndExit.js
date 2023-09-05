@@ -1,34 +1,38 @@
 import React, { useEffect, useState } from "react";
-import { ReactComponent as LocationErrorIcon } from "../assets/images/locationErrorIcon.svg";
+import Alert from "../components/alert";
+import checkLocation from "../utils/checkLocation";
+import LocateControl from "../utils/locatecontrol";
+import { ReactComponent as LocationErrorIcon } from "../assets/icons/location_error.svg";
 import { useSelector, useDispatch } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
 import { useSwipeable } from "react-swipeable";
 import { animated, useSpring } from "@react-spring/web";
 import { MapContainer, TileLayer } from "react-leaflet";
-import Alert from "../components/alert";
-import checkLocation from "../utils/checkLocation";
-import LocateControl from "../utils/locatecontrol";
 import { Login, Logout } from "@mui/icons-material";
 import { Translate } from "../features/i18n/translate";
 import { endTime, entry, exit } from "../features/tasks/action";
 import { fetchLocationSpacialUser } from "../features/locations/action";
 import { setIsLoading } from "../features/tasks/tasksSlice";
+import { setMyTaskActiveTab } from "../features/config/configSlice";
 import "./tabEntryAndExit.css";
 
-const TabEntryAndExit = ({ setActiveFilter }) => {
-  const dispatch = useDispatch();
+const TabEntryAndExit = () => {
   const [isEntry, setIsEntry] = useState(false);
   const [isOpenAlert, setIsOpenAlert] = useState(false);
   const [alertType, setAlertType] = useState("");
   const [locationDenied, setLocationDenied] = useState("");
-  const [openSnackbar] = useSnackbar();
+
   const [width, api] = useSpring(() => ({ from: { width: "44px" } }));
+
   const locations = useSelector((state) => state.locations.locationSpacialUser);
   const { language } = useSelector((state) => state.i18n);
   const { userInfo } = useSelector((state) => state.auth);
   const { currentTask, lastEntry, isLoading } = useSelector(
     (state) => state.tasks
   );
+
+  const [openSnackbar] = useSnackbar();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setIsEntry(lastEntry ? true : false);
@@ -54,16 +58,16 @@ const TabEntryAndExit = ({ setActiveFilter }) => {
 
   const alert = {
     locationNotCorrect: {
-      title: Translate("location", language),
-      description: Translate("errorLocationNotCorrect", language),
+      title: "location",
+      description: "errorLocationNotCorrect",
       Icon: LocationErrorIcon,
-      ButtonAction: [{ text: Translate("ok", language) }],
+      ButtonAction: [{ text: "ok" }],
     },
     locationDenied: {
-      title: Translate("locationDenied", language),
+      title: "locationDenied",
       description: locationDenied,
       Icon: LocationErrorIcon,
-      ButtonAction: [{ text: Translate("ok", language) }],
+      ButtonAction: [{ text: "ok" }],
     },
   };
 
@@ -99,9 +103,8 @@ const TabEntryAndExit = ({ setActiveFilter }) => {
 
   const exitEntryHandler = () => {
     const _exit = () => {
-      dispatch(
-        exit({ phoneNumber: userInfo.phoneNumber, isExitWithBoss: false })
-      )
+      const args = { phoneNumber: userInfo.phoneNumber, isExitWithBoss: false };
+      dispatch(exit(args))
         .unwrap()
         .then(() => {
           setIsEntry(false);
@@ -113,29 +116,27 @@ const TabEntryAndExit = ({ setActiveFilter }) => {
         });
     };
 
+    const argsEndTime = {
+      name: currentTask.name,
+      phoneNumber: userInfo.phoneNumber,
+    };
+
+    const _thenEntry = () => {
+      setIsEntry(true);
+      emptyWidth();
+      dispatch(setMyTaskActiveTab("tasks"));
+    };
+
+    const _errorEntry = (error) => {
+      emptyWidth();
+      _error(error);
+    };
+
     isEntry
       ? currentTask.start // if have enable task first all task disable then exit
-        ? dispatch(
-            endTime({
-              name: currentTask.name,
-              phoneNumber: userInfo.phoneNumber,
-            })
-          )
-            .unwrap()
-            .then(_exit)
-            .catch(_error)
+        ? dispatch(endTime(argsEndTime)).unwrap().then(_exit).catch(_error)
         : _exit()
-      : dispatch(entry())
-          .unwrap()
-          .then(() => {
-            setIsEntry(true);
-            emptyWidth();
-            setActiveFilter("tasks");
-          })
-          .catch((error) => {
-            emptyWidth();
-            _error(error);
-          });
+      : dispatch(entry()).unwrap().then(_thenEntry).catch(_errorEntry);
   };
 
   const handlers = useSwipeable({

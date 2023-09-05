@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import ImgDrawer from "../assets/images/texture.jpeg";
 import TokenChecker from "../components/tokenChecker";
+import ChangeLanguageBtn from "../components/changeLanguageBtn";
 import Alert from "./alert";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../features/auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
 import { checkType } from "../features/auth/action";
-import { ReactComponent as LogoutIcon } from "../assets/images/logout.svg";
+import { ReactComponent as LogoutIcon } from "../assets/icons/logout.svg";
 import "./drawer.css";
 import {
   Box,
@@ -21,11 +22,12 @@ import {
 } from "@mui/material";
 import {
   Dns,
-  PlaceOutlined,
+  FmdGood,
   TaskAlt,
-  ChatBubbleOutlineOutlined,
-  FolderOpenOutlined,
-  HomeOutlined,
+  ChatBubble,
+  Folder,
+  Home,
+  Language,
   ExitToAppOutlined,
 } from "@mui/icons-material";
 
@@ -33,17 +35,30 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
   const iOS =
     typeof navigator !== "undefined" &&
     /iPad|iPhone|iPod/.test(navigator.userAgent);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const position = useSelector((state) => state.auth.type);
-  const { language } = useSelector((state) => state.i18n);
-  const [logoutAlert, setLogoutAlert] = useState(false);
+
+  const [openAlert, setOpenAlert] = useState(false);
+  const [alertType, setAlertType] = useState("language");
+
+  const openAlertLogout = () => {
+    setOpenAlert(true);
+    setAlertType("logout");
+  };
+
+  const openAlertChangeLanguage = () => {
+    setOpenAlert(true);
+    setAlertType("language");
+  };
 
   useEffect(() => {
     dispatch(checkType());
   }, []);
 
-  const handelLogout = () => {
+  const handleLogout = () => {
     dispatch(logout());
     navigate("/login");
   };
@@ -57,6 +72,22 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
       return;
     }
     setOpenDrawer(open);
+  };
+
+  const alert = {
+    language: {
+      description: "languageDescription",
+      Icon: () => <Language color="secondary" fontSize="large" />,
+    },
+    logout: {
+      title: "logout",
+      description: "logoutDescription",
+      Icon: LogoutIcon,
+      ButtonAction: [
+        { text: "yes", onClick: handleLogout },
+        { text: "no", type: "SECONDARY" },
+      ],
+    },
   };
 
   const getList = () => {
@@ -76,20 +107,20 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
           {position === "boss" && (
             <Item
               label="home"
-              Icon={HomeOutlined}
+              Icon={Home}
               onClick={() => navigate("/manager")}
               CurrentLabel={CurrentLabel}
             />
           )}
           <Item
             label={position === "boss" ? "myTasks" : "home"}
-            Icon={TaskAlt}
+            Icon={position === "boss" ? TaskAlt : Home}
             onClick={() => navigate("/myTasks")}
             CurrentLabel={CurrentLabel}
           />
           <Item
             label="myReport"
-            Icon={ChatBubbleOutlineOutlined}
+            Icon={ChatBubble}
             onClick={() => navigate("/myReport")}
             CurrentLabel={CurrentLabel}
           />
@@ -98,7 +129,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
               {/* <Item label="List of projects" Icon={Dns}  onClick={() => navigate("/listOfProjects")}  /> */}
               <Item
                 label="location"
-                Icon={PlaceOutlined}
+                Icon={FmdGood}
                 onClick={() => navigate("/location")}
                 CurrentLabel={CurrentLabel}
               />
@@ -107,7 +138,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
           {(position === "financial" || position === "boss") && (
             <Item
               label="exportExcel"
-              Icon={FolderOpenOutlined}
+              Icon={Folder}
               onClick={() => navigate("/exportExcel")}
               CurrentLabel={CurrentLabel}
             />
@@ -116,23 +147,21 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
         <Divider />
         <List>
           <Item
+            label="language"
+            Icon={Language}
+            onClick={openAlertChangeLanguage}
+            CurrentLabel={CurrentLabel}
+          />
+          <Item
             label="logout"
             Icon={ExitToAppOutlined}
-            onClick={() => setLogoutAlert(true)}
+            onClick={openAlertLogout}
             CurrentLabel={CurrentLabel}
           />
         </List>
-        <Alert
-          open={logoutAlert}
-          setOpen={setLogoutAlert}
-          title={Translate("logout", language)}
-          description={Translate("logoutDescription", language)}
-          Icon={LogoutIcon}
-          ButtonAction={[
-            { text: Translate("yes", language), onClick: handelLogout },
-            { text: Translate("no", language), type: "SECONDARY" },
-          ]}
-        />
+        <Alert open={openAlert} setOpen={setOpenAlert} {...alert[alertType]}>
+          {alertType === "language" && <ChangeLanguageBtn />}
+        </Alert>
       </Box>
     );
   };
@@ -154,6 +183,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
 
 const Item = ({ label, Icon, onClick, CurrentLabel }) => {
   const { language } = useSelector((state) => state.i18n);
+
   const styles = { itemIcon: { color: "#33333370", minWidth: 0 } };
 
   return (

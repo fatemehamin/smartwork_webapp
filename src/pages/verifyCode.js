@@ -15,15 +15,18 @@ import {
 
 const VerifyCode = () => {
   const { phoneNumber, type } = useParams();
+
   const [code, setCode] = useState("");
   const [time, setTime] = useState(120);
   const [isResendCode, setIsResendCode] = useState(false);
   const [startTime, setStartTime] = useState(new Date().getTime());
-  const stateAuth = useSelector((state) => state.auth);
+
+  const [openSnackbar] = useSnackbar();
+  const { userInfo, isLoading } = useSelector((state) => state.auth);
   const { language } = useSelector((state) => state.i18n);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [openSnackbar] = useSnackbar();
 
   useEffect(() => {
     //---------------------------- timer ----------------------------//
@@ -36,30 +39,20 @@ const VerifyCode = () => {
     }
   }, [time, startTime]);
 
+  useEffect(() => {
+    if (code.length === 5) {
+      HandleVerifyCode();
+    }
+  }, [code]);
+
   const HandleReSendCode = () => {
     setIsResendCode(true);
     setStartTime(() => new Date().getTime());
     setTime(120);
 
-    const args =
-      type === "forgotPassword"
-        ? {
-            callingCode: stateAuth.userInfo.callingCode,
-            phoneNumber: stateAuth.userInfo.phoneNumber,
-            country: stateAuth.userInfo.country,
-          }
-        : {
-            firstName: stateAuth.userInfo.firstName,
-            lastName: stateAuth.userInfo.lastName,
-            companyName: stateAuth.userInfo.companyName,
-            country: stateAuth.userInfo.country,
-            callingCode: stateAuth.userInfo.callingCode,
-            phoneNumber: stateAuth.userInfo.phoneNumber,
-            password: stateAuth.userInfo.password,
-          };
     type === "forgotPassword"
-      ? dispatch(forgotPassword(args))
-      : dispatch(createUserLoading(args));
+      ? dispatch(forgotPassword(userInfo))
+      : dispatch(createUserLoading(userInfo));
   };
 
   const HandleVerifyCode = () => {
@@ -72,7 +65,7 @@ const VerifyCode = () => {
           : error.message
       );
 
-    const args = { type, code, userInfo: stateAuth.userInfo };
+    const args = { type, code, userInfo };
 
     setIsResendCode(false);
     dispatch(verifyCode(args))
@@ -83,12 +76,6 @@ const VerifyCode = () => {
       .catch(_error);
   };
 
-  const onKeyDownLastInput = (e) => {
-    if (e.keyCode === 13) {
-      HandleVerifyCode();
-    }
-  };
-
   return (
     <>
       <AppBar label="verificationCode" type="back" />
@@ -97,12 +84,7 @@ const VerifyCode = () => {
         <br />
         {phoneNumber}
       </div>
-      <CodeField
-        code={code}
-        setCode={setCode}
-        cellCount={5}
-        onKeyDownLastInput={onKeyDownLastInput}
-      />
+      <CodeField code={code} setCode={setCode} cellCount={5} />
       <div className="Verify_timer">
         {time >= 0 ? (
           <span className="Verify_textResend">
@@ -119,7 +101,7 @@ const VerifyCode = () => {
         )}
       </div>
       <Button
-        isLoading={!isResendCode && stateAuth.isLoading}
+        isLoading={!isResendCode && isLoading}
         label={Translate("verifyCode", language)}
         onClick={HandleVerifyCode}
         disabled={code.length < 5}

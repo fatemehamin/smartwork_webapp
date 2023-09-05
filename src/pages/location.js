@@ -3,7 +3,7 @@ import { Room, Delete, RadioButtonUnchecked } from "@mui/icons-material";
 import { useSnackbar } from "react-simple-snackbar";
 import { useDispatch, useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
-import { ReactComponent as LocationRemoveIcon } from "../assets/images/locationRemoveIcon.svg";
+import { ReactComponent as LocationRemoveIcon } from "../assets/icons/location_remove.svg";
 import AppBar from "../components/appBar";
 import Button from "../components/button";
 import Modal from "../components//modal";
@@ -28,11 +28,6 @@ import {
 } from "react-leaflet";
 
 const Location = () => {
-  const { language } = useSelector((state) => state.i18n);
-  const { locations, isLoading } = useSelector((state) => state.locations);
-  const phoneNumber = useSelector((state) => state.auth.userInfo?.phoneNumber);
-  const dispatch = useDispatch();
-  const [openSnackbar] = useSnackbar();
   const [modalVisible, setModalVisible] = useState(false);
   const [isOpenAlert, setIsOpenAlert] = useState(false);
   const [currentCoordinate, setCurrentCoordinate] = useState({
@@ -41,7 +36,15 @@ const Location = () => {
     location_name: "",
     radius: "",
   });
+
+  const { language } = useSelector((state) => state.i18n);
+  const { locations, isLoading } = useSelector((state) => state.locations);
+  const phoneNumber = useSelector((state) => state.auth.userInfo?.phoneNumber);
+
+  const [openSnackbar] = useSnackbar();
   const radiusRef = useRef(null);
+  const dispatch = useDispatch();
+
   const disableBtn = !(
     currentCoordinate.location_name.trim() && currentCoordinate.radius
   );
@@ -72,8 +75,22 @@ const Location = () => {
     popupAnchor: [0, -35], // point from which the popup should open relative to the iconAnchor
   });
 
+  const center = {
+    lat: currentCoordinate.latitude,
+    lng: currentCoordinate.longitude,
+  };
+
   const SettingMap = () => {
+    const option = {
+      coordinate: {
+        lat: currentCoordinate.latitude,
+        lng: currentCoordinate.longitude,
+      },
+      name: currentCoordinate.location_name,
+    };
+
     const map = useMap();
+
     map.on("click", (e) => {
       setCurrentCoordinate({
         latitude: e.latlng.lat,
@@ -82,28 +99,16 @@ const Location = () => {
         radius: "",
       });
     });
-    map.flyTo({
-      lat: currentCoordinate.latitude,
-      lng: currentCoordinate.longitude,
-    });
+
+    map.flyTo(option.coordinate);
 
     return (
       <>
-        <Marker
-          position={{
-            lat: currentCoordinate.latitude,
-            lng: currentCoordinate.longitude,
-          }}
-          icon={goldIcon}
-          autoPanOnFocus
-        >
-          <Popup>{currentCoordinate.location_name}</Popup>
+        <Marker position={option.coordinate} icon={goldIcon} autoPanOnFocus>
+          {option.name && <Popup>{option.name}</Popup>}
         </Marker>
         <Circle
-          center={{
-            lat: currentCoordinate.latitude,
-            lng: currentCoordinate.longitude,
-          }}
+          center={option.coordinate}
           radius={currentCoordinate.radius ? currentCoordinate.radius : 0}
           pathOptions={{ color: "#f6921e", fillColor: "#f6921e" }}
         />
@@ -119,7 +124,7 @@ const Location = () => {
     <span className="location-icon">{Translate("meter", language)}</span>
   );
 
-  const onChangeNameLocation = (text) =>
+  const onChangeName = (text) =>
     setCurrentCoordinate((coordinate) => ({
       ...coordinate,
       location_name: text,
@@ -130,26 +135,6 @@ const Location = () => {
       ...coordinate,
       radius: text ? (isNaN(parseInt(text)) ? 0 : parseInt(text)) : 0,
     }));
-  };
-
-  const handleAddLocation = () => {
-    const _error = (error) => {
-      openSnackbar(
-        error.code === "ERR_NETWORK"
-          ? Translate("connectionFailed", language)
-          : error.code === "ERR_BAD_REQUEST"
-          ? Translate("locationNameExist", language)
-          : error.message
-      );
-    };
-    dispatch(addLocation({ ...currentCoordinate, phoneNumber }))
-      .unwrap()
-      .then(closeModal)
-      .catch(_error);
-  };
-
-  const handleDeleteLocation = () => {
-    dispatch(deleteLocation(currentCoordinate.location_name)).catch(_error);
   };
 
   const onKeyDownLocationName = (e) => {
@@ -164,45 +149,72 @@ const Location = () => {
     }
   };
 
+  const handleAddLocation = () => {
+    const _error = (error) => {
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.code === "ERR_BAD_REQUEST"
+          ? Translate("locationNameExist", language)
+          : error.message
+      );
+    };
+
+    dispatch(addLocation({ ...currentCoordinate, phoneNumber }))
+      .unwrap()
+      .then(closeModal)
+      .catch(_error);
+  };
+
+  const handleDeleteLocation = () => {
+    dispatch(deleteLocation(currentCoordinate.location_name)).catch(_error);
+  };
+
   const LocationList = () =>
-    locations.length > 0 && (
-      <>
-        <div className="location-title-list">
-          {Translate("registeredLocations", language)}
+    locations.length > 0 &&
+    locations.map((location, index) => {
+      const active = location.location_name === currentCoordinate.location_name;
+      const handleDeleteLocation = () => {
+        openAlert();
+        setCurrentCoordinate(location);
+      };
+      return (
+        <div
+          key={index}
+          className={`location-bar ${
+            active ? "location-bar-selected" : ""
+          } direction`}
+          onClick={() => setCurrentCoordinate(location)}
+        >
+          <span className={`location-bar-name${active ? "-selected" : ""}`}>
+            <Room color={active ? "white" : "secondary"} />
+            <span className="location-text">{location.location_name}</span>
+          </span>
+          <Delete
+            color={active ? "white" : "secondary"}
+            onClick={handleDeleteLocation}
+          />
         </div>
-        {locations.map((location, index) => {
-          const active =
-            location.location_name === currentCoordinate.location_name;
-          return (
-            <div
-              key={index}
-              className={`location-bar ${
-                active ? "location-bar-selected" : ""
-              } direction`}
-              onClick={() => setCurrentCoordinate(location)}
-            >
-              <span className={`location-bar-name${active ? "-selected" : ""}`}>
-                <Room color={active ? "white" : "secondary"} />
-                <span className="location-text">{location.location_name}</span>
-              </span>
-              <Delete
-                color={active ? "white" : "secondary"}
-                onClick={openAlert}
-              />
-            </div>
-          );
-        })}
-      </>
-    );
+      );
+    });
+
+  const optionAlert = {
+    title: "deleteLocation",
+    description: "deleteLocationDescription",
+    open: isOpenAlert,
+    setOpen: setIsOpenAlert,
+    Icon: LocationRemoveIcon,
+    ButtonAction: [
+      { text: "yes", onClick: handleDeleteLocation },
+      { text: "no", type: "SECONDARY" },
+    ],
+  };
 
   return (
     <>
       <AppBar label="location" />
       <MapContainer
-        center={{
-          lat: currentCoordinate.latitude,
-          lng: currentCoordinate.longitude,
-        }}
+        center={center}
         zoom={13}
         scrollWheelZoom={false}
         className="location-map"
@@ -231,21 +243,24 @@ const Location = () => {
         label={Translate("addNewLocation", language)}
         onClick={openModal}
       />
-      <Modal modalVisible={modalVisible} setModalVisible={setModalVisible}>
-        <h2 className="location-title-modal">
-          {Translate("addNewLocation", language)}
-        </h2>
+      <div className="location-title-list">
+        {locations.length > 0 && Translate("registeredLocations", language)}
+      </div>
+      <LocationList />
+      <Modal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        label="addNewLocation"
+      >
         <Input
-          customStyle={{ width: "100%" }}
           label={Translate("nameLocation", language)}
           placeholder={Translate("nameLocation", language)}
           value={currentCoordinate.location_name}
-          setValue={onChangeNameLocation}
+          setValue={onChangeName}
           Icon={() => <Room size={30} color="secondary80" />}
           onKeyDown={onKeyDownLocationName}
         />
         <Input
-          customStyle={{ width: "100%" }}
           label={Translate("radius", language)}
           placeholder={Translate("radius", language)}
           value={currentCoordinate.radius?.toString()}
@@ -272,24 +287,7 @@ const Location = () => {
           />
         </div>
       </Modal>
-      <LocationList />
-      <Alert
-        title={Translate("deleteLocation", language)}
-        description={Translate("deleteLocationDescription", language)}
-        open={isOpenAlert}
-        setOpen={setIsOpenAlert}
-        Icon={LocationRemoveIcon}
-        ButtonAction={[
-          {
-            text: Translate("yes", language),
-            onClick: handleDeleteLocation,
-          },
-          {
-            text: Translate("no", language),
-            type: "SECONDARY",
-          },
-        ]}
-      />
+      <Alert {...optionAlert} />
     </>
   );
 };

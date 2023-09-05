@@ -44,3 +44,8 @@
 .msg-modal-border-top {
   border-top: 1px solid #94949450;
 }
+.msg-modal-no-project {
+  color: #00000040;
+  text-align: center;
+  font-size: 12px;
+}

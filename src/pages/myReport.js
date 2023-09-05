@@ -4,6 +4,8 @@ import { useSnackbar } from "react-simple-snackbar";
 import { Translate } from "../features/i18n/translate";
 import { fetchReports } from "../features/reports/action";
 import { emptyReport } from "../features/reports/reportsSlice";
+import { setMyReportActiveTab } from "../features/config/configSlice";
+import { Divider } from "@mui/material";
 import moment from "moment";
 import jMoment from "moment-jalaali";
 import AppBar from "../components/appBar";
@@ -14,16 +16,19 @@ import TextEdit from "../components/textEdit";
 import "./myReport.css";
 
 const MyReport = () => {
-  const [activeFilter, setActiveFilter] = useState("summaryStatus");
   const [jYear, setJYear] = useState(jMoment(new Date()).jYear());
   const [jMonth, setJMonth] = useState(jMoment(new Date()).jMonth());
-  const [openSnackbar] = useSnackbar();
+
   const { language } = useSelector((state) => state.i18n);
   const { userInfo } = useSelector((state) => state.auth);
+  const { myReportActiveTab } = useSelector((state) => state.config);
   const { detailedReport, summeryReport, isLoading } = useSelector(
     (state) => state.reports
   );
+
+  const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
+
   const pad = (n) => (n < 10 ? "0" + n : n);
 
   const handleResultReport = () => {
@@ -59,72 +64,83 @@ const MyReport = () => {
 
     dispatch(fetchReports(args)).unwrap().then(_then).catch(_error);
   };
-  // console.log("gg");
+
+  const ProjectWithTime = ({ projectName, time }) => (
+    <div className="summery-report direction">
+      <p className="MR_textReport  bold">{projectName}</p>
+      <p className="MR_textReport  bold">:</p>
+      <p className="MR_textReport">{time}</p>
+    </div>
+  );
 
   const getDetailsReport = () =>
-    detailedReport != null &&
-    detailedReport
-      // sort list in date
-      // .sort(
-      //   (a, b) =>
-      //     parseInt(Object.keys(a)[0].slice(8, 10)) -
-      //     parseInt(Object.keys(b)[0].slice(8, 10))
-      // )
-      .map((report, index) => {
-        const date = Object.keys(report)[0];
+    detailedReport.map((report, index) => {
+      const date = Object.keys(report)[0];
+
+      const reportDay = (r, i) => {
+        const duration = moment.duration(r.duration);
+
+        const projectName =
+          r.project_name === "entry"
+            ? Translate("totalWorkingTime", language)
+            : r.project_name;
+
+        const time = `${pad(duration.hours())}:${pad(duration.minutes())}:${pad(
+          duration.seconds()
+        )}`;
+
         return (
-          <div key={index} className="MR_report">
-            <p className="MR_date text-align">{date}</p>
-            {report[date].reportDay.length > 0 &&
-              report[date].reportDay.map((r, i) => {
-                const duration = moment.duration(r.duration);
-                return (
-                  r.duration !== 0 && (
-                    <p
-                      key={i}
-                      className="MR_textReport text-align direction"
-                    >{`${
-                      r.project_name === "entry"
-                        ? Translate("totalWorkingTime", language)
-                        : r.project_name
-                    } : ${pad(duration.hours())}:${pad(
-                      duration.minutes()
-                    )}:${pad(duration.seconds())}`}</p>
-                  )
-                );
-              })}
-            <TextEdit
-              jDate={date}
-              report={
-                report[date].dailyReport !== undefined
-                  ? report[date].dailyReport
-                  : ""
-              }
-            />
+          r.duration !== 0 && (
+            <ProjectWithTime key={i} projectName={projectName} time={time} />
+          )
+        );
+      };
+
+      return (
+        <div key={index} className="MR_report">
+          <p className="MR_title text-align">{date}</p>
+          {report[date].reportDay.length > 0 &&
+            report[date].reportDay.map(reportDay)}
+          <TextEdit
+            jDate={date}
+            report={
+              report[date].dailyReport !== undefined
+                ? report[date].dailyReport
+                : ""
+            }
+          />
+        </div>
+      );
+    });
+
+  const getSummaryReport = () => (
+    <>
+      <p className="MR_title  text-center">
+        {Translate("summaryOfTheMonthlyReport", language)}
+      </p>
+      {Object.keys(summeryReport).map((project, index) => {
+        const duration = moment.duration(summeryReport[project]);
+
+        const projectName =
+          project === "entry"
+            ? Translate("totalWorkingTime", language)
+            : project;
+
+        const time = `${pad(parseInt(duration.asHours()))}:${pad(
+          duration.minutes()
+        )}:${pad(duration.seconds())}`;
+
+        return (
+          <div key={index} style={{ margin: "10px 20px" }}>
+            <ProjectWithTime projectName={projectName} time={time} />
+            <Divider />
           </div>
         );
-      });
+      })}
+    </>
+  );
 
-  const getSummaryReport = () =>
-    summeryReport != null && (
-      <div>
-        <p className="MR_date MR_textReport text-align">
-          {Translate("summaryOfTheMonthlyReport", language)}
-        </p>
-        {Object.keys(summeryReport).map((project, index) => {
-          const duration = moment.duration(summeryReport[project]);
-          return (
-            <p key={index} className="MR_textReport text-align direction">
-              {project === "entry"
-                ? Translate("totalWorkingTime", language)
-                : project}{" "}
-              : {pad(parseInt(duration.asHours()))}:{pad(duration.minutes())}:
-              {pad(duration.seconds())}
-            </p>
-          );
-        })}
-      </div>
-    );
+  const onSwitchTab = (activeTab) => dispatch(setMyReportActiveTab(activeTab));
 
   return (
     <>
@@ -142,14 +158,18 @@ const MyReport = () => {
           isLoading={isLoading}
           onClick={handleResultReport}
         />
-        <Tabs
-          tabs={[{ title: "summaryStatus" }, { title: "moreDetails" }]}
-          activeFilter={activeFilter}
-          setActiveFilter={setActiveFilter}
-        />
-        {activeFilter === "moreDetails"
-          ? getDetailsReport()
-          : getSummaryReport()}
+        {detailedReport.length > 0 && (
+          <>
+            <Tabs
+              tabs={[{ title: "summaryStatus" }, { title: "moreDetails" }]}
+              activeTab={myReportActiveTab}
+              onSwitchTab={onSwitchTab}
+            />
+            {myReportActiveTab === "moreDetails"
+              ? getDetailsReport()
+              : getSummaryReport()}
+          </>
+        )}
       </div>
     </>
   );

@@ -8,13 +8,15 @@ import "./changeLanguageBtn.css";
 
 const ChangeLanguageBtn = () => {
   const { language } = useSelector((state) => state.i18n);
+
   const [selectLang, setSelectLang] = useState(language);
+
   const dispatch = useDispatch();
   const translateX = useSpring({ x: selectLang === "EN" ? 0 : 65 });
 
   useEffect(() => {
     dispatch(changeLanguage(selectLang));
-  }, [dispatch, selectLang]);
+  }, [selectLang]);
 
   const selectEn = () => setSelectLang("EN");
   const selectPr = () => setSelectLang("FA");

@@ -16,15 +16,16 @@ const Login = () => {
   const [callingCode, setCallingCode] = useState("+98");
   const [phoneNumber, setPhoneNumber] = useState("+98");
   const [password, setPassword] = useState("");
+
   const [openSnackbar] = useSnackbar();
   const { isLoading } = useSelector((state) => state.auth);
   const { language } = useSelector((state) => state.i18n);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const passwordInputRef = useRef(null);
 
   const handleSignup = () => navigate("/signup");
-
   const handleLogin = () => {
     const _error = (error) => {
       openSnackbar(
@@ -53,7 +54,6 @@ const Login = () => {
       passwordInputRef.current.focus();
     }
   };
-
   const onKeyDownPassword = (e) => {
     if (e.keyCode === 13) {
       handleLogin();

@@ -1,28 +1,28 @@
+[class*="Snackbar_snackbar-wrapper"] {
+  z-index: 9999 !important;
+}
 :root {
   --dir: ltr;
   --align: left;
 }
-.App {
-  text-align: center;
-}
-[class*="Snackbar_snackbar-wrapper"] {
-  z-index: 9999 !important;
-}
 body {
-  font-family: Vazirmatn, sans-serif;
+  font-family: Vazirmatn, sans-serif !important;
   background-color: white;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 }
 .container_btn_row {
   justify-content: space-evenly;
   align-self: stretch;
   display: flex;
 }
-.text-center {
-  text-align: center;
-}
 .display-flex-center {
   display: flex;
   align-items: center;
+}
+.text-center {
+  text-align: center;
 }
 .text-right {
   text-align: right;
@@ -52,4 +52,7 @@ body {
 }
 .Snackbar_snackbar__GsYZl {
   direction: var(--dir);
+}
+.bold {
+  font-weight: bold;
 }

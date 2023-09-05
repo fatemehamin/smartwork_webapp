@@ -15,7 +15,9 @@ const Calender = ({
   label,
 }) => {
   const { language } = useSelector((state) => state.i18n);
+
   const sx = { m: 1, minWidth: 150 };
+
   const onChangeYear = (event) => setYear(event.target.value);
   const onChangeMonth = (event) => setMonth(event.target.value);
   const onChangePicker = (event) => onePicker.onSelect(event.target.value);

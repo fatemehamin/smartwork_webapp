@@ -1,6 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "react-simple-snackbar";
 import { Translate } from "../features/i18n/translate";
@@ -26,11 +25,14 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [rePassword, setRePassword] = useState("");
   const [isPress, setIsPress] = useState(false);
+
   const [openSnackbar] = useSnackbar();
   const { isLoading, error } = useSelector((state) => state.auth);
   const { language, I18nManager } = useSelector((state) => state.i18n);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const lastNameInputRef = useRef(null);
   const businessInputRef = useRef(null);
   const phoneInputRef = useRef(null);
@@ -39,8 +41,9 @@ const Signup = () => {
 
   useEffect(() => {
     // check phoneNumber realtime
-    callingCode !== phoneNumber && dispatch(phoneNumberCheck(phoneNumber));
-  }, [callingCode, dispatch, phoneNumber]);
+    phoneNumber.replace(callingCode, "") &&
+      dispatch(phoneNumberCheck(phoneNumber));
+  }, [phoneNumber]);
 
   const disableSignup = !(
     password &&
@@ -50,6 +53,16 @@ const Signup = () => {
     firstName.trim() &&
     lastName.trim()
   );
+
+  const errorMsg = {
+    phoneNumber:
+      error === "phoneNumberExists"
+        ? Translate("phoneNumberExists", language)
+        : error,
+    password: isPress && Translate(msgError.password(password), language),
+    rePassword:
+      isPress && Translate(msgError.rePassword(rePassword, password), language),
+  };
 
   const HandleSignup = () => {
     setIsPress(true);
@@ -157,11 +170,7 @@ const Signup = () => {
         setCallingCode={setCallingCode}
         ref={phoneInputRef}
         onKeyDown={onKeyDownPhone}
-        msgError={
-          error === "phoneNumberExists"
-            ? Translate("phoneNumberExists", language)
-            : error
-        }
+        msgError={errorMsg.phoneNumber}
       />
       <Input
         value={password}
@@ -172,7 +181,7 @@ const Signup = () => {
         Icon={LockOutlined}
         ref={passwordInputRef}
         onKeyDown={onKeyDownPassword}
-        msgError={isPress && Translate(msgError.password(password), language)}
+        msgError={errorMsg.password}
       />
       <Input
         value={rePassword}
@@ -183,10 +192,7 @@ const Signup = () => {
         Icon={LockOutlined}
         ref={rePasswordInputRef}
         onKeyDown={onKeyDownRePassword}
-        msgError={
-          isPress &&
-          Translate(msgError.rePassword(rePassword, password), language)
-        }
+        msgError={errorMsg.rePassword}
       />
       <Button
         label={Translate("signup", language)}

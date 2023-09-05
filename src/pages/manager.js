@@ -1,33 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import AppBar from "../components/appBar";
 import Tabs from "../components/tabs";
 import TabUsers from "./tabUsers";
 import TabCartable from "./tabCartable";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchIsNewMsg, fetchMsg } from "../features/msg/action";
-import { fetchUsers } from "../features/users/action";
-import { fetchTasksLog } from "../features/tasks/action";
-import {
-  fetchIsNewLeave,
-  fetchLeaveRequests,
-} from "../features/leaveRequests/action";
+import { fetchIsNewMsg } from "../features/msg/action";
+import { setManagerActiveTab } from "../features/config/configSlice";
+import { fetchIsNewLeave } from "../features/leaveRequests/action";
 
 const Manager = () => {
-  const [activeFilter, setActiveFilter] = useState("users");
+  const { managerActiveTab } = useSelector((state) => state.config);
   const { isNewMsg } = useSelector((state) => state.msg);
   const { isNewLeave } = useSelector((state) => state.leaveRequest);
+
   const dispatch = useDispatch();
 
+  const onSwitchTab = (activeTab) => dispatch(setManagerActiveTab(activeTab));
+
   useEffect(() => {
-    if (activeFilter === "cartable") {
-      dispatch(fetchLeaveRequests());
-      dispatch(fetchMsg());
-      dispatch(fetchUsers());
-      dispatch(fetchTasksLog());
-    }
     dispatch(fetchIsNewMsg());
     dispatch(fetchIsNewLeave());
-  }, [activeFilter]);
+  }, [managerActiveTab]);
 
   return (
     <>
@@ -37,14 +30,10 @@ const Manager = () => {
           { title: "users" },
           { title: "cartable", isBadge: isNewMsg || isNewLeave },
         ]}
-        activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
+        activeTab={managerActiveTab}
+        onSwitchTab={onSwitchTab}
       />
-      {activeFilter === "users" ? (
-        <TabUsers />
-      ) : (
-        <TabCartable activeFilter={activeFilter} />
-      )}
+      {managerActiveTab === "users" ? <TabUsers /> : <TabCartable />}
     </>
   );
 };

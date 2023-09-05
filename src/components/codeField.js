@@ -2,7 +2,7 @@ import React from "react";
 import { TextField, styled } from "@mui/material";
 import "./codeField.css";
 
-const CodeFiled = ({ cellCount, code, setCode, onKeyDownLastInput }) => {
+const CodeFiled = ({ cellCount, code, setCode }) => {
   let inputs = new Array(cellCount).fill(0);
 
   const onChangeHandler = (event) => {
@@ -13,7 +13,6 @@ const CodeFiled = ({ cellCount, code, setCode, onKeyDownLastInput }) => {
 
   const onKeyDownHandler = (event) => {
     event.key === "Backspace" && setCode(code.slice(0, -1));
-    code.length === cellCount && onKeyDownLastInput(event);
   };
 
   const styles = {

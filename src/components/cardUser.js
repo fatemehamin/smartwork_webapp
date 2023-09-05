@@ -1,19 +1,22 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { ReactComponent as PersonDelete } from "../assets/images/person_delete.svg";
-import { ReactComponent as Avatar } from "../assets/images/Avatar.svg";
+import { ReactComponent as PersonDelete } from "../assets/icons/person_delete.svg";
+import { ReactComponent as Avatar } from "../assets/icons/avatar.svg";
 import { Translate } from "../features/i18n/translate";
 import { useSnackbar } from "react-simple-snackbar";
 import { animated, useSpring } from "@react-spring/web";
 import { deleteUsers } from "../features/users/action";
 import { endTime, exit } from "../features/tasks/action";
 import { updateNowActiveProject } from "../features/users/usersSlice";
-import MsgModal from "./msgModal";
 import Alert from "./alert";
 import "./cardUser.css";
 import {
-  SettingsOutlined,
+  setCartableFilter,
+  setManagerActiveTab,
+} from "../features/config/configSlice";
+import {
+  Settings,
   MoreHorizOutlined,
   ErrorOutlineRounded,
   Cancel,
@@ -29,14 +32,19 @@ const CardUser = ({
 }) => {
   const { language } = useSelector((state) => state.i18n);
   const { userInfo } = useSelector((state) => state.auth);
+
   const [isPressMore, setIsPressMore] = useState(false);
-  const [notifModalVisible, setNotifModalVisible] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const [alertType, setAlertType] = useState("");
+
   const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const moreRef = useRef();
+
+  const name = `${firstName} ${lastName}`;
+  const isBoss = userInfo.phoneNumber === phoneNumber;
+  const isNothing = nowActiveProject === "nothing";
 
   useEffect(() => {
     const handelCloseMore = (e) => {
@@ -48,12 +56,13 @@ const CardUser = ({
   }, []);
 
   const openAlertRemove = () => setOpenAlert(true);
-  const handelClickSettingIcon = () => navigate(`/statusMember/${id}`);
-  const handelClickMoreIcon = () => setIsPressMore((isMore) => !isMore);
+  const toggleMoreIcon = () => setIsPressMore((isMore) => !isMore);
 
-  const handleToggleNotifModal = () => {
-    setNotifModalVisible((visible) => !visible);
-    setIsPressMore(false);
+  const navigateStatusMember = () => navigate(`/statusMember/${id}`);
+
+  const navigateCartable = () => {
+    dispatch(setManagerActiveTab("cartable"));
+    dispatch(setCartableFilter(phoneNumber));
   };
 
   const handelStopTask = () => {
@@ -98,15 +107,40 @@ const CardUser = ({
     dispatch(deleteUsers(phoneNumber)).unwrap().catch(_error);
   };
 
-  const className = {
-    nowActiveProject: `card-user-text${
-      nowActiveProject === "nothing" ? "" : "-active"
-    }`,
-    moreTask: "card-user-option display-flex-center direction",
-    stopTaskText: `card-user-icon-text ${
-      nowActiveProject === "nothing" ? "card-user-icon-text-disable" : ""
-    }`,
-    more: `card-user-icon${isPressMore ? "-more" : ""}`,
+  const alert = {
+    stopTask: {
+      title: "stopTask",
+      Icon: () => (
+        <DoDisturb color="secondary" className="card-user-icon-stop-task" />
+      ),
+      ButtonAction: [
+        { text: "ok", onClick: handelStopTask },
+        { text: "cancel", type: "SECONDARY" },
+      ],
+    },
+    deleteUser: {
+      title: "deleteUser",
+      description: "deleteUserDescription",
+      Icon: PersonDelete,
+      ButtonAction: [
+        { text: "continue", onClick: handleRemoveUser },
+        { text: "cancel", type: "SECONDARY" },
+      ],
+    },
+  };
+
+  const handleAlertRemove = () => {
+    if (!isBoss) {
+      openAlertRemove();
+      setAlertType("deleteUser");
+    }
+  };
+
+  const handleAlertStopTask = () => {
+    if (!isNothing) {
+      setAlertType("stopTask");
+      openAlertRemove();
+    }
   };
 
   const { x } = useSpring({
@@ -114,42 +148,6 @@ const CardUser = ({
     x: isPressMore ? 1 : 0,
     config: { duration: 400, friction: 80 },
   });
-
-  const alert = {
-    stopTask: {
-      title: Translate("stopTask", language),
-      Icon: () => (
-        <DoDisturb color="secondary" className="card-user-icon-stop-task" />
-      ),
-      ButtonAction: [
-        { text: Translate("ok", language), onClick: handelStopTask },
-      ],
-    },
-    deleteUser: {
-      title: Translate("deleteUser", language),
-      description: Translate("deleteUserDescription", language),
-      Icon: PersonDelete,
-      ButtonAction: [
-        {
-          text: Translate("continue", language),
-          onClick: handleRemoveUser,
-        },
-        { text: Translate("cancel", language), type: "SECONDARY" },
-      ],
-    },
-  };
-
-  const handleAlertRemove = () => {
-    openAlertRemove();
-    setAlertType("deleteUser");
-  };
-
-  const handleAlertStopTask = () => {
-    if (nowActiveProject !== "nothing") {
-      setAlertType("stopTask");
-      openAlertRemove();
-    }
-  };
 
   const animationStyle = {
     heightContainer: {
@@ -179,71 +177,69 @@ const CardUser = ({
     },
   };
 
+  const className = {
+    nowActiveProject: `card-user-text${isNothing ? "" : "-active"}`,
+    moreTask: "card-user-option display-flex-center direction",
+    stopTaskText: `card-user-icon-text ${
+      isNothing ? "card-user-icon-text-disable" : ""
+    }`,
+    removeUser: `card-user-icon-text ${
+      isBoss ? "card-user-icon-text-disable" : ""
+    }`,
+    more: `card-user-icon${isPressMore ? "-more" : ""}`,
+  };
+
   return (
-    <>
+    <animated.div
+      className="card-user"
+      ref={moreRef}
+      style={animationStyle.heightContainer}
+    >
+      <Avatar className="card-user-avatar" />
+      <div className="card-user-name">{name}</div>
+      <div className="card-user-option card-user-active">
+        <span className={className.nowActiveProject}>
+          {isNothing ? Translate("nothing", language) : nowActiveProject}
+        </span>
+      </div>
+      <div className="display-flex-center">
+        <Settings className="card-user-icon" onClick={navigateStatusMember} />
+        <ErrorOutlineRounded
+          className="card-user-icon"
+          onClick={navigateCartable}
+        />
+        <MoreHorizOutlined
+          className={className.more}
+          onClick={toggleMoreIcon}
+        />
+      </div>
       <animated.div
-        className="card-user"
-        ref={moreRef}
-        style={animationStyle.heightContainer}
+        style={animationStyle.displayMore}
+        className="card-user-option-container"
       >
-        <Avatar className="card-user-avatar" />
-        <div className="card-user-name">{`${firstName} ${lastName}`}</div>
-        <div className="card-user-option card-user-active">
-          <span className={className.nowActiveProject}>
-            {nowActiveProject === "nothing"
-              ? Translate("nothing", language)
-              : nowActiveProject}
-          </span>
-        </div>
-        <div className="display-flex-center">
-          <SettingsOutlined
-            className="card-user-icon"
-            onClick={handelClickSettingIcon}
-          />
-          <ErrorOutlineRounded
-            className="card-user-icon"
-            onClick={handleToggleNotifModal}
-          />
-          <MoreHorizOutlined
-            className={className.more}
-            onClick={handelClickMoreIcon}
-          />
-        </div>
         <animated.div
-          style={animationStyle.displayMore}
-          className="card-user-option-container"
+          className={className.moreTask}
+          onClick={handleAlertStopTask}
+          style={animationStyle.displayItemStopTask}
         >
-          <animated.div
-            className={className.moreTask}
-            onClick={handleAlertStopTask}
-            style={animationStyle.displayItemStopTask}
-          >
-            <DoDisturb
-              color={nowActiveProject === "nothing" ? "primary50" : "primary"}
-            />
-            <span className={className.stopTaskText}>
-              {Translate("stopTask", language)}
-            </span>
-          </animated.div>
-          <animated.div
-            className={className.moreTask}
-            onClick={handleAlertRemove}
-            style={animationStyle.displayItemRemove}
-          >
-            <Cancel color="primary" />
-            <span className="card-user-icon-text">
-              {Translate("remove", language)}
-            </span>
-          </animated.div>
+          <DoDisturb color={isNothing ? "primary50" : "primary"} />
+          <span className={className.stopTaskText}>
+            {Translate("stopTask", language)}
+          </span>
+        </animated.div>
+        <animated.div
+          className={className.moreTask}
+          onClick={handleAlertRemove}
+          style={animationStyle.displayItemRemove}
+        >
+          <Cancel color={isBoss ? "primary50" : "primary"} />
+          <span className={className.removeUser}>
+            {Translate("remove", language)}
+          </span>
         </animated.div>
       </animated.div>
-      <MsgModal
-        modalVisible={notifModalVisible}
-        setModalVisible={setNotifModalVisible}
-        userPhoneNumber={phoneNumber}
-      />
       <Alert open={openAlert} setOpen={setOpenAlert} {...alert[alertType]} />
-    </>
+    </animated.div>
   );
 };
 

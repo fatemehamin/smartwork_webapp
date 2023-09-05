@@ -11,6 +11,7 @@ import tasksReducer from "../features/tasks/tasksSlice";
 import reportsReducer from "../features/reports/reportsSlice";
 import msgReducer from "../features/msg/msgSlice";
 import leaveRequestReducer from "../features/leaveRequests/leaveRequestSlice";
+import configReducer from "../features/config/configSlice";
 
 const combineReducer = combineReducers({
   i18n: i18nReducer,
@@ -22,6 +23,7 @@ const combineReducer = combineReducers({
   reports: reportsReducer,
   msg: msgReducer,
   leaveRequest: leaveRequestReducer,
+  config: configReducer,
 });
 
 const rootReducer = (state, action) => {

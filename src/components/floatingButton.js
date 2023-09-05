@@ -1,13 +1,8 @@
 import React, { useState } from "react";
 import { Translate } from "../features/i18n/translate";
 import { useSelector } from "react-redux";
+import { PersonAddAltOutlined, NoteAddOutlined } from "@mui/icons-material";
 import "./floatingButton.css";
-import {
-  PersonAddAltOutlined,
-  NoteAddOutlined,
-  Edit,
-  Notes,
-} from "@mui/icons-material";
 import {
   Box,
   Backdrop,
@@ -18,22 +13,26 @@ import {
 } from "@mui/material";
 
 const FloatingButton = ({
-  type = "Add",
   setModalVisibleProject,
-  setModalVisibleEmployee,
+  setModalVisibleUser,
+  isOneAction = true,
+  Icon,
+  onClick,
 }) => {
   const [open, setOpen] = useState(false);
+
   const { language } = useSelector((state) => state.i18n);
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-  const OpenModalDailyReport = () => setModalVisibleProject(true);
+
   const actions = [
     {
       icon: <PersonAddAltOutlined />,
       name: Translate("addUser", language),
       onClick: () => {
         handleClose();
-        setModalVisibleEmployee(true);
+        setModalVisibleUser(true);
       },
     },
     {
@@ -53,13 +52,13 @@ const FloatingButton = ({
     },
   };
 
-  return type === "DailyReport" ? (
+  return isOneAction ? (
     <Box className="FBtn">
-      <Fab aria-label="edit" style={styles.btn} onClick={OpenModalDailyReport}>
-        <Edit />
+      <Fab aria-label="edit" style={styles.btn} onClick={onClick}>
+        <Icon />
       </Fab>
     </Box>
-  ) : type === "Add" ? (
+  ) : (
     <Box className="FBtn">
       <SpeedDial
         ariaLabel="SpeedDial"
@@ -82,12 +81,6 @@ const FloatingButton = ({
             />
           ))}
       </SpeedDial>
-    </Box>
-  ) : (
-    <Box className="FBtn">
-      <Fab aria-label="edit" style={styles.btn} onClick={OpenModalDailyReport}>
-        <Notes />
-      </Fab>
     </Box>
   );
 };

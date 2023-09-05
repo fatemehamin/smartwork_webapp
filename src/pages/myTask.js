@@ -1,60 +1,60 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchIsNewMsg, fetchMsg } from "../features/msg/action";
-import { fetchLeaveRequests } from "../features/leaveRequests/action";
-import { fetchUsers } from "../features/users/action";
-import { fetchIsNewLog, fetchTasksLog } from "../features/tasks/action";
+import { fetchIsNewMsg } from "../features/msg/action";
+import { fetchIsNewLog, fetchTasks } from "../features/tasks/action";
+import { setMyTaskActiveTab } from "../features/config/configSlice";
+import { useSnackbar } from "react-simple-snackbar";
 import AppBar from "../components/appBar";
 import Tabs from "../components/tabs";
 import TabEntryAndExit from "./tabEntryAndExit";
 import TabTasks from "./tabTasks";
 import TabCartable from "./tabCartable";
+import { Translate } from "../features/i18n/translate";
 
 const MyTask = () => {
-  const [activeFilter, setActiveFilter] = useState("entryAndExit");
-  const [isFirstLoading, setIsFirstLoading] = useState(true);
   const { isNewMsg } = useSelector((state) => state.msg);
   const { type } = useSelector((state) => state.auth);
-  const { lastEntry, isNewLog } = useSelector((state) => state.tasks);
+  const { isNewLog } = useSelector((state) => state.tasks);
+  const { myTaskActiveTab } = useSelector((state) => state.config);
+  const { language } = useSelector((state) => state.i18n);
+
+  const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
+
+  const onSwitchTab = (activeTab) => dispatch(setMyTaskActiveTab(activeTab));
+
+  const tabs =
+    type === "boss"
+      ? [{ title: "entryAndExit" }, { title: "tasks" }]
+      : [
+          { title: "entryAndExit" },
+          { title: "tasks" },
+          { title: "cartable", isBadge: isNewMsg || isNewLog },
+        ];
 
   useEffect(() => {
     dispatch(fetchIsNewMsg());
     dispatch(fetchIsNewLog());
-    if (activeFilter === "cartable") {
-      dispatch(fetchLeaveRequests());
-      dispatch(fetchMsg());
-      dispatch(fetchUsers());
-      dispatch(fetchTasksLog());
-    }
-    if (isFirstLoading) {
-      setActiveFilter(lastEntry ? "tasks" : "entryAndExit");
-      setIsFirstLoading(false);
-    }
-  }, [lastEntry, activeFilter]);
+    dispatch(fetchTasks()).unwrap().catch(_error);
+  }, [myTaskActiveTab]);
+
+  const _error = (error) =>
+    openSnackbar(
+      error.code === "ERR_NETWORK"
+        ? Translate("connectionFailed", language)
+        : error.message
+    );
 
   return (
     <>
       <AppBar label={type === "boss" ? "myTasks" : "Smart Work"} />
-      <Tabs
-        activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
-        tabs={
-          type === "boss"
-            ? [{ title: "entryAndExit" }, { title: "tasks" }]
-            : [
-                { title: "entryAndExit" },
-                { title: "tasks" },
-                { title: "cartable", isBadge: isNewMsg || isNewLog },
-              ]
-        }
-      />
-      {activeFilter === "entryAndExit" ? (
-        <TabEntryAndExit setActiveFilter={setActiveFilter} />
-      ) : activeFilter === "tasks" ? (
-        <TabTasks setActiveFilter={setActiveFilter} />
+      <Tabs activeTab={myTaskActiveTab} tabs={tabs} onSwitchTab={onSwitchTab} />
+      {myTaskActiveTab === "entryAndExit" ? (
+        <TabEntryAndExit />
+      ) : myTaskActiveTab === "tasks" ? (
+        <TabTasks />
       ) : (
-        <TabCartable activeFilter={activeFilter} />
+        <TabCartable />
       )}
     </>
   );

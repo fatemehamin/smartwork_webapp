@@ -12,17 +12,20 @@ const TextEdit = ({ report, jDate }) => {
   const [isEdit, setIsEdit] = useState(false);
   const [notSave, setNotSave] = useState(false);
   const [DReport, setDReport] = useState(report);
+
   const { language } = useSelector((state) => state.i18n);
   const [openSnackbar] = useSnackbar();
+
   const dispatch = useDispatch();
-  const Date = jMoment(
-    `${jDate.slice(0, 4)}/${jDate.slice(5, 7)}/${jDate.slice(8, 10)}`,
-    "jYYYY/jM/jD"
-  );
 
   useEffect(() => {
     setDReport(report);
   }, [report]);
+
+  const Date = jMoment(
+    `${jDate.slice(0, 4)}/${jDate.slice(5, 7)}/${jDate.slice(8, 10)}`,
+    "jYYYY/jM/jD"
+  );
 
   const pad = (n) => (n < 10 ? "0" + n : n);
   const date = `${Date.year()}-${pad(Date.month() + 1)}-${pad(Date.date())}`;

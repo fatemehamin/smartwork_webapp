@@ -31,7 +31,7 @@ const App = () => {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <SnackbarProvider>
-          <div className="App">
+          <div className="text-center">
             <ThemeProvider theme={theme}>
               <Routers />
             </ThemeProvider>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useSnackbar } from "react-simple-snackbar";
 import { useDispatch, useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
@@ -8,7 +8,6 @@ import Input from "./input";
 import Modal from "./modal";
 import Button from "./button";
 import msgError from "../utils/msgError";
-import { useRef } from "react";
 
 const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
   const [firstName, setFirstName] = useState("");
@@ -19,13 +18,16 @@ const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
   const [callingCode, setCallingCode] = useState("+98");
   const [country, setCountry] = useState("IR");
   const [isPress, setIsPress] = useState(false);
-  const [openSnackbar] = useSnackbar();
+
   const { isLoading, error } = useSelector((state) => state.users);
   const { language } = useSelector((state) => state.i18n);
+  const [openSnackbar] = useSnackbar();
+
   const lastNameInputRef = useRef(null);
   const phoneInputRef = useRef(null);
   const passwordInputRef = useRef(null);
   const rePasswordInputRef = useRef(null);
+
   const dispatch = useDispatch();
   const closeAddUserModal = () => setModalVisibleUser(false);
 
@@ -105,8 +107,8 @@ const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
     <Modal
       modalVisible={modalVisibleUser}
       setModalVisible={setModalVisibleUser}
+      label="userProfile"
     >
-      <h2 className="text-center">{Translate("userProfile", language)}</h2>
       <Input
         label={Translate("firstName", language)}
         placeholder={Translate("firstName", language)}

@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Collapse } from "@mui/material";
 import { Translate } from "../features/i18n/translate";
 import { useSnackbar } from "react-simple-snackbar";
-import { ReactComponent as MsgIcon } from "../assets/images/msg-send.svg";
+import { ReactComponent as MsgIcon } from "../assets/icons/msg-send.svg";
 import { sendMsg } from "../features/msg/action";
 import { fetchProject } from "../features/projects/action";
+import { setCartableFilter } from "../features/config/configSlice";
 import Input from "./input";
 import Button from "./button";
 import Alert from "./alert";
@@ -17,28 +18,33 @@ import {
   ChevronLeftOutlined,
 } from "@mui/icons-material";
 
-const MsgModal = ({ modalVisible, setModalVisible, userPhoneNumber = "" }) => {
+const MsgModal = ({ modalVisible, setModalVisible }) => {
   const { language } = useSelector((state) => state.i18n);
   const { users } = useSelector((state) => state.users);
   const { tasks } = useSelector((state) => state.tasks);
   const { userInfo, type } = useSelector((state) => state.auth);
+  const { cartableFilter } = useSelector((state) => state.config);
+
   const [explain, setExplain] = useState("");
   const [project, setProject] = useState("");
   const [user, setUser] = useState({ name: "", phoneNumber: "" });
   const [isCollapseUser, setIsCollapseUser] = useState(false);
   const [isCollapseProject, setIsCollapseProject] = useState(false);
   const [isAlert, setIsAlert] = useState(false);
+
   const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    setUser({
-      name: "",
-      phoneNumber: userPhoneNumber,
-      project_list: users.find((u) => u.phone_number === userPhoneNumber)
-        ?.project_list,
-    });
-  }, [userPhoneNumber]);
+    const userFilter = users.find((u) => u.phone_number === cartableFilter);
+    if (cartableFilter !== "all") {
+      setUser({
+        name: userFilter.first_name + " " + userFilter.last_name,
+        phoneNumber: cartableFilter,
+        project_list: userFilter?.project_list,
+      });
+    }
+  }, []);
 
   const closeModal = () => setModalVisible(false);
   const closeCollapseProject = () => setIsCollapseProject(false);
@@ -71,7 +77,7 @@ const MsgModal = ({ modalVisible, setModalVisible, userPhoneNumber = "" }) => {
     }
   };
 
-  const handelAlertSendMessage = () => {
+  const handelSendMessage = () => {
     const args = {
       from: userInfo.phoneNumber,
       to: user.phoneNumber,
@@ -80,6 +86,7 @@ const MsgModal = ({ modalVisible, setModalVisible, userPhoneNumber = "" }) => {
     };
 
     dispatch(sendMsg(args)).unwrap().catch(_error);
+    cartableFilter !== user.phoneNumber && dispatch(setCartableFilter("all"));
   };
 
   const getListProject = () => {
@@ -88,7 +95,7 @@ const MsgModal = ({ modalVisible, setModalVisible, userPhoneNumber = "" }) => {
       closeCollapseProject();
     };
 
-    const all = user.phoneNumber === null && (
+    const all = (
       <div
         key="all"
         className="msg-modal-project msg-modal-project-all"
@@ -98,9 +105,9 @@ const MsgModal = ({ modalVisible, setModalVisible, userPhoneNumber = "" }) => {
       </div>
     );
 
-    const listProject = type === "boss" ? user.project_list : tasks;
+    const projects = type === "boss" ? user.project_list : tasks;
 
-    const otherProject = listProject?.map((p, i) => {
+    const otherProject = projects?.map((p, i) => {
       const handelSelect = () => {
         setProject(p.project_name);
         closeCollapseProject();
@@ -112,7 +119,18 @@ const MsgModal = ({ modalVisible, setModalVisible, userPhoneNumber = "" }) => {
       );
     });
 
-    return type === "boss" ? [all, otherProject] : otherProject;
+    const listProject =
+      type === "boss"
+        ? user.phoneNumber === null
+          ? [all, otherProject]
+          : otherProject
+        : otherProject;
+
+    return listProject?.length > 0 ? (
+      listProject
+    ) : (
+      <p className="msg-modal-no-project">{Translate("noProject", language)}</p>
+    );
   };
 
   const getListUser = () => {
@@ -166,15 +184,13 @@ const MsgModal = ({ modalVisible, setModalVisible, userPhoneNumber = "" }) => {
         <h2 className="text-center">
           {Translate(type === "boss" ? "sendMessage" : "taskRequest", language)}
         </h2>
-        {!userPhoneNumber && type === "boss" && (
-          <CustomCollapse
-            isCollapse={isCollapseUser}
-            setIsCollapse={setIsCollapseUser}
-            list={getListUser()}
-            item={user.name ? user.name : Translate("user", language)}
-            onClick={closeCollapseProject}
-          />
-        )}
+        <CustomCollapse
+          isCollapse={isCollapseUser}
+          setIsCollapse={setIsCollapseUser}
+          list={getListUser()}
+          item={user.name ? user.name : Translate("user", language)}
+          onClick={closeCollapseProject}
+        />
         <CustomCollapse
           isCollapse={isCollapseProject}
           setIsCollapse={setIsCollapseProject}
@@ -211,14 +227,11 @@ const MsgModal = ({ modalVisible, setModalVisible, userPhoneNumber = "" }) => {
       <Alert
         open={isAlert}
         setOpen={setIsAlert}
-        title={Translate("sendMessage?", language)}
+        title="sendMessage?"
         Icon={MsgIcon}
         ButtonAction={[
-          {
-            text: Translate("continue", language),
-            onClick: handelAlertSendMessage,
-          },
-          { text: Translate("cancel", language), type: "SECONDARY" },
+          { text: "continue", onClick: handelSendMessage },
+          { text: "cancel", type: "SECONDARY" },
         ]}
       />
     </>

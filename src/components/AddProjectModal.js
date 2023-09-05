@@ -9,17 +9,21 @@ import Button from "./button";
 
 const AddProjectModal = ({ modalVisibleProject, setModalVisibleProject }) => {
   const [projectName, setProjectName] = useState("");
-  const { isLoading } = useSelector((state) => state.users);
+
+  const { isLoading } = useSelector((state) => state.projects);
   const { language } = useSelector((state) => state.i18n);
+
   const [openSnackbar] = useSnackbar();
-  const disableAddProject = !projectName.trim();
   const dispatch = useDispatch();
-  const closeAddProjectModal = () => setModalVisibleProject(false);
+
+  const disableAddProject = !projectName.trim();
+
+  const closeModal = () => setModalVisibleProject(false);
 
   const handleAddProject = () => {
     const _then = (res) => {
       setProjectName("");
-      setModalVisibleProject(false);
+      closeModal();
       openSnackbar(Translate("NewProjectAddedSuccessfully", language));
     };
 
@@ -46,14 +50,14 @@ const AddProjectModal = ({ modalVisibleProject, setModalVisibleProject }) => {
     <Modal
       modalVisible={modalVisibleProject}
       setModalVisible={setModalVisibleProject}
+      label="addProject"
     >
-      <h2 className="text-center">{Translate("addProject", language)}</h2>
       <Input
         value={projectName}
         setValue={setProjectName}
-        autoFocus
         placeholder={Translate("projectName", language)}
         onKeyDown={onKeyDown}
+        autoFocus
       />
       <div className="container_btn_row direction">
         <Button
@@ -66,7 +70,7 @@ const AddProjectModal = ({ modalVisibleProject, setModalVisibleProject }) => {
         <Button
           label={Translate("cancel", language)}
           customStyle={{ width: "40%" }}
-          onClick={closeAddProjectModal}
+          onClick={closeModal}
           type="SECONDARY"
         />
       </div>

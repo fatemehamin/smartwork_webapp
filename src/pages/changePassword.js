@@ -14,12 +14,15 @@ const ChangePassword = () => {
   const [password, setPassword] = useState("");
   const [rePassword, setRePassword] = useState("");
   const [isPress, setIsPress] = useState(false);
-  const [openSnackbar] = useSnackbar();
-  const stateAuth = useSelector((state) => state.auth);
+
+  const { isLoading, userInfo } = useSelector((state) => state.auth);
   const { language } = useSelector((state) => state.i18n);
+  const [openSnackbar] = useSnackbar();
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const rePasswordInputRef = useRef(null);
+
   const disableChangePassword = !(password && rePassword);
 
   const HandleChangePassword = () => {
@@ -34,7 +37,7 @@ const ChangePassword = () => {
           : error.message
       );
 
-    const args = { username: stateAuth.userInfo.phoneNumber, password };
+    const args = { username: userInfo.phoneNumber, password };
 
     setIsPress(true);
     canSave &&
@@ -87,7 +90,7 @@ const ChangePassword = () => {
         label={Translate("changePassword", language)}
         disabled={disableChangePassword}
         onClick={HandleChangePassword}
-        isLoading={stateAuth.isLoading}
+        isLoading={isLoading}
       />
     </>
   );

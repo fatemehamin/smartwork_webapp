@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import { ReactComponent as MiniLogoIcon } from "../assets/images/miniLogo.svg";
-import { ReactComponent as AcceptIcon } from "../assets/images/acceptIcon.svg";
-import { ReactComponent as RejectIcon } from "../assets/images/rejectIcon.svg";
-import { ReactComponent as AcceptMsgIcon } from "../assets/images/accept_msg_icon.svg";
-import { ReactComponent as RejectMsgIcon } from "../assets/images/reject_msg_icon.svg";
+import { ReactComponent as MiniLogoIcon } from "../assets/icons/mini_logo.svg";
+import { ReactComponent as AcceptIcon } from "../assets/icons/accept.svg";
+import { ReactComponent as RejectIcon } from "../assets/icons/reject.svg";
+import { ReactComponent as AcceptMsgIcon } from "../assets/icons/accept_msg.svg";
+import { ReactComponent as RejectMsgIcon } from "../assets/icons/reject_msg.svg";
 import { useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
 import { Grid } from "@mui/material";
 import moment from "moment";
-import Alert from "../components/alert";
+import Alert from "./alert";
 import "./message.css";
 
 const Message = ({
@@ -23,8 +23,10 @@ const Message = ({
 }) => {
   const { I18nManager, language } = useSelector((state) => state.i18n);
   const { type } = useSelector((state) => state.auth);
+
   const [isAlert, setIsAlert] = useState(false);
   const [alertType, setAlertType] = useState("accept");
+
   const pad = (n) => (n < 10 ? "0" + n : n);
   const Time = pad(moment(time).hours()) + ":" + pad(moment(time).minutes());
   const openAlert = () => setIsAlert(true);
@@ -32,35 +34,35 @@ const Message = ({
   const alert = {
     accept: {
       Icon: AcceptMsgIcon,
-      title: Translate("acceptRequestUser", language),
-      description: Translate("acceptRequestUserDescription", language),
+      title: "acceptRequestUser",
+      description: "acceptRequestUserDescription",
       ButtonAction: [
-        {
-          text: Translate("yes", language),
-          onClick: () => handelStatus("accept"),
-        },
-        { text: Translate("no", language), type: "SECONDARY" },
+        { text: "yes", onClick: () => handelStatus("accept") },
+        { text: "no", type: "SECONDARY" },
       ],
     },
     reject: {
       Icon: RejectMsgIcon,
-      title: Translate("rejectRequestUser", language),
-      description: Translate("rejectRequestUserDescription", language),
+      title: "rejectRequestUser",
+      description: "rejectRequestUserDescription",
       ButtonAction: [
-        {
-          text: Translate("yes", language),
-          onClick: () => handelStatus("reject"),
-        },
-        { text: Translate("no", language), type: "SECONDARY" },
+        { text: "yes", onClick: () => handelStatus("reject") },
+        { text: "no", type: "SECONDARY" },
       ],
     },
   };
 
   const ActionBtn = () => {
-    const handleActionBtn = (type) => {
+    const handleReject = () => {
       if (status === null) {
         openAlert();
-        setAlertType(type);
+        setAlertType("reject");
+      }
+    };
+    const handleAccept = () => {
+      if (status === null) {
+        openAlert();
+        setAlertType("accept");
       }
     };
 
@@ -76,13 +78,13 @@ const Message = ({
           {status !== "reject" && (
             <AcceptIcon
               className={className.actionIcon}
-              onClick={() => handleActionBtn("accept")}
+              onClick={handleAccept}
             />
           )}
           {status !== "accept" && (
             <RejectIcon
               className={className.actionIcon}
-              onClick={() => handleActionBtn("reject")}
+              onClick={handleReject}
             />
           )}
         </Grid>
@@ -99,7 +101,7 @@ const Message = ({
           {status !== "accept" && (
             <RejectIcon
               className={className.actionIcon}
-              onClick={() => handleActionBtn("reject")}
+              onClick={handleReject}
             />
           )}
         </Grid>
@@ -115,7 +117,7 @@ const Message = ({
 
   return (
     <Grid container className="msg-container direction">
-      <Grid item xs={1}>
+      <Grid item xs={1} mt={1}>
         <MiniLogoIcon />
       </Grid>
       <Grid item xs={8} className="msg-name text-align">

@@ -60,6 +60,7 @@
 .exit-disable {
   background-color: #ff000050;
   right: 0px;
+  transform: rotateY(180deg);
 }
 .exit-entry-text {
   font-weight: bold;

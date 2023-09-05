@@ -24,9 +24,10 @@ const CustomInput = forwardRef(
     ref
   ) => {
     const [visiblePassword, setVisiblePassword] = useState(false);
-    const { I18nManager } = useSelector((state) => state.i18n);
-    const onChangeInput = (event) => setValue(event.target.value);
 
+    const { I18nManager } = useSelector((state) => state.i18n);
+
+    const onChangeInput = (event) => setValue(event.target.value);
     const onChangePhoneNumber = (phoneNumber, details) => {
       setCallingCode(`+${details.dialCode}`);
       setValue(phoneNumber);

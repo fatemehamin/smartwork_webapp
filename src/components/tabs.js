@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
 import "./tabs.css";
 
-const Tab = ({ tabs, activeFilter, setActiveFilter }) => {
+const Tabs = ({ tabs, activeTab, onSwitchTab }) => {
   const { language } = useSelector((state) => state.i18n);
 
   return (
@@ -12,9 +12,9 @@ const Tab = ({ tabs, activeFilter, setActiveFilter }) => {
       {tabs.map((tab, index) => (
         <div
           key={index}
-          className={`filter ${activeFilter === tab.title && "activeFilter"}`}
+          className={`filter ${activeTab === tab.title && "activeTab"}`}
           style={{ width: `${100 / tabs.length}%` }}
-          onClick={() => setActiveFilter(tab.title)}
+          onClick={() => onSwitchTab(tab.title)}
         >
           <Badge color="secondary" variant="dot" invisible={!tab.isBadge}>
             <p className="filterText">{Translate(tab.title, language)}</p>
@@ -25,4 +25,4 @@ const Tab = ({ tabs, activeFilter, setActiveFilter }) => {
   );
 };
 
-export default Tab;
+export default Tabs;
