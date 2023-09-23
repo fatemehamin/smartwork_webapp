@@ -14,6 +14,7 @@ const TextEdit = ({ report, jDate }) => {
   const [DReport, setDReport] = useState(report);
 
   const { language } = useSelector((state) => state.i18n);
+
   const [openSnackbar] = useSnackbar();
 
   const dispatch = useDispatch();

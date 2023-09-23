@@ -5,7 +5,6 @@ import { Translate } from "../features/i18n/translate";
 import { addProjects } from "../features/projects/action";
 import Input from "./input";
 import Modal from "./modal";
-import Button from "./button";
 
 const AddProjectModal = ({ modalVisibleProject, setModalVisibleProject }) => {
   const [projectName, setProjectName] = useState("");
@@ -46,12 +45,23 @@ const AddProjectModal = ({ modalVisibleProject, setModalVisibleProject }) => {
     }
   };
 
+  const propsModal = {
+    modalVisible: modalVisibleProject,
+    setModalVisible: setModalVisibleProject,
+    label: "addProject",
+    buttonActions: [
+      {
+        text: "add",
+        action: handleAddProject,
+        isLoading,
+        disabled: disableAddProject,
+      },
+      { text: "cancel", action: closeModal },
+    ],
+  };
+
   return (
-    <Modal
-      modalVisible={modalVisibleProject}
-      setModalVisible={setModalVisibleProject}
-      label="addProject"
-    >
+    <Modal {...propsModal}>
       <Input
         value={projectName}
         setValue={setProjectName}
@@ -59,21 +69,6 @@ const AddProjectModal = ({ modalVisibleProject, setModalVisibleProject }) => {
         onKeyDown={onKeyDown}
         autoFocus
       />
-      <div className="container_btn_row direction">
-        <Button
-          label={Translate("add", language)}
-          customStyle={{ width: "40%" }}
-          isLoading={isLoading}
-          onClick={handleAddProject}
-          disabled={disableAddProject}
-        />
-        <Button
-          label={Translate("cancel", language)}
-          customStyle={{ width: "40%" }}
-          onClick={closeModal}
-          type="SECONDARY"
-        />
-      </div>
     </Modal>
   );
 };

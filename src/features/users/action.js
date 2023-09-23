@@ -81,11 +81,13 @@ export const editUsers = createAsyncThunk(
   }
 );
 
-export const accessExcel = createAsyncThunk(
+export const permissionExcelAutoExit = createAsyncThunk(
   "users/accessExcel",
-  async ({ phoneNumber, toggleExcel }) => {
-    await axiosAPI.put(`/employee_register/${phoneNumber}/${toggleExcel}/`);
-    return { phoneNumber, toggleExcel };
+  async ({ phoneNumber, typePermission, isToggle }) => {
+    await axiosAPI.put(
+      `/employee_register/${phoneNumber}/${typePermission}/${isToggle}/`
+    );
+    return { phoneNumber, typePermission, isToggle };
   }
 );
 

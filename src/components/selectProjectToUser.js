@@ -14,6 +14,7 @@ const SelectProjectToUser = ({ userCurrent, CustomCollapse }) => {
   const { isLoading } = useSelector((state) => state.users);
   const { projects } = useSelector((state) => state.projects);
   const { language } = useSelector((state) => state.i18n);
+
   const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
 

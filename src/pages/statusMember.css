@@ -20,6 +20,10 @@
   align-items: center;
   margin: 0px 20px;
   margin-top: 10px;
+  color: #000000;
+}
+.row_section_disable {
+  color: #00000060;
 }
 .collapse {
   display: flex;

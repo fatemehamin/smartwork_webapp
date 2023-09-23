@@ -6,7 +6,6 @@ import { PersonOutlineOutlined, LockOutlined } from "@mui/icons-material";
 import { addUsers } from "../features/users/action";
 import Input from "./input";
 import Modal from "./modal";
-import Button from "./button";
 import msgError from "../utils/msgError";
 
 const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
@@ -29,7 +28,7 @@ const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
   const rePasswordInputRef = useRef(null);
 
   const dispatch = useDispatch();
-  const closeAddUserModal = () => setModalVisibleUser(false);
+  const closeModal = () => setModalVisibleUser(false);
 
   const disabledAddBtn = !(
     password &&
@@ -103,12 +102,23 @@ const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
     }
   };
 
+  const propsModal = {
+    modalVisible: modalVisibleUser,
+    setModalVisible: setModalVisibleUser,
+    label: "userProfile",
+    buttonActions: [
+      {
+        text: "add",
+        action: handleAddUser,
+        isLoading,
+        disabled: disabledAddBtn,
+      },
+      { text: "cancel", action: closeModal },
+    ],
+  };
+
   return (
-    <Modal
-      modalVisible={modalVisibleUser}
-      setModalVisible={setModalVisibleUser}
-      label="userProfile"
-    >
+    <Modal {...propsModal}>
       <Input
         label={Translate("firstName", language)}
         placeholder={Translate("firstName", language)}
@@ -169,21 +179,6 @@ const AddUserModal = ({ modalVisibleUser, setModalVisibleUser }) => {
           Translate(msgError.rePassword(rePassword, password), language)
         }
       />
-      <div className="container_btn_row direction">
-        <Button
-          label={Translate("add", language)}
-          customStyle={{ width: "40%" }}
-          isLoading={isLoading}
-          disabled={disabledAddBtn}
-          onClick={handleAddUser}
-        />
-        <Button
-          label={Translate("cancel", language)}
-          customStyle={{ width: "40%" }}
-          onClick={closeAddUserModal}
-          type="SECONDARY"
-        />
-      </div>
     </Modal>
   );
 };

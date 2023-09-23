@@ -8,7 +8,9 @@ import Drawer from "./drawer";
 
 const CustomAppBar = ({ label, type = "Menu" }) => {
   const [openDrawer, setOpenDrawer] = useState(false);
+
   const { language } = useSelector((state) => state.i18n);
+
   const navigate = useNavigate();
 
   const handelMenuOrBackBtn = () =>

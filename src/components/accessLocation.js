@@ -14,6 +14,7 @@ const AccessLocation = ({ userCurrent, CustomCollapse }) => {
   const { language } = useSelector((state) => state.i18n);
   const { locations } = useSelector((state) => state.locations);
   const { isLoading } = useSelector((state) => state.users);
+
   const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
 

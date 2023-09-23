@@ -1,8 +1,8 @@
 import React, { useState, forwardRef } from "react";
 import { Input, InputAdornment } from "@mui/material";
-import MuiPhoneNumber from "material-ui-phone-number";
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 import { useSelector } from "react-redux";
+import MuiPhoneNumber from "material-ui-phone-number";
 import "./input.css";
 
 const CustomInput = forwardRef(
@@ -80,7 +80,7 @@ const CustomInput = forwardRef(
 
     return (
       <div className={className.container}>
-        <p className="input-label text-align direction">{label}</p>
+        {label && <p className="input-label text-align direction">{label}</p>}
         {callingCode ? (
           <MuiPhoneNumber
             className="input"

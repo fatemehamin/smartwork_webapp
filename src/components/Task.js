@@ -19,9 +19,12 @@ const Task = ({
 }) => {
   const dispatch = useDispatch();
   const [duration, setDuration] = useState(initialDuration);
+
   const [openSnackbar] = useSnackbar();
+
   const { phoneNumber } = useSelector((state) => state.auth.userInfo);
   const { language } = useSelector((state) => state.i18n);
+
   const [animation, api] = useSpring(() => ({
     backgroundPositionX: isEnable ? "300px" : "0px",
     backgroundPositionY: isEnable ? "-25px" : "140px",

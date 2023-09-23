@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
-  accessExcel,
   addLocationToUsers,
   addProjectToUsers,
   addUsers,
@@ -10,6 +9,7 @@ import {
   editUsers,
   fetchUsers,
   fetchUsersLocation,
+  permissionExcelAutoExit,
 } from "./action";
 
 const initialState = {
@@ -98,18 +98,21 @@ const usersSlice = createSlice({
     builder.addCase(editUsers.rejected, (state) => {
       state.isLoading = false;
     });
-    builder.addCase(accessExcel.pending, (state) => {
+    builder.addCase(permissionExcelAutoExit.pending, (state) => {
       state.isLoading = true;
     });
-    builder.addCase(accessExcel.fulfilled, (state, action) => {
+    builder.addCase(permissionExcelAutoExit.fulfilled, (state, action) => {
+      const { phoneNumber, isToggle, typePermission } = action.payload;
       state.isLoading = false;
       state.users = state.users.map((user) =>
-        user.phone_number === action.payload.phoneNumber
-          ? { ...user, financial_group: action.payload.toggleExcel }
+        user.phone_number === phoneNumber
+          ? typePermission === "accessExcel"
+            ? { ...user, financial_group: isToggle }
+            : { ...user, isAutoExit: isToggle }
           : user
       );
     });
-    builder.addCase(accessExcel.rejected, (state) => {
+    builder.addCase(permissionExcelAutoExit.rejected, (state) => {
       state.isLoading = false;
     });
     builder.addCase(fetchUsersLocation.pending, (state) => {

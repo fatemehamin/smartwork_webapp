@@ -8,7 +8,6 @@ import { sendMsg } from "../features/msg/action";
 import { fetchProject } from "../features/projects/action";
 import { setCartableFilter } from "../features/config/configSlice";
 import Input from "./input";
-import Button from "./button";
 import Alert from "./alert";
 import Modal from "./modal";
 import "./msgModal.css";
@@ -18,7 +17,7 @@ import {
   ChevronLeftOutlined,
 } from "@mui/icons-material";
 
-const MsgModal = ({ modalVisible, setModalVisible }) => {
+const MsgModal = ({ modalVisible, setModalVisible, toBoss = false }) => {
   const { language } = useSelector((state) => state.i18n);
   const { users } = useSelector((state) => state.users);
   const { tasks } = useSelector((state) => state.tasks);
@@ -36,8 +35,8 @@ const MsgModal = ({ modalVisible, setModalVisible }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const userFilter = users.find((u) => u.phone_number === cartableFilter);
     if (cartableFilter !== "all") {
+      const userFilter = users.find((u) => u.phone_number === cartableFilter);
       setUser({
         name: userFilter.first_name + " " + userFilter.last_name,
         phoneNumber: cartableFilter,
@@ -80,7 +79,7 @@ const MsgModal = ({ modalVisible, setModalVisible }) => {
   const handelSendMessage = () => {
     const args = {
       from: userInfo.phoneNumber,
-      to: user.phoneNumber,
+      to: toBoss ? "toBoss" : user.phoneNumber,
       msg: explain,
       project,
     };
@@ -178,30 +177,51 @@ const MsgModal = ({ modalVisible, setModalVisible }) => {
     return [all, ...otherUser];
   };
 
+  const propsModal = {
+    modalVisible,
+    setModalVisible,
+    label: type === "boss" ? "sendMessage" : "taskRequest",
+    buttonActions: [
+      { text: "send", action: handelModalSendMessage },
+      { text: "cancel", action: handelCancel },
+    ],
+  };
+
+  const propsAlert = {
+    open: isAlert,
+    setOpen: setIsAlert,
+    title: "sendMessage?",
+    Icon: MsgIcon,
+    ButtonAction: [
+      { text: "continue", onPress: handelSendMessage },
+      { text: "cancel", type: "SECONDARY" },
+    ],
+  };
+
+  const item =
+    project !== null
+      ? project
+        ? project
+        : Translate("project", language)
+      : Translate("all", language);
+
   return (
     <>
-      <Modal modalVisible={modalVisible} setModalVisible={setModalVisible}>
-        <h2 className="text-center">
-          {Translate(type === "boss" ? "sendMessage" : "taskRequest", language)}
-        </h2>
-        <CustomCollapse
-          isCollapse={isCollapseUser}
-          setIsCollapse={setIsCollapseUser}
-          list={getListUser()}
-          item={user.name ? user.name : Translate("user", language)}
-          onClick={closeCollapseProject}
-        />
+      <Modal {...propsModal}>
+        {!toBoss && (
+          <CustomCollapse
+            isCollapse={isCollapseUser}
+            setIsCollapse={setIsCollapseUser}
+            list={getListUser()}
+            item={user.name ? user.name : Translate("user", language)}
+            onClick={closeCollapseProject}
+          />
+        )}
         <CustomCollapse
           isCollapse={isCollapseProject}
           setIsCollapse={setIsCollapseProject}
           list={getListProject()}
-          item={
-            project !== null
-              ? project
-                ? project
-                : Translate("project", language)
-              : Translate("all", language)
-          }
+          item={item}
           onClick={closeCollapseUser}
         />
         <Input
@@ -210,30 +230,8 @@ const MsgModal = ({ modalVisible, setModalVisible }) => {
           placeholder={Translate("explain", language)}
           multiline
         />
-        <div className="container_btn_row direction">
-          <Button
-            label={Translate("send", language)}
-            customStyle={{ width: "40%" }}
-            onClick={handelModalSendMessage}
-          />
-          <Button
-            label={Translate("cancel", language)}
-            customStyle={{ width: "40%" }}
-            onClick={handelCancel}
-            type="SECONDARY"
-          />
-        </div>
       </Modal>
-      <Alert
-        open={isAlert}
-        setOpen={setIsAlert}
-        title="sendMessage?"
-        Icon={MsgIcon}
-        ButtonAction={[
-          { text: "continue", onClick: handelSendMessage },
-          { text: "cancel", type: "SECONDARY" },
-        ]}
-      />
+      <Alert {...propsAlert} />
     </>
   );
 };

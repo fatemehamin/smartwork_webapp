@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import AppBar from "../components/appBar";
 import PersonalInformation from "../components/personalInformation";
-import AccessExcel from "../components/accessExcel";
+import PermissionSwitch from "../components/permissionSwitch";
 import AccessLocation from "../components/accessLocation";
 import SelectProjectToUser from "../components/selectProjectToUser";
 import { useParams } from "react-router-dom";
@@ -12,9 +12,12 @@ import "./statusMember.css";
 
 const StatusMember = () => {
   const { currentId } = useParams();
+
   const [isCollapseLocation, setIsCollapseLocation] = useState(false);
   const [isCollapseProject, setIsCollapseProject] = useState(false);
+
   const { users } = useSelector((state) => state.users);
+
   const userCurrent = users.filter((user) => user.id == currentId)[0];
 
   const CustomCollapse = ({ label, content, type = "location" }) => {
@@ -52,7 +55,20 @@ const StatusMember = () => {
       />
       <div>
         <PersonalInformation userCurrent={userCurrent} />
-        <AccessExcel userCurrent={userCurrent} />
+        <PermissionSwitch
+          userCurrent={userCurrent}
+          typePermission="accessExcel"
+          initCheck={userCurrent.financial_group}
+          label="excel"
+          description="accessExcel"
+        />
+        <PermissionSwitch
+          userCurrent={userCurrent}
+          typePermission="autoExit"
+          initCheck={userCurrent.isAutoExit}
+          label="autoExit"
+          description="autoExitDescription"
+        />
         <AccessLocation
           userCurrent={userCurrent}
           CustomCollapse={CustomCollapse}
