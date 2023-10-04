@@ -198,15 +198,30 @@ const Location = () => {
       );
     });
 
-  const optionAlert = {
+  const propsAlert = {
     title: "deleteLocation",
     description: "deleteLocationDescription",
     open: isOpenAlert,
     setOpen: setIsOpenAlert,
     Icon: LocationRemoveIcon,
     ButtonAction: [
-      { text: "yes", onClick: handleDeleteLocation },
+      { text: "yes", onClick: handleDeleteLocation, isLoading },
       { text: "no", type: "SECONDARY" },
+    ],
+  };
+
+  const propsModal = {
+    modalVisible,
+    setModalVisible,
+    label: "addNewLocation",
+    buttonActions: [
+      {
+        text: "ok",
+        action: handleAddLocation,
+        isLoading,
+        disabled: disableBtn,
+      },
+      { text: "cancel", action: closeModal },
     ],
   };
 
@@ -247,11 +262,7 @@ const Location = () => {
         {locations.length > 0 && Translate("registeredLocations", language)}
       </div>
       <LocationList />
-      <Modal
-        modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
-        label="addNewLocation"
-      >
+      <Modal {...propsModal}>
         <Input
           label={Translate("nameLocation", language)}
           placeholder={Translate("nameLocation", language)}
@@ -271,23 +282,8 @@ const Location = () => {
           ref={radiusRef}
           onKeyDown={onKeyDownLocationRadius}
         />
-        <div className={`container_btn_row direction`}>
-          <Button
-            label={Translate("ok", language)}
-            customStyle={{ width: "40%" }}
-            isLoading={isLoading}
-            onClick={handleAddLocation}
-            disabled={disableBtn}
-          />
-          <Button
-            label={Translate("cancel", language)}
-            customStyle={{ width: "40%" }}
-            type="SECONDARY"
-            onClick={closeModal}
-          />
-        </div>
       </Modal>
-      <Alert {...optionAlert} />
+      <Alert {...propsAlert} />
     </>
   );
 };

@@ -8,29 +8,31 @@ import Alert from "../components/alert";
 import Modal from "../components/modal";
 import dayjs from "dayjs";
 import jMoment from "moment-jalaali";
+import NotesIcon from "@mui/icons-material/Notes";
 import { useDispatch, useSelector } from "react-redux";
 import { animated, useSpring } from "@react-spring/web";
-import { Translate } from "../features/i18n/translate";
-import { changeStatusMsg, deleteMsg } from "../features/msg/action";
 import { Grid } from "@mui/material";
-import { ReactComponent as SettingAutomationIcon } from "../assets/images/tabler_settings-automation.svg";
+import { ReactComponent as SettingAutomationIcon } from "../assets/icons/settings-automation.svg";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFnsJalali } from "@mui/x-date-pickers/AdapterDateFnsJalali";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { useSnackbar } from "react-simple-snackbar";
-import { ReactComponent as SendMsgIcon } from "../assets/images/accept_msg_icon.svg";
+import { ReactComponent as SendMsgIcon } from "../assets/icons/accept_msg.svg";
+import { Translate } from "../features/i18n/translate";
+import { changeStatusMsg, deleteMsg, fetchMsg } from "../features/msg/action";
+import { fetchTasksLog } from "../features/tasks/action";
+import { fetchUsers } from "../features/users/action";
 import "./tabCartable.css";
 import {
   addLeaveRequests,
   changeStatusLeave,
   deleteLeave,
+  fetchLeaveRequests,
 } from "../features/leaveRequests/action";
 
-const TabCartable = ({ activeFilter }) => {
-  const [openSnackbar] = useSnackbar();
-  const dispatch = useDispatch();
+const TabCartable = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisibleLeave, setModalVisibleLeave] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
@@ -39,12 +41,14 @@ const TabCartable = ({ activeFilter }) => {
   const [typeLeave, setTypeLeave] = useState(null);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  const [errorDateTime, setErrorDateTime] = useState(null);
+  const [errorDateTimeEnd, setErrorDateTimeEnd] = useState(null);
+  const [errorDateTimeStart, setErrorDateTimeStart] = useState(null);
   const [startTime, setStartTime] = useState(dayjs(new Date()));
   const [endTime, setEndTime] = useState(dayjs(new Date()));
   const [openAuto, setOpenAuto] = useState(false);
+
   const { taskLogList } = useSelector((state) => state.tasks);
-  const { msg } = useSelector((state) => state.msg);
+  const { msg, isLoading: msgLoading } = useSelector((state) => state.msg);
   const { type } = useSelector((state) => state.auth);
   const { users } = useSelector((state) => state.users);
   const { phoneNumber } = useSelector((state) => state.auth.userInfo);
@@ -52,10 +56,23 @@ const TabCartable = ({ activeFilter }) => {
   const { leaveRequests, isLoading } = useSelector(
     (state) => state.leaveRequest
   );
+  const { managerActiveTab, cartableFilter, myTaskActiveTab } = useSelector(
+    (state) => state.config
+  );
+
+  const [openSnackbar] = useSnackbar();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     window.scrollTo(0, document.body.scrollHeight);
-  }, [openAuto, activeFilter]);
+  }, [openAuto, isLoading, msgLoading, managerActiveTab, myTaskActiveTab]);
+
+  useEffect(() => {
+    dispatch(fetchLeaveRequests());
+    dispatch(fetchMsg());
+    dispatch(fetchUsers());
+    dispatch(fetchTasksLog());
+  }, []);
 
   const taskAnimation = useSpring({
     opacity: openAuto ? 1 : 0,
@@ -73,26 +90,36 @@ const TabCartable = ({ activeFilter }) => {
     backgroundColor: `rgba(38, 156, 217, ${openAuto ? 0.5 : 1})`,
   });
 
-  const bossPhoneNumber =
-    type === "boss" ? "" : msg.find((m) => m.from !== phoneNumber)?.from;
+  const disableBtnLeave =
+    errorDateTimeEnd !== null || errorDateTimeStart !== null;
+
+  const disablePast =
+    startDate.toISOString().slice(0, 10) ===
+    new Date().toISOString().slice(0, 10);
 
   const openModalTaskRequest = () => setModalVisible(true);
+
   const closeModalLeaveRequest = () => setModalVisibleLeave(false);
+
   const handelLeaveRequest = () => setIsLeaveRequestPress(true);
+
   const pad = (n) => (n < 10 ? "0" + n : n);
+
   const changeToJDate = (d) =>
     `${jMoment(d).jYear()}-${pad(jMoment(d).jMonth() + 1)}-${pad(
       jMoment(d).jDate()
     )}`;
 
   const handelCancelModal = () => {
-    setErrorDateTime(null);
+    setErrorDateTimeEnd(null);
+    setErrorDateTimeStart(null);
     closeModalLeaveRequest();
   };
 
   const handelModalConfirm = () => {
-    if (!errorDateTime) {
-      setErrorDateTime(null);
+    if (!errorDateTimeEnd || errorDateTimeStart) {
+      setErrorDateTimeEnd(null);
+      setErrorDateTimeStart(null);
       closeModalLeaveRequest();
       setOpenAlert(true);
     }
@@ -104,20 +131,35 @@ const TabCartable = ({ activeFilter }) => {
   };
 
   const onFocusDate = () =>
-    setErrorDateTime(
+    setErrorDateTimeEnd(
       startDate > endDate ? Translate("errorEndDateSmaller", language) : null
     );
 
-  const onFocusTime = () =>
-    setErrorDateTime(
+  const onFocusTime = () => {
+    setErrorDateTimeEnd(
       startTime > endTime ? Translate("errorEndTimeSmaller", language) : null
     );
 
+    setErrorDateTimeStart(
+      disablePast && startTime <= new Date().getTime()
+        ? Translate("errorTimeUnacceptable", language)
+        : null
+    );
+  };
+
   const slotPropsEnd = (onFocus) => ({
     textField: {
-      error: errorDateTime !== null,
-      helperText: errorDateTime !== null && errorDateTime,
+      error: errorDateTimeEnd !== null,
+      helperText: errorDateTimeEnd !== null && errorDateTimeEnd,
       onFocus,
+    },
+  });
+
+  const slotPropsStart = (onFocus) => ({
+    textField: {
+      onFocus,
+      error: errorDateTimeStart !== null,
+      helperText: errorDateTimeStart !== null && errorDateTimeStart,
     },
   });
 
@@ -148,14 +190,12 @@ const TabCartable = ({ activeFilter }) => {
   };
 
   const getRequests = () => {
-    const requests = [...msg, ...leaveRequests, ...taskLogList];
-    let dateGroup = "";
-
+    const findUser = (phone) => users.find((u) => u.phone_number === phone);
+    const sortByDate = (a, b) => a.create_time - b.create_time;
     const timeFormat = (time) => {
       const date = new Date(time);
       return pad(date.getHours()) + ":" + pad(date.getMinutes());
     };
-
     const _error = (error) => {
       openSnackbar(
         error.code === "ERR_NETWORK"
@@ -163,25 +203,28 @@ const TabCartable = ({ activeFilter }) => {
           : error.message
       );
     };
-    const sortByDate = (a, b) => a.create_time - b.create_time;
-    return requests.length > 0 ? (
-      requests.sort(sortByDate).map((req, i) => {
-        let name;
-        let typeRequest;
-        let project;
-        let handelStatus;
-        let leaveTime = undefined;
-        let bubbleText;
+    const getFilterUser = (req) => {
+      const checkUserInGroup = (project) =>
+        findUser(cartableFilter).project_list.find(
+          (p) => p.project_name === project
+        ) !== undefined;
+
+      return (
+        req.phone_number === cartableFilter ||
+        req.to === cartableFilter ||
+        req.from === cartableFilter ||
+        (req.to === null &&
+          (req.project === null || checkUserInGroup(req.project)))
+      );
+    };
+    const mapRequest = (req, i) => {
+      const getRequestList = () => {
+        // leave Request
         if (req.type !== undefined) {
-          // leave
-          name = users.find((u) => u.phone_number === req.phone_number);
-          name = name !== undefined && `${name.first_name} ${name.last_name}`;
-          typeRequest = "userRequest";
-          project = [
-            Translate("leaveRequest", language),
-            Translate(req.type, language),
-          ];
-          handelStatus = (status) => {
+          const getName = () => {
+            return user ? `${user.first_name} ${user.last_name}` : undefined;
+          };
+          const handelStatus = (status) => {
             type === "boss"
               ? dispatch(changeStatusLeave({ id: req.id, status }))
                   .unwrap()
@@ -189,26 +232,44 @@ const TabCartable = ({ activeFilter }) => {
               : dispatch(deleteLeave(req.id)).unwrap().catch(_error);
           };
 
-          leaveTime = {
+          const user = findUser(req.phone_number);
+          const project = [
+            Translate("leaveRequest", language),
+            Translate(req.type, language),
+          ];
+          const leaveTime = {
             startDate: req.date_leave_from.replaceAll("-", "/"),
             endDate: req.date_leave_to?.replaceAll("-", "/"),
             startTime: timeFormat(req.time_leave_from),
             endTime: timeFormat(req.time_leave_to),
           };
-        } else if (req.from !== undefined) {
-          // msg
-          const userPhoneToShowName =
-            type === "boss"
+
+          return (
+            <Message
+              time={req.create_time}
+              msg={req.msg}
+              status={req.status}
+              name={getName()}
+              project={project}
+              leaveTime={leaveTime}
+              typeRequest={"userRequest"}
+              handelStatus={handelStatus}
+            />
+          );
+        }
+        // msg request
+        else if (req.from !== undefined) {
+          const getUserPhoneToShowName = () => {
+            return type === "boss"
               ? req.from === phoneNumber
                 ? req.to
                 : req.from
               : req.from;
-
-          name = users.find((u) => u.phone_number === userPhoneToShowName);
-          name =
-            name !== undefined
-              ? `${name.first_name} ${name.last_name} ${
-                  name.phone_number === phoneNumber
+          };
+          const getName = () => {
+            return user
+              ? `${user.first_name} ${user.last_name} ${
+                  user.phone_number === phoneNumber
                     ? "(ME)"
                     : type !== "boss"
                     ? "(MANAGER)"
@@ -217,78 +278,101 @@ const TabCartable = ({ activeFilter }) => {
               : req.project !== null
               ? `${Translate("group", language)} ${req.project}`
               : Translate("all", language);
-
-          typeRequest = `${
-            type === "boss"
-              ? req.from === phoneNumber
-                ? "boss"
-                : "user"
-              : req.from === phoneNumber
-              ? "user"
-              : "boss"
-          }Request`;
-          project = [req.project ? req.project : Translate("all", language)];
-          handelStatus = (status) => {
+          };
+          const getTypeRequest = () => {
+            return `${
+              type === "boss"
+                ? req.from === phoneNumber
+                  ? "boss"
+                  : "user"
+                : req.from === phoneNumber
+                ? "user"
+                : "boss"
+            }Request`;
+          };
+          const handelStatus = (status) => {
             type === "boss"
               ? dispatch(changeStatusMsg({ id: req.id, status }))
                   .unwrap()
                   .catch(_error)
               : dispatch(deleteMsg(req.id)).unwrap().catch(_error);
           };
-        } else {
-          // log_task
-          name = users.find((u) => u.phone_number === req.phone_number);
-          name = name !== undefined && `${name.first_name} ${name.last_name}`;
-          bubbleText =
-            type === "boss"
+
+          const user = findUser(getUserPhoneToShowName());
+          const project = [
+            req.project ? req.project : Translate("all", language),
+          ];
+
+          return (
+            <Message
+              time={req.create_time}
+              msg={req.msg}
+              status={req.status}
+              name={getName()}
+              project={project}
+              typeRequest={getTypeRequest()}
+              handelStatus={handelStatus}
+            />
+          );
+        }
+        // log_task
+        else {
+          const getName = () => {
+            return user ? `${user.first_name} ${user.last_name}` : undefined;
+          };
+          const getLogTask = () => {
+            return type === "boss"
               ? req.project_name === "entry"
                 ? I18nManager.isRTL
-                  ? `${Translate("forceExit", language)} ${name}`
-                  : `${name} ${Translate("forceExit", language)}`
+                  ? `${Translate("forceExit", language)} ${getName()}`
+                  : `${getName()} ${Translate("forceExit", language)}`
                 : I18nManager.isRTL
-                ? `پروژه ${req.project_name} برای ${name} متوقف شد.`
-                : `${req.project_name} task stopped for ${name}`
+                ? `پروژه ${req.project_name} برای ${getName()} متوقف شد.`
+                : `${req.project_name} task stopped for ${getName()}`
               : req.project_name === "entry"
               ? `${Translate("exitByAdmin", language)}`
               : `${Translate("task", language)} ${req.project_name} ${Translate(
                   "stoppedByAdmin",
                   language
                 )}`;
-        }
+          };
 
+          const user = findUser(req.phone_number);
+
+          return <div className="bubble direction">{getLogTask()}</div>;
+        }
+      };
+      const getDateGroup = () => {
         const today = new Date().toISOString().slice(0, 10);
         const date = jMoment(new Date(req.create_time));
-        const dateFormat =
-          req.create_time !== undefined &&
-          today === date.toISOString().slice(0, 10)
+
+        return req.create_time
+          ? today === date.toISOString().slice(0, 10)
             ? Translate("today", language)
-            : `${Translate(date.format("jMMMM"), language)} ${date.jDate()}`;
+            : `${Translate(date.format("jMMMM"), language)} ${date.jDate()}`
+          : undefined;
+      };
 
-        const isDate = dateGroup !== dateFormat;
-        dateGroup = dateFormat;
+      const isDate = dateGroup !== getDateGroup();
+      dateGroup = getDateGroup();
 
-        return (
-          <Grid container justifyContent="center" key={i}>
-            <Grid container justifyContent="center">
-              {isDate && <div className="bubble">{dateFormat}</div>}
-            </Grid>
-            {req.project_name !== undefined ? (
-              <div className="bubble direction">{bubbleText}</div>
-            ) : (
-              <Message
-                msg={req.msg}
-                name={name}
-                project={project}
-                time={req.create_time}
-                typeRequest={typeRequest}
-                status={req.status}
-                handelStatus={handelStatus}
-                leaveTime={leaveTime}
-              />
-            )}
+      return (
+        <Grid container justifyContent="center" key={i}>
+          <Grid container justifyContent="center">
+            {isDate && <div className="bubble">{getDateGroup()}</div>}
           </Grid>
-        );
-      })
+          {getRequestList()}
+        </Grid>
+      );
+    };
+
+    let requests = [...msg, ...leaveRequests, ...taskLogList];
+    let dateGroup = "";
+    requests =
+      cartableFilter === "all" ? requests : requests.filter(getFilterUser);
+
+    return requests.length > 0 ? (
+      requests.sort(sortByDate).map(mapRequest)
     ) : (
       <div className="cartable-no-msg direction">
         {Translate("noMessage", language)}
@@ -333,26 +417,41 @@ const TabCartable = ({ activeFilter }) => {
       .catch(_error);
   };
 
-  const buttonActionAlert = [
-    {
-      text: Translate("continue", language),
-      onClick: handleAddRequestLeave,
-    },
-    { text: Translate("cancel", language), type: "SECONDARY" },
-  ];
-
   const className = {
     msg: `cartable-container-msg ${type === "boss" ? "cartable-mb" : ""}`,
+  };
+
+  const propsAlert = {
+    open: openAlert,
+    setOpen: setOpenAlert,
+    title: "confirmRequest",
+    description: "confirmRequestDescription",
+    Icon: SendMsgIcon,
+    ButtonAction: [
+      { text: "continue", onClick: handleAddRequestLeave, isLoading },
+      { text: "cancel", type: "SECONDARY" },
+    ],
+  };
+
+  const propsModal = {
+    modalVisible: modalVisibleLeave,
+    setModalVisible: setModalVisibleLeave,
+    label: "leaveRequest",
+    buttonActions: [
+      {
+        text: "add",
+        action: handelModalConfirm,
+        disable: disableBtnLeave,
+      },
+      { text: "cancel", action: handelCancelModal },
+    ],
   };
 
   return (
     <div className="cartable-container">
       <div className={className.msg}>{getRequests()}</div>
       {type === "boss" ? (
-        <FloatingButton
-          type="request"
-          setModalVisibleProject={setModalVisible}
-        />
+        <FloatingButton Icon={NotesIcon} onClick={openModalTaskRequest} />
       ) : (
         <Grid container className="automation-container">
           <animated.div
@@ -365,11 +464,7 @@ const TabCartable = ({ activeFilter }) => {
               {Translate("automation", language)}
             </span>
           </animated.div>
-          <Grid
-            container
-            mt={1}
-            className="automation-task-container direction"
-          >
+          <Grid container className="automation-task-container">
             {getListButtonAuto().map((b, i) => (
               <Button
                 key={i}
@@ -386,13 +481,9 @@ const TabCartable = ({ activeFilter }) => {
       <MsgModal
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
-        userPhoneNumber={bossPhoneNumber}
+        toBoss={type !== "boss"}
       />
-      <Modal
-        modalVisible={modalVisibleLeave}
-        setModalVisible={setModalVisibleLeave}
-      >
-        <h2 className="text-center">{Translate("leaveRequest", language)}</h2>
+      <Modal {...propsModal}>
         {typeLeave !== "hours" ? (
           <div className="automation-date direction">
             <LocalizationProvider dateAdapter={AdapterDateFnsJalali}>
@@ -405,7 +496,7 @@ const TabCartable = ({ activeFilter }) => {
                 slotProps={{ textField: { onFocus: onFocusDate } }}
               />
               <DatePicker
-                disablePast
+                minDate={startDate}
                 sx={{ width: "40%" }}
                 defaultValue={endDate}
                 label={Translate("endDate", language)}
@@ -424,22 +515,24 @@ const TabCartable = ({ activeFilter }) => {
                   defaultValue={startDate}
                   label={Translate("date", language)}
                   onChange={(newValue) => setStartDate(newValue)}
+                  slotProps={{ textField: { onFocus: onFocusTime } }}
                 />
               </LocalizationProvider>
             </div>
             <div className="automation-date direction">
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <TimePicker
-                  disablePast
+                  disablePast={disablePast}
                   sx={{ width: "40%" }}
                   defaultValue={startTime}
                   ampm={false}
                   label={Translate("startTime", language)}
                   onChange={(d) => setStartTime(d)}
-                  slotProps={{ textField: { onFocus: onFocusTime } }}
+                  slotProps={slotPropsStart(onFocusTime)}
+                  autoFocus
                 />
                 <TimePicker
-                  disablePast
+                  minTime={startTime}
                   sx={{ width: "40%" }}
                   defaultValue={endTime}
                   ampm={false}
@@ -457,29 +550,8 @@ const TabCartable = ({ activeFilter }) => {
           placeholder={Translate("explain", language)}
           multiline
         />
-        <div className="container_btn_row direction">
-          <Button
-            label={Translate("add", language)}
-            customStyle={{ width: "40%" }}
-            isLoading={isLoading}
-            onClick={handelModalConfirm}
-          />
-          <Button
-            label={Translate("cancel", language)}
-            customStyle={{ width: "40%" }}
-            onClick={handelCancelModal}
-            type="SECONDARY"
-          />
-        </div>
       </Modal>
-      <Alert
-        open={openAlert}
-        setOpen={setOpenAlert}
-        title={Translate("confirmRequest", language)}
-        description={Translate("confirmRequestDescription", language)}
-        Icon={SendMsgIcon}
-        ButtonAction={buttonActionAlert}
-      />
+      <Alert {...propsAlert} />
     </div>
   );
 };

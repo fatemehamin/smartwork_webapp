@@ -32,6 +32,7 @@ const CardUser = ({
 }) => {
   const { language } = useSelector((state) => state.i18n);
   const { userInfo } = useSelector((state) => state.auth);
+  const { isLoading } = useSelector((state) => state.users);
 
   const [isPressMore, setIsPressMore] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
@@ -114,7 +115,7 @@ const CardUser = ({
         <DoDisturb color="secondary" className="card-user-icon-stop-task" />
       ),
       ButtonAction: [
-        { text: "ok", onClick: handelStopTask },
+        { text: "ok", onClick: handelStopTask, isLoading },
         { text: "cancel", type: "SECONDARY" },
       ],
     },
@@ -123,7 +124,7 @@ const CardUser = ({
       description: "deleteUserDescription",
       Icon: PersonDelete,
       ButtonAction: [
-        { text: "continue", onClick: handleRemoveUser },
+        { text: "continue", onClick: handleRemoveUser, isLoading },
         { text: "cancel", type: "SECONDARY" },
       ],
     },

@@ -46,19 +46,31 @@ const SelectProjectToUser = ({ userCurrent, CustomCollapse }) => {
     <Stack direction="row" className="chip-container" spacing={1} rowGap={2}>
       {projects.length > 0 ? (
         projects.map((project, i) => {
-          const selectProject = userCurrent.project_list.find(
-            (p) => p.project_name === project.project_name
-          );
-          return selectProject !== undefined ? (
+          const isSelected =
+            userCurrent.project_list.find(
+              (p) => p.project_name === project.project_name
+            ) !== undefined;
+
+          const handleToggleProject = () => {
+            const arg = {
+              phone_number: userCurrent.phone_number,
+              project_name: project.project_name,
+            };
+            dispatch(
+              isSelected ? deleteProjectToUsers(arg) : addProjectToUsers(arg)
+            )
+              .unwrap()
+              .catch(_error);
+          };
+
+          return isSelected ? (
             <Chip
               key={i}
               label={project.project_name}
               deleteIcon={<Done sx={{ color: "#b14a00 !important" }} />}
               disabled={isLoading}
               style={styles.check}
-              onDelete={() =>
-                handleToggleProject(project.project_name, "delete")
-              }
+              onDelete={handleToggleProject}
             />
           ) : (
             <Chip
@@ -66,7 +78,7 @@ const SelectProjectToUser = ({ userCurrent, CustomCollapse }) => {
               label={project.project_name}
               variant="outlined"
               disabled={isLoading}
-              onClick={() => handleToggleProject(project.project_name)}
+              onClick={handleToggleProject}
               style={styles.unCheck}
             />
           );
@@ -78,18 +90,6 @@ const SelectProjectToUser = ({ userCurrent, CustomCollapse }) => {
       )}
     </Stack>
   );
-
-  const handleToggleProject = (project_name, type = "select") => {
-    const arg = {
-      phone_number: userCurrent.phone_number,
-      project_name,
-    };
-    dispatch(
-      type === "select" ? addProjectToUsers(arg) : deleteProjectToUsers(arg)
-    )
-      .unwrap()
-      .catch(_error);
-  };
 
   return (
     <div className="section-container">

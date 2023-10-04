@@ -73,6 +73,7 @@ const Alert = ({
               customStyle={styles.customStyle}
               onClick={() => HandleClickAction(action.onClick)}
               type={action.type ? action.type : "PRIMARY"}
+              isLoading={action.isLoading}
             />
           ))}
         </DialogActions>

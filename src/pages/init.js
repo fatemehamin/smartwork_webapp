@@ -6,11 +6,14 @@ import launchScreenL from "../assets/images/launch_screen_land.jpg";
 
 const Init = () => {
   const navigate = useNavigate();
+
   const { accessToken, type } = useSelector((state) => state.auth);
+
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
   });
+
   const orientation =
     windowSize.width > windowSize.height ? "Landscape" : "Portrait";
 

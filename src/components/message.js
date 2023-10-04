@@ -23,6 +23,7 @@ const Message = ({
 }) => {
   const { I18nManager, language } = useSelector((state) => state.i18n);
   const { type } = useSelector((state) => state.auth);
+  const { isLoading } = useSelector((state) => state.leaveRequest);
 
   const [isAlert, setIsAlert] = useState(false);
   const [alertType, setAlertType] = useState("accept");
@@ -37,7 +38,7 @@ const Message = ({
       title: "acceptRequestUser",
       description: "acceptRequestUserDescription",
       ButtonAction: [
-        { text: "yes", onClick: () => handelStatus("accept") },
+        { text: "yes", onClick: () => handelStatus("accept"), isLoading },
         { text: "no", type: "SECONDARY" },
       ],
     },
@@ -46,7 +47,7 @@ const Message = ({
       title: "rejectRequestUser",
       description: "rejectRequestUserDescription",
       ButtonAction: [
-        { text: "yes", onClick: () => handelStatus("reject") },
+        { text: "yes", onClick: () => handelStatus("reject"), isLoading },
         { text: "no", type: "SECONDARY" },
       ],
     },
@@ -69,7 +70,7 @@ const Message = ({
     return (
       typeRequest === "userRequest" &&
       (type === "boss" ? (
-        <Grid item xs={3} className="msg-action direction">
+        <Grid item xs={3.5} className="msg-action direction">
           {status !== null && (
             <div className={className.actionText}>
               {Translate(status, language)}
@@ -89,7 +90,7 @@ const Message = ({
           )}
         </Grid>
       ) : (
-        <Grid item xs={3} className="msg-action direction">
+        <Grid item xs={3.5} className="msg-action direction">
           {status !== null && (
             <div className={className.actionText}>
               {Translate(status, language)}
@@ -126,7 +127,7 @@ const Message = ({
       <Grid item xs={3} className={className.time}>
         {Time}
       </Grid>
-      <Grid container item xs={9}>
+      <Grid container item xs={8.5}>
         {project.map((p, i) => (
           <div className="msg-project" key={i}>
             {p}

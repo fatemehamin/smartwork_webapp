@@ -33,6 +33,7 @@ const MyTask = () => {
         ];
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     dispatch(fetchIsNewMsg());
     dispatch(fetchIsNewLog());
     dispatch(fetchTasks()).unwrap().catch(_error);

@@ -21,6 +21,7 @@ const MsgModal = ({ modalVisible, setModalVisible, toBoss = false }) => {
   const { language } = useSelector((state) => state.i18n);
   const { users } = useSelector((state) => state.users);
   const { tasks } = useSelector((state) => state.tasks);
+  const { isLoading } = useSelector((state) => state.msg);
   const { userInfo, type } = useSelector((state) => state.auth);
   const { cartableFilter } = useSelector((state) => state.config);
 
@@ -193,7 +194,7 @@ const MsgModal = ({ modalVisible, setModalVisible, toBoss = false }) => {
     title: "sendMessage?",
     Icon: MsgIcon,
     ButtonAction: [
-      { text: "continue", onPress: handelSendMessage },
+      { text: "continue", onClick: handelSendMessage, isLoading },
       { text: "cancel", type: "SECONDARY" },
     ],
   };

@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { ReactComponent as EntryIcon } from "../assets/images/entry.svg";
+import { ReactComponent as EntryIcon } from "../assets/icons/entry.svg";
 import { useSelector, useDispatch } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
 import { Translate } from "../features/i18n/translate";
 import { fetchTasks } from "../features/tasks/action";
 import { fetchLocationSpacialUser } from "../features/locations/action";
 import { setDailyReport, fetchDailyReport } from "../features/reports/action";
+import { setMyTaskActiveTab } from "../features/config/configSlice";
+import EditIcon from "@mui/icons-material/Edit";
 import Task from "../components/task";
 import FloatingButton from "../components/floatingButton";
 import Modal from "../components/modal";
 import Input from "../components/input";
-import Button from "../components/button";
 import Alert from "../components/alert";
 import "./tabTasks.css";
 
-const TabTasks = ({ setActiveFilter }) => {
+const TabTasks = () => {
   const { language } = useSelector((state) => state.i18n);
   const { userInfo } = useSelector((state) => state.auth);
   const { dailyReport, isLoading } = useSelector((state) => state.reports);
@@ -26,6 +27,7 @@ const TabTasks = ({ setActiveFilter }) => {
   const [OpenAlert, setOpenAlert] = useState(false);
   const dispatch = useDispatch();
   const closeModal = () => setModalVisible(false);
+  const OpenModal = () => setModalVisible(true);
 
   useEffect(() => {
     userInfo?.phoneNumber &&
@@ -82,22 +84,35 @@ const TabTasks = ({ setActiveFilter }) => {
         : error.message
     );
 
-  const buttonAction = [
-    {
-      text: Translate("ok", language),
-      onClick: () => setActiveFilter("entryAndExit"),
-    },
-  ];
+  const propsAlert = {
+    open: OpenAlert,
+    setOpen: setOpenAlert,
+    title: "ENTRY",
+    description: "entryFirst",
+    Icon: EntryIcon,
+    ButtonAction: [
+      {
+        text: "ok",
+        onClick: () => dispatch(setMyTaskActiveTab("entryAndExit")),
+      },
+    ],
+  };
+
+  const propsModal = {
+    modalVisible,
+    setModalVisible,
+    label: "todayReport",
+    buttonActions: [
+      { text: "ok", action: handleDailyReport, isLoading },
+      { text: "cancel", action: handleCancelDailyReport },
+    ],
+  };
 
   return (
     <>
       <div className="my-task">{getTasks()}</div>
-      <FloatingButton
-        type="DailyReport"
-        setModalVisibleProject={setModalVisible}
-      />
-      <Modal modalVisible={modalVisible} setModalVisible={setModalVisible}>
-        <h2 className="labelModal">{Translate("todayReport", language)}</h2>
+      <FloatingButton Icon={EditIcon} onClick={OpenModal} />
+      <Modal {...propsModal}>
         <Input
           value={dailyReportToday}
           setValue={setDailyReportToday}
@@ -105,29 +120,8 @@ const TabTasks = ({ setActiveFilter }) => {
           autoFocus
           multiline
         />
-        <div className="container_btn_row direction">
-          <Button
-            label={Translate("ok", language)}
-            customStyle={{ width: "40%" }}
-            isLoading={isLoading}
-            onClick={handleDailyReport}
-          />
-          <Button
-            label={Translate("cancel", language)}
-            customStyle={{ width: "40%" }}
-            onClick={handleCancelDailyReport}
-            type="SECONDARY"
-          />
-        </div>
       </Modal>
-      <Alert
-        open={OpenAlert}
-        setOpen={setOpenAlert}
-        title={Translate("ENTRY", language)}
-        description={Translate("entryFirst", language)}
-        Icon={EntryIcon}
-        ButtonAction={buttonAction}
-      />
+      <Alert {...propsAlert} />
     </>
   );
 };
