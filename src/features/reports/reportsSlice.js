@@ -24,6 +24,7 @@ const reportsSlice = createSlice({
     emptyReport: (state) => {
       state.detailedReport = [];
       state.summeryReport = null;
+      state.excelReport = null;
     },
   },
   extraReducers: (builder) => {

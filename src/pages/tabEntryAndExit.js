@@ -12,7 +12,7 @@ import { Login, Logout } from "@mui/icons-material";
 import { Translate } from "../features/i18n/translate";
 import { endTime, entry, exit } from "../features/tasks/action";
 import { fetchLocationSpacialUser } from "../features/locations/action";
-import { setIsLoading } from "../features/tasks/tasksSlice";
+import { setIsAutoExit, setIsLoading } from "../features/tasks/tasksSlice";
 import { setMyTaskActiveTab } from "../features/config/configSlice";
 import "./tabEntryAndExit.css";
 
@@ -27,9 +27,8 @@ const TabEntryAndExit = () => {
   const locations = useSelector((state) => state.locations.locationSpacialUser);
   const { language } = useSelector((state) => state.i18n);
   const { userInfo } = useSelector((state) => state.auth);
-  const { currentTask, lastEntry, isLoading } = useSelector(
-    (state) => state.tasks
-  );
+  const { currentTask, lastEntry, isLoading, permissionAutoExit, isAutoExit } =
+    useSelector((state) => state.tasks);
 
   const [openSnackbar] = useSnackbar();
   const dispatch = useDispatch();
@@ -42,11 +41,37 @@ const TabEntryAndExit = () => {
         .catch(_error);
   }, [lastEntry, userInfo?.phoneNumber]);
 
+  useEffect(() => {
+    permissionAutoExit &&
+      locations.length > 0 &&
+      isEntry &&
+      navigator.geolocation.watchPosition(watchPosition, onError);
+  }, [isAutoExit, permissionAutoExit, isEntry, locations]);
+
   const FullWidth = () =>
     api.start({ from: { width: "44px" }, to: { width: "200px" } });
 
   const emptyWidth = () =>
     api.start({ from: { width: "200px" }, to: { width: "44px" } });
+
+  const watchPosition = (position) => {
+    const matchingLocations = locations.filter((location) =>
+      checkLocation(
+        {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        },
+        location,
+        location.radius
+      )
+    );
+    if (matchingLocations.length === 0) {
+      dispatch(setIsAutoExit(true));
+      exitEntryHandler();
+    } else {
+      dispatch(setIsAutoExit(false));
+    }
+  };
 
   const _error = (error) => {
     openSnackbar(
@@ -72,18 +97,17 @@ const TabEntryAndExit = () => {
   };
 
   const onSuccess = (position) => {
-    if (
-      locations.filter((location) =>
-        checkLocation(
-          {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          },
-          location,
-          location.radius
-        )
-      ).length > 0
-    ) {
+    const matchingLocations = locations.filter((location) =>
+      checkLocation(
+        {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        },
+        location,
+        location.radius
+      )
+    );
+    if (matchingLocations.length > 0) {
       exitEntryHandler();
     } else {
       emptyWidth();

@@ -17,6 +17,8 @@ const initialState = {
   isLoading: false,
   error: null,
   lastEntry: 0,
+  permissionAutoExit: false,
+  isAutoExit: false,
 };
 
 const tasksSlice = createSlice({
@@ -26,6 +28,9 @@ const tasksSlice = createSlice({
     setIsLoading: (state, action) => {
       state.isLoading = action.payload;
     },
+    setIsAutoExit: (state, action) => {
+      state.isAutoExit = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchTasks.pending, (state) => {
@@ -34,7 +39,7 @@ const tasksSlice = createSlice({
     builder.addCase(fetchTasks.fulfilled, (state, action) => {
       state.isLoading = false;
       state.currentTask = { name: "", start: 0 };
-      state.tasks = action.payload.filter((project) => {
+      state.tasks = action.payload.tasks.filter((project) => {
         if (project.project_name !== "entry" && project.start_time) {
           state.currentTask = {
             name: project.project_name,
@@ -45,9 +50,12 @@ const tasksSlice = createSlice({
         }
         return project.project_name !== "entry";
       });
-      state.lastEntry = action.payload.find(
+
+      state.lastEntry = action.payload.tasks.find(
         (project) => project.project_name === "entry"
       ).start_time;
+
+      state.permissionAutoExit = action.payload.permissionAutoExit;
     });
     builder.addCase(fetchTasks.rejected, (state) => {
       state.isLoading = false;
@@ -100,7 +108,7 @@ const tasksSlice = createSlice({
         t.project_name === action.payload.name
           ? {
               ...t,
-              duration: t.duration + parseInt(action.payload.last_duration),
+              today_duration: t.today_duration + action.payload.last_duration,
             }
           : t
       );
@@ -130,5 +138,5 @@ const tasksSlice = createSlice({
     });
   },
 });
-export const { setIsLoading } = tasksSlice.actions;
+export const { setIsLoading, setIsAutoExit } = tasksSlice.actions;
 export default tasksSlice.reducer;

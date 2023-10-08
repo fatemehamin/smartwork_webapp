@@ -1,7 +1,7 @@
 {
   "name": "smartwork_webapp",
-  "homepage": "https://smartworkapp.ir",
-  "version": "0.1.0",
+  "homepage": "https://web.smartworkapp.ir",
+  "version": "0.2.1",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.5",

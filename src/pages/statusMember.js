@@ -65,7 +65,7 @@ const StatusMember = () => {
         <PermissionSwitch
           userCurrent={userCurrent}
           typePermission="autoExit"
-          initCheck={userCurrent.isAutoExit}
+          initCheck={userCurrent.permissionAutoExit}
           label="autoExit"
           description="autoExitDescription"
         />

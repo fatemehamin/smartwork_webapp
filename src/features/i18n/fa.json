@@ -83,7 +83,7 @@
   "addLocationToUser": "افزودن موقعت مکانی به کاربر",
   "project": "پروژه",
   "addProjectToUser": "افزودن پروژه به کاربر",
-  "defineNewProjects": ".لطفا یک پروژه جدید تعریف کنید",
+  "defineNewProjects": "لطفا یک پروژه جدید تعریف کنید.",
   "addUser": "افزودن کاربر",
   "userProfile": "مشخصات کاربر",
   "locationDenide": "موقعیت مکانی رد شده",
@@ -157,5 +157,16 @@
   "language": "زبان",
   "languageDescription": "زبان خود را انتخاب کنید.",
   "autoExit": "خروج اتوماتیک",
-  "autoExitDescription": "در صورت خروج کاربر از محدوده مکانی به صورت خودکار خروج ثبت می شود."
+  "autoExitDescription": "در صورت خروج کاربر از محدوده مکانی به صورت خودکار خروج ثبت می شود.",
+  "permissionRequired": "درخواست مجوز",
+  "permissionRequiredDescription": "لطفاً در تنظیمات برنامه اجازه دسترسی به موقعیت مکانی پس‌زمینه را بدهید.",
+  "settings": "تنظیمات",
+  "projectList": "لیست پروژه",
+  "editProjectName": "ویرایش نام پروژه",
+  "deleteProject": "حذف پروژه",
+  "deleteProjectDiscretion": "آیا مطمئن هستید که می خواهید این پروژه را حذف نمایید؟",
+  "newProjectName": "نام پروژه جدید",
+  "todayHoursAverage": "میانگین ساعت امروز",
+  "averageHourOfTheLastMonth": "میانگین ساعت یک ماه اخیر",
+  "noUserWorkingProject": "کاربری بر روی این پروژه کار نمی کند."
 }

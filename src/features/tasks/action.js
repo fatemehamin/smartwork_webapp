@@ -3,7 +3,10 @@ import axiosAPI from "../../services/API";
 
 export const fetchTasks = createAsyncThunk("tasks/fetchTasks", async () => {
   const res = await axiosAPI.get("/project_state/");
-  return res.data["active projects"];
+  return {
+    tasks: res.data["active projects"],
+    permissionAutoExit: res.data.permissionAutoExit,
+  };
 });
 
 export const entry = createAsyncThunk("tasks/entry", async () => {

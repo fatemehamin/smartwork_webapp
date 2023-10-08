@@ -142,8 +142,10 @@ const MyReport = () => {
 
   const onSwitchTab = (activeTab) => dispatch(setMyReportActiveTab(activeTab));
 
+  const onBlur = () => dispatch(emptyReport());
+
   return (
-    <>
+    <div onBlur={onBlur}>
       <AppBar label="myReport" />
       <div className="MR_container">
         <Calendar
@@ -171,7 +173,7 @@ const MyReport = () => {
           </>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

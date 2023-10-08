@@ -46,18 +46,6 @@ const projectsSlice = createSlice({
       state.projects = state.projects.filter(
         (p) => p.project_name !== action.payload
       );
-
-      //       const newEmployees = preState.employees.map((employee) => {
-      //         return {
-      //           ...employee,
-      //           project_list: employee.project_list.filter(
-      //             (pro) => pro.project_name != action.payload
-      //           ),
-      //         };
-      //       });
-      //       return {
-      //         ...preState,
-      //         employees: newEmployees,
     });
     builder.addCase(deleteProject.rejected, (state) => {
       state.isLoading = false;
@@ -72,20 +60,6 @@ const projectsSlice = createSlice({
           ? { ...p, project_name: action.payload.newProjectName }
           : p
       );
-
-      //       const newEmployees = preState.employees.map((employee) => ({
-      //         ...employee,
-      //         project_list: employee.project_list.map((pro) =>
-      //           pro.project_name == action.payload.oldProjectName
-      //             ? { ...pro, project_name: action.payload.newProjectName }
-      //             : pro
-      //         ),
-      //       }));
-      //       return {
-      //         ...preState,
-      //         employees: newEmployees,
-      //       };
-      //     }
     });
     builder.addCase(editProject.rejected, (state) => {
       state.isLoading = false;

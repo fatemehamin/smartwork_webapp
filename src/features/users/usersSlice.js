@@ -108,7 +108,7 @@ const usersSlice = createSlice({
         user.phone_number === phoneNumber
           ? typePermission === "accessExcel"
             ? { ...user, financial_group: isToggle }
-            : { ...user, isAutoExit: isToggle }
+            : { ...user, permissionAutoExit: isToggle }
           : user
       );
     });

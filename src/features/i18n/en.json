@@ -157,5 +157,16 @@
   "language": "Language",
   "languageDescription": "Choose your language.",
   "autoExit": "Auto Exit",
-  "autoExitDescription": "When the user exits the location, they are automatically logged out."
+  "autoExitDescription": "When the user exits the location, they are automatically logged out.",
+  "permissionRequired": "Permission Required",
+  "permissionRequiredDescription": "Please allow background location access in the app settings.",
+  "settings": "Settings",
+  "projectList": "Project List",
+  "editProjectName": "Edit project name",
+  "deleteProject": "Delete project",
+  "deleteProjectDiscretion": "Are you sure you want to delete this project?",
+  "newProjectName": "New project name",
+  "todayHoursAverage": "today hours average",
+  "averageHourOfTheLastMonth": "The average hour of the last month",
+  "noUserWorkingProject": "There is no user working on this project."
 }

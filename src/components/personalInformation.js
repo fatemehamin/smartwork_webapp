@@ -5,10 +5,10 @@ import { Translate } from "../features/i18n/translate";
 import { PersonOutlineOutlined, EmailOutlined } from "@mui/icons-material";
 import { phoneNumberCheck } from "../features/auth/action";
 import { editUsers } from "../features/users/action";
+import { updateUser } from "../features/auth/authSlice";
 import Input from "../components/input";
 import Button from "../components/button";
 import msgError from "../utils/msgError";
-import { updateUser } from "../features/auth/authSlice";
 
 const PersonalInformation = ({ userCurrent }) => {
   const [errorPhone, setErrorPhone] = useState(null);
@@ -21,15 +21,26 @@ const PersonalInformation = ({ userCurrent }) => {
   const [callingCode, setCallingCode] = useState(
     userCurrent.calling_code.slice(2)
   );
+
   const [openSnackbar] = useSnackbar();
+
   const { language } = useSelector((state) => state.i18n);
   const { isLoading } = useSelector((state) => state.users);
   const { error, userInfo } = useSelector((state) => state.auth);
-  const disableEdit = errorPhone || (email && msgError.email(email));
+
   const lastNameInputRef = useRef(null);
   const emailInputRef = useRef(null);
   const phoneInputRef = useRef(null);
+
   const dispatch = useDispatch();
+
+  const disableEdit = !(
+    firstName.trim() &&
+    lastName.trim() &&
+    phoneNumber.trim() &&
+    errorPhone === null &&
+    (!email || !msgError.email(email))
+  );
 
   useEffect(() => {
     // check phoneNumber realtime
@@ -47,12 +58,11 @@ const PersonalInformation = ({ userCurrent }) => {
         lastName !== userCurrent.last_name ||
         email !== userCurrent.email ||
         phoneNumber !== userCurrent.phone_number ||
-        country + callingCode !== userCurrent.calling_code ||
-        errorPhone !== null
+        country + callingCode !== userCurrent.calling_code
     );
   }, [firstName, lastName, email, phoneNumber, callingCode, error]);
 
-  const handelClickEditInfo = () => {
+  const handelEditInfo = () => {
     const args = {
       first_name: firstName,
       last_name: lastName,
@@ -90,7 +100,7 @@ const PersonalInformation = ({ userCurrent }) => {
     dispatch(editUsers(args)).unwrap().then(_then).catch(_error);
   };
 
-  const handelClickCancel = () => {
+  const handelCancel = () => {
     setIsEdit(false);
     setFirstName(userCurrent.first_name);
     setLastName(userCurrent.last_name);
@@ -121,7 +131,7 @@ const PersonalInformation = ({ userCurrent }) => {
 
   const onKeyDownPhone = (e) => {
     if (e.keyCode === 13 && isEdit && !disableEdit) {
-      handelClickEditInfo();
+      handelEditInfo();
     }
   };
 
@@ -168,6 +178,7 @@ const PersonalInformation = ({ userCurrent }) => {
         setCallingCode={setCallingCode}
         ref={phoneInputRef}
         onKeyDown={onKeyDownPhone}
+        disabled
         msgError={
           errorPhone === "phoneNumberExists"
             ? Translate("phoneNumberExists", language)
@@ -180,14 +191,14 @@ const PersonalInformation = ({ userCurrent }) => {
             label={Translate("ok", language)}
             customStyle={{ width: "40%" }}
             isLoading={isLoading}
-            onClick={handelClickEditInfo}
+            onClick={handelEditInfo}
             disabled={disableEdit}
           />
           <Button
             label={Translate("cancel", language)}
             customStyle={{ width: "40%" }}
             type="SECONDARY"
-            onClick={handelClickCancel}
+            onClick={handelCancel}
           />
         </div>
       )}
