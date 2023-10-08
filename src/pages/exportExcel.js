@@ -45,7 +45,8 @@ const ExportExcel = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    getEmployee();
+    dispatch(fetchUsers());
+    dispatch(fetchProject());
   }, []);
 
   const pad = (n) => (n < 10 ? "0" + n : n);
@@ -55,7 +56,6 @@ const ExportExcel = () => {
   )}_${nowTime}`;
 
   const getEmployee = () => {
-    dispatch(fetchUsers());
     let number = [];
     let name = [];
     let data = [];
@@ -66,7 +66,6 @@ const ExportExcel = () => {
     });
     setEmployees(() => ({ number, name, data }));
     setIndexEmployeeCurrent(indexEmployeeCurrent);
-    dispatch(fetchProject());
   };
 
   const exportFile = (filename) => {
@@ -130,8 +129,11 @@ const ExportExcel = () => {
       });
   };
 
-  const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
+  const openModal = () => {
+    setModalVisible(true);
+    getEmployee();
+  };
 
   const toggleCollapse = () => setIsCollapse(!isCollapse);
   const closeCollapse = () => setIsCollapse(false);
