@@ -18,6 +18,7 @@ import "./myReport.css";
 const MyReport = () => {
   const [jYear, setJYear] = useState(jMoment(new Date()).jYear());
   const [jMonth, setJMonth] = useState(jMoment(new Date()).jMonth());
+  const [isBlur, setIsBlur] = useState(true);
 
   const { language } = useSelector((state) => state.i18n);
   const { userInfo } = useSelector((state) => state.auth);
@@ -30,6 +31,9 @@ const MyReport = () => {
   const dispatch = useDispatch();
 
   const pad = (n) => (n < 10 ? "0" + n : n);
+
+  const focus = () => setIsBlur(false);
+  const blur = () => setIsBlur(true);
 
   const handleResultReport = () => {
     const changeToDate = (jYear, jMonth, day) => {
@@ -97,7 +101,7 @@ const MyReport = () => {
       };
 
       return (
-        <div key={index} className="MR_report">
+        <div key={index} className="MR_report" onBlur={blur} onFocus={focus}>
           <p className="MR_title text-align">{date}</p>
           {report[date].reportDay.length > 0 &&
             report[date].reportDay.map(reportDay)}
@@ -142,7 +146,7 @@ const MyReport = () => {
 
   const onSwitchTab = (activeTab) => dispatch(setMyReportActiveTab(activeTab));
 
-  const onBlur = () => dispatch(emptyReport());
+  const onBlur = () => isBlur && dispatch(emptyReport());
 
   return (
     <div onBlur={onBlur}>

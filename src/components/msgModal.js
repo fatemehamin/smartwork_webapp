@@ -7,6 +7,7 @@ import { ReactComponent as MsgIcon } from "../assets/icons/msg-send.svg";
 import { sendMsg } from "../features/msg/action";
 import { fetchProject } from "../features/projects/action";
 import { setCartableFilter } from "../features/config/configSlice";
+import { sendNotification } from "../features/notification/action";
 import Input from "./input";
 import Alert from "./alert";
 import Modal from "./modal";
@@ -85,7 +86,18 @@ const MsgModal = ({ modalVisible, setModalVisible, toBoss = false }) => {
       project,
     };
 
-    dispatch(sendMsg(args)).unwrap().catch(_error);
+    const _then = (res) =>
+      dispatch(
+        sendNotification({
+          to: toBoss ? "toBoss" : user.phoneNumber,
+          msg: explain,
+          project,
+          typeNotification: "MSG",
+          id_data: res.id,
+        })
+      );
+
+    dispatch(sendMsg(args)).unwrap().then(_then).catch(_error);
     cartableFilter !== user.phoneNumber && dispatch(setCartableFilter("all"));
   };
 

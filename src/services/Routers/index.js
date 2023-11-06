@@ -1,6 +1,4 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
 import Init from "../../pages/init";
 import Login from "../../pages/login";
 import Signup from "../../pages/signup";
@@ -14,15 +12,26 @@ import Location from "../../pages/location";
 import ExportExcel from "../../pages/exportExcel";
 import StatusMember from "../../pages/statusMember";
 import PrivacyPolicy from "../../pages/privacyPolicy";
+import { remoteNotification } from "../../utils/notification";
+import { useDispatch, useSelector } from "react-redux";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 const Routers = () => {
   // fix direction for change i18n
   const { isRTL } = useSelector((state) => state.i18n.I18nManager);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    remoteNotification(dispatch);
+  }, []);
+
   document.documentElement.style.setProperty("--dir", isRTL ? "rtl" : "ltr");
   document.documentElement.style.setProperty(
     "--align",
     isRTL ? "right" : "left"
   );
+
   return (
     <Router>
       <Routes>

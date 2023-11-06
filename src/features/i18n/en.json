@@ -168,5 +168,7 @@
   "newProjectName": "New project name",
   "todayHoursAverage": "today hours average",
   "averageHourOfTheLastMonth": "The average hour of the last month",
-  "noUserWorkingProject": "There is no user working on this project."
+  "noUserWorkingProject": "There is no user working on this project.",
+  "RequestAccepted": "Your request accepted.",
+  "RequestRejected": "Your request rejected."
 }

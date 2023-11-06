@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { endTime, startTime } from "../features/tasks/action";
 import { useSnackbar } from "react-simple-snackbar";
 import { animated, useSpring } from "@react-spring/web";
-import moment from "moment";
 import { Translate } from "../features/i18n/translate";
+import moment from "moment";
 import "./task.css";
 
 const Task = ({
@@ -74,6 +74,10 @@ const Task = ({
       emptyWidth();
       setIsEnd(false);
     }
+    // when admin stop task
+    !isEnable &&
+      animation.backgroundPositionX.animation.to === "300px" &&
+      emptyWidth();
 
     if (isEnable) {
       const id = setInterval(() => {
@@ -84,6 +88,10 @@ const Task = ({
       return () => clearInterval(id);
     }
   }, [currentTask, isEnable]);
+
+  useEffect(() => {
+    setDuration(initialDuration);
+  }, [initialDuration]);
 
   const Timer = ({ time }) => {
     let duration = moment.duration(time);

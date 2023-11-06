@@ -24,6 +24,10 @@ import { Translate } from "../features/i18n/translate";
 import { changeStatusMsg, deleteMsg, fetchMsg } from "../features/msg/action";
 import { fetchTasksLog } from "../features/tasks/action";
 import { fetchUsers } from "../features/users/action";
+import { sendNotification } from "../features/notification/action";
+import { UpdateIsNewMsg } from "../features/msg/msgSlice";
+import { updateIsNewLog } from "../features/tasks/tasksSlice";
+import { UpdateIsNewLeave } from "../features/leaveRequests/leaveRequestSlice";
 import "./tabCartable.css";
 import {
   addLeaveRequests,
@@ -47,13 +51,13 @@ const TabCartable = () => {
   const [endTime, setEndTime] = useState(dayjs(new Date()));
   const [openAuto, setOpenAuto] = useState(false);
 
-  const { taskLogList } = useSelector((state) => state.tasks);
-  const { msg, isLoading: msgLoading } = useSelector((state) => state.msg);
+  const { taskLogList, isNewLog } = useSelector((state) => state.tasks);
   const { type } = useSelector((state) => state.auth);
   const { users } = useSelector((state) => state.users);
   const { phoneNumber } = useSelector((state) => state.auth.userInfo);
   const { I18nManager, language } = useSelector((state) => state.i18n);
-  const { leaveRequests, isLoading } = useSelector(
+  const { msg, isNewMsg } = useSelector((state) => state.msg);
+  const { leaveRequests, isLoading, isNewLeave } = useSelector(
     (state) => state.leaveRequest
   );
   const { managerActiveTab, cartableFilter, myTaskActiveTab } = useSelector(
@@ -65,7 +69,18 @@ const TabCartable = () => {
 
   useEffect(() => {
     window.scrollTo(0, document.body.scrollHeight);
-  }, [openAuto, isLoading, msgLoading, managerActiveTab, myTaskActiveTab]);
+    dispatch(UpdateIsNewMsg(false));
+    dispatch(updateIsNewLog(false));
+    dispatch(UpdateIsNewLeave(false));
+  }, [
+    openAuto,
+    isLoading,
+    managerActiveTab,
+    myTaskActiveTab,
+    isNewMsg,
+    isNewLog,
+    isNewLeave,
+  ]);
 
   useEffect(() => {
     dispatch(fetchLeaveRequests());
@@ -224,10 +239,27 @@ const TabCartable = () => {
           const getName = () => {
             return user ? `${user.first_name} ${user.last_name}` : undefined;
           };
+
           const handelStatus = (status) => {
             type === "boss"
               ? dispatch(changeStatusLeave({ id: req.id, status }))
                   .unwrap()
+                  .then((res) => {
+                    dispatch(
+                      sendNotification({
+                        msg: Translate(
+                          status === "accept"
+                            ? "RequestAccepted"
+                            : "RequestRejected",
+                          language
+                        ),
+                        typeNotification: "REQUEST_ANSWER",
+                        to: req.phone_number,
+                        id_data: res.id,
+                        request: "leave",
+                      })
+                    );
+                  })
                   .catch(_error)
               : dispatch(deleteLeave(req.id)).unwrap().catch(_error);
           };
@@ -294,6 +326,22 @@ const TabCartable = () => {
             type === "boss"
               ? dispatch(changeStatusMsg({ id: req.id, status }))
                   .unwrap()
+                  .then((res) => {
+                    dispatch(
+                      sendNotification({
+                        msg: Translate(
+                          status === "accept"
+                            ? "RequestAccepted"
+                            : "RequestRejected",
+                          language
+                        ),
+                        typeNotification: "REQUEST_ANSWER",
+                        to: req.from,
+                        id_data: res.id,
+                        request: "msg",
+                      })
+                    );
+                  })
                   .catch(_error)
               : dispatch(deleteMsg(req.id)).unwrap().catch(_error);
           };
@@ -411,10 +459,18 @@ const TabCartable = () => {
       );
     };
 
-    dispatch(addLeaveRequests(args))
-      .unwrap()
-      .then(closeModalLeaveRequest)
-      .catch(_error);
+    const _then = (res) => {
+      closeModalLeaveRequest();
+      dispatch(
+        sendNotification({
+          msg: Translate("leaveRequest", language),
+          typeNotification: "LEAVE_REQUEST",
+          id_data: res.id,
+        })
+      );
+    };
+
+    dispatch(addLeaveRequests(args)).unwrap().then(_then).catch(_error);
   };
 
   const className = {

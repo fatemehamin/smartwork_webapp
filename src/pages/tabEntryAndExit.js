@@ -175,6 +175,7 @@ const TabEntryAndExit = () => {
         }
       }, 900);
     },
+    trackMouse: true,
   });
 
   const ExitEntryBtn = () => (

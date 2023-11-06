@@ -9,6 +9,7 @@ import { animated, useSpring } from "@react-spring/web";
 import { deleteUsers } from "../features/users/action";
 import { endTime, exit } from "../features/tasks/action";
 import { updateNowActiveProject } from "../features/users/usersSlice";
+import { sendNotification } from "../features/notification/action";
 import Alert from "./alert";
 import "./cardUser.css";
 import {
@@ -76,10 +77,28 @@ const CardUser = ({
     };
 
     const _then = (res) => {
+      const msg =
+        nowActiveProject === "entry"
+          ? `${Translate("exitByAdmin", language)}`
+          : `${Translate("task", language)} ${nowActiveProject} ${Translate(
+              "stoppedByAdmin",
+              language
+            )}`;
+
       dispatch(
         updateNowActiveProject({
           phoneNumber,
           nowActiveProject: nowActiveProject !== "entry" ? "entry" : "nothing",
+        })
+      );
+
+      dispatch(
+        sendNotification({
+          to: phoneNumber,
+          msg,
+          typeNotification: "STOP_TASK",
+          id_data: res.id,
+          lastDurationTask: res.last_duration,
         })
       );
     };
@@ -180,7 +199,8 @@ const CardUser = ({
 
   const className = {
     nowActiveProject: `card-user-text${isNothing ? "" : "-active"}`,
-    moreTask: "card-user-option display-flex-center direction",
+    moreTask:
+      "card-user-option card-user-pointer display-flex-center direction",
     stopTaskText: `card-user-icon-text ${
       isNothing ? "card-user-icon-text-disable" : ""
     }`,

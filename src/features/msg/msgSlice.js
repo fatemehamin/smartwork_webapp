@@ -3,8 +3,8 @@ import {
   changeStatusMsg,
   deleteMsg,
   fetchMsg,
-  fetchIsNewMsg,
   sendMsg,
+  fetchNewMsg,
 } from "./action";
 
 const initialState = {
@@ -17,6 +17,11 @@ const initialState = {
 const msgSlice = createSlice({
   name: "msg",
   initialState,
+  reducers: {
+    UpdateIsNewMsg: (state, action) => {
+      state.isNewMsg = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchMsg.pending, (state) => {
       state.isLoading = true;
@@ -59,17 +64,18 @@ const msgSlice = createSlice({
     builder.addCase(changeStatusMsg.rejected, (state) => {
       state.isLoading = false;
     });
-    builder.addCase(fetchIsNewMsg.pending, (state) => {
-      state.isLoading = true;
-    });
-    builder.addCase(fetchIsNewMsg.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.isNewMsg = action.payload;
-    });
-    builder.addCase(fetchIsNewMsg.rejected, (state) => {
-      state.isLoading = false;
+    builder.addCase(fetchNewMsg.fulfilled, (state, action) => {
+      const { msg, type } = action.payload;
+      if (type === "REQUEST_ANSWER") {
+        state.msg = state.msg.map((m) => (m.id === msg.id ? msg : m));
+        state.isNewMsg = true;
+      } else {
+        state.msg.push(msg);
+        state.isNewMsg = !msg.seen;
+      }
     });
   },
 });
 
+export const { UpdateIsNewMsg } = msgSlice.actions;
 export default msgSlice.reducer;

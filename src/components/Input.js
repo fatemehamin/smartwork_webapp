@@ -19,6 +19,7 @@ const CustomInput = forwardRef(
       Icon,
       IconEnd,
       customStyle,
+      styleContainer,
       ...props
     },
     ref
@@ -79,7 +80,7 @@ const CustomInput = forwardRef(
     );
 
     return (
-      <div className={className.container}>
+      <div className={className.container} style={styleContainer}>
         {label && <p className="input-label text-align direction">{label}</p>}
         {callingCode ? (
           <MuiPhoneNumber

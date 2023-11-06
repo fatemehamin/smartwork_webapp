@@ -48,7 +48,7 @@ const ForgotPassword = () => {
   return (
     <>
       <AppBar label="forgotPassword" type="back" />
-      <p className="forgot_pass_text direction text-align">
+      <p className="forgot_pass_text direction text-center">
         {Translate("enterYourPhoneNumber", language)}
       </p>
       <Input

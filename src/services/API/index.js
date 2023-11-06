@@ -2,9 +2,9 @@ import axios from "axios";
 import { getAccessToken, logout } from "../../features/auth/authSlice";
 import jwtDecode from "jwt-decode";
 
-// const baseURL = "https://smartbyhub.com/smart_time/api";
+const baseURL = "https://smartbyhub.com/smart_time/api";
 // const baseURL = "http://127.0.0.1:8000/api";
-const baseURL = "https://smartwork.backend.smartbyhub.com/api";
+// const baseURL = "https://smartwork.backend.smartbyhub.com/api";
 
 const axiosAPI = axios.create({ baseURL });
 let store;

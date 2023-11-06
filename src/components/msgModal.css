@@ -17,6 +17,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  cursor: pointer;
 }
 .msg-modal-project-all {
   color: #fff;
@@ -29,6 +30,7 @@
   align-items: center;
   justify-content: space-between;
   color: #f6931e;
+  cursor: pointer;
 }
 .msg-modal-btn-collapse-title {
   font-weight: 500;

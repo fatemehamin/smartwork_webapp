@@ -39,6 +39,9 @@
   margin-top: 7px;
   margin-bottom: 5px;
 }
+.card-user-pointer {
+  cursor: pointer;
+}
 .card-user-option-container {
   width: 100%;
   display: flex;

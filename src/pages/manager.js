@@ -1,12 +1,10 @@
-import React, { useEffect } from "react";
+import React from "react";
 import AppBar from "../components/appBar";
 import Tabs from "../components/tabs";
 import TabUsers from "./tabUsers";
 import TabCartable from "./tabCartable";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchIsNewMsg } from "../features/msg/action";
 import { setManagerActiveTab } from "../features/config/configSlice";
-import { fetchIsNewLeave } from "../features/leaveRequests/action";
 
 const Manager = () => {
   const { managerActiveTab } = useSelector((state) => state.config);
@@ -16,11 +14,6 @@ const Manager = () => {
   const dispatch = useDispatch();
 
   const onSwitchTab = (activeTab) => dispatch(setManagerActiveTab(activeTab));
-
-  useEffect(() => {
-    dispatch(fetchIsNewMsg());
-    dispatch(fetchIsNewLeave());
-  }, [managerActiveTab]);
 
   return (
     <>

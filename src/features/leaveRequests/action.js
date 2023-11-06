@@ -57,10 +57,10 @@ export const changeStatusLeave = createAsyncThunk(
   }
 );
 
-export const fetchIsNewLeave = createAsyncThunk(
-  "leaveRequest/fetchIsNewLeave",
-  async () => {
-    const res = await axiosAPI.get("/is_new_leave/");
-    return res.data.isNewLeave;
+export const fetchNewLeaveRequests = createAsyncThunk(
+  "leaveRequest/fetchNewLeaveRequests",
+  async ({ id, type }) => {
+    const res = await axiosAPI.get(`/leave/${id}/`);
+    return { leaveList: res.data.leave_list, type };
   }
 );

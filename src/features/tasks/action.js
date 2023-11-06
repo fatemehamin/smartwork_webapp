@@ -17,8 +17,10 @@ export const entry = createAsyncThunk("tasks/entry", async () => {
 export const exit = createAsyncThunk(
   "tasks/exit",
   async ({ phoneNumber, isExitWithBoss }) => {
-    await axiosAPI.patch("/entry_exit/2525/", { user_phone: phoneNumber });
-    return isExitWithBoss;
+    const res = await axiosAPI.patch("/entry_exit/2525/", {
+      user_phone: phoneNumber,
+    });
+    return { isExitWithBoss, id: res.data.id };
   }
 );
 
@@ -37,7 +39,7 @@ export const endTime = createAsyncThunk(
       project_name: name,
       user_phone: phoneNumber,
     });
-    return { name, last_duration: res.data.last_duration };
+    return { name, last_duration: res.data.last_duration, id: res.data.id };
   }
 );
 
@@ -49,10 +51,10 @@ export const fetchTasksLog = createAsyncThunk(
   }
 );
 
-export const fetchIsNewLog = createAsyncThunk(
-  "tasks/fetchIsNewLog",
-  async () => {
-    const res = await axiosAPI.get("/is_new_log/");
-    return res.data.isNewTaskLog;
+export const fetchNewTasksLog = createAsyncThunk(
+  "tasks/fetchNewTasksLog",
+  async ({ id, last_duration_task }) => {
+    const res = await axiosAPI.get(`/task_log/${id}/`);
+    return { log: res.data.task_log_list, last_duration_task };
   }
 );

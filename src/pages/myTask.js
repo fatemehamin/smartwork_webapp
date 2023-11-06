@@ -1,18 +1,18 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchIsNewMsg } from "../features/msg/action";
-import { fetchIsNewLog, fetchTasks } from "../features/tasks/action";
+import { fetchTasks } from "../features/tasks/action";
 import { setMyTaskActiveTab } from "../features/config/configSlice";
+import { Translate } from "../features/i18n/translate";
 import { useSnackbar } from "react-simple-snackbar";
 import AppBar from "../components/appBar";
 import Tabs from "../components/tabs";
 import TabEntryAndExit from "./tabEntryAndExit";
 import TabTasks from "./tabTasks";
 import TabCartable from "./tabCartable";
-import { Translate } from "../features/i18n/translate";
 
 const MyTask = () => {
   const { isNewMsg } = useSelector((state) => state.msg);
+  const { isNewLeave } = useSelector((state) => state.leaveRequest);
   const { type } = useSelector((state) => state.auth);
   const { isNewLog } = useSelector((state) => state.tasks);
   const { myTaskActiveTab } = useSelector((state) => state.config);
@@ -29,13 +29,11 @@ const MyTask = () => {
       : [
           { title: "entryAndExit" },
           { title: "tasks" },
-          { title: "cartable", isBadge: isNewMsg || isNewLog },
+          { title: "cartable", isBadge: isNewMsg || isNewLog || isNewLeave },
         ];
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    dispatch(fetchIsNewMsg());
-    dispatch(fetchIsNewLog());
     dispatch(fetchTasks()).unwrap().catch(_error);
   }, [myTaskActiveTab]);
 

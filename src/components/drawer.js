@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
 import { checkType } from "../features/auth/action";
 import { ReactComponent as LogoutIcon } from "../assets/icons/logout.svg";
+import { deleteFcmToken } from "../features/notification/action";
 import "./drawer.css";
 import {
   Box,
@@ -40,6 +41,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
   const dispatch = useDispatch();
 
   const position = useSelector((state) => state.auth.type);
+  const { id } = useSelector((state) => state.notification);
 
   const [openAlert, setOpenAlert] = useState(false);
   const [alertType, setAlertType] = useState("language");
@@ -59,6 +61,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
   }, []);
 
   const handleLogout = () => {
+    dispatch(deleteFcmToken(id));
     dispatch(logout());
     navigate("/login");
   };

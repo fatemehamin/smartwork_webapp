@@ -28,6 +28,7 @@
   padding: 10px;
   display: flex;
   border-radius: 5px;
+  cursor: pointer;
 }
 .location-bar-selected {
   background-color: #f6921e;

@@ -3,7 +3,7 @@ import {
   endTime,
   entry,
   exit,
-  fetchIsNewLog,
+  fetchNewTasksLog,
   fetchTasks,
   fetchTasksLog,
   startTime,
@@ -24,12 +24,16 @@ const initialState = {
 const tasksSlice = createSlice({
   name: "tasks",
   initialState,
+
   reducers: {
     setIsLoading: (state, action) => {
       state.isLoading = action.payload;
     },
     setIsAutoExit: (state, action) => {
       state.isAutoExit = action.payload;
+    },
+    updateIsNewLog: (state, action) => {
+      state.isNewLog = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -74,9 +78,10 @@ const tasksSlice = createSlice({
       state.isLoading = true;
     });
     builder.addCase(exit.fulfilled, (state, action) => {
+      const { isExitWithBoss, id } = action.payload;
       state.isLoading = false;
-      state.lastEntry = action.payload ? state.lastEntry : 0;
-      state.currentTask = action.payload
+      state.lastEntry = isExitWithBoss ? state.lastEntry : 0;
+      state.currentTask = isExitWithBoss
         ? state.currentTask
         : { name: "", start: 0 };
     });
@@ -126,17 +131,27 @@ const tasksSlice = createSlice({
     builder.addCase(fetchTasksLog.rejected, (state) => {
       state.isLoading = false;
     });
-    builder.addCase(fetchIsNewLog.pending, (state) => {
-      state.isLoading = true;
-    });
-    builder.addCase(fetchIsNewLog.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.isNewLog = action.payload;
-    });
-    builder.addCase(fetchIsNewLog.rejected, (state) => {
-      state.isLoading = false;
+    builder.addCase(fetchNewTasksLog.fulfilled, (state, action) => {
+      const { log, last_duration_task } = action.payload;
+      state.taskLogList.push(log);
+      state.isNewLog = !log.seen;
+      if (log.project_name === "entry") {
+        state.lastEntry = 0;
+      } else {
+        state.currentTask.start = 0;
+        state.tasks = state.tasks.map((t) =>
+          t.project_name === state.currentTask.name
+            ? {
+                ...t,
+                today_duration:
+                  t.today_duration + JSON.parse(last_duration_task),
+              }
+            : t
+        );
+      }
     });
   },
 });
-export const { setIsLoading, setIsAutoExit } = tasksSlice.actions;
+export const { setIsLoading, setIsAutoExit, updateIsNewLog } =
+  tasksSlice.actions;
 export default tasksSlice.reducer;

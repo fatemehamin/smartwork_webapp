@@ -168,5 +168,7 @@
   "newProjectName": "نام پروژه جدید",
   "todayHoursAverage": "میانگین ساعت امروز",
   "averageHourOfTheLastMonth": "میانگین ساعت یک ماه اخیر",
-  "noUserWorkingProject": "کاربری بر روی این پروژه کار نمی کند."
+  "noUserWorkingProject": "کاربری بر روی این پروژه کار نمی کند.",
+  "RequestAccepted": "درخواست شما پذیرفته شد.",
+  "RequestRejected": "درخواست شما رد شد."
 }

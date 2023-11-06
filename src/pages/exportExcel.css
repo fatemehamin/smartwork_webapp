@@ -82,6 +82,7 @@
   width: 80%;
   height: 50px;
   margin: 10px;
+  justify-content: space-between;
 }
 .excel-icon {
   width: 20px;
@@ -93,10 +94,11 @@
   text-overflow: ellipsis;
   overflow: hidden;
 }
-.excel-icon-share {
+.excel-icon-download {
   padding: 5px;
   margin: 0px 2px;
   color: #008000;
+  cursor: pointer;
 }
 .excel-back-icon {
   color: #fff;

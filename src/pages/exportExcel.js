@@ -85,7 +85,10 @@ const ExportExcel = () => {
           alt="excel"
         />
         <div className="excel-modal-text excel-one-line">{filename}.xlsx</div>
-        <span onClick={() => exportFile(filename)} className="excel-icon-share">
+        <span
+          onClick={() => exportFile(filename)}
+          className="excel-icon-download"
+        >
           <FileDownload />
         </span>
       </div>

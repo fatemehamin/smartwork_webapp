@@ -12,6 +12,7 @@
   position: relative;
   font-family: "VT323", monospace;
   background-color: #269dd830;
+  cursor: pointer;
 }
 .task_time {
   font-size: 23px;

@@ -135,6 +135,8 @@ const PersonalInformation = ({ userCurrent }) => {
     }
   };
 
+  const styles = { inputContainer: { width: "90%", margin: "0px 20px" } };
+
   return (
     <div className="section-container">
       <div className="main-title text-align">
@@ -147,6 +149,7 @@ const PersonalInformation = ({ userCurrent }) => {
         placeholder={Translate("firstName", language)}
         Icon={PersonOutlineOutlined}
         onKeyDown={onKeyDownFirstName}
+        styleContainer={styles.inputContainer}
       />
       <Input
         value={lastName}
@@ -156,6 +159,7 @@ const PersonalInformation = ({ userCurrent }) => {
         Icon={PersonOutlineOutlined}
         ref={lastNameInputRef}
         onKeyDown={onKeyDownLastName}
+        styleContainer={styles.inputContainer}
       />
       <Input
         value={email}
@@ -166,6 +170,7 @@ const PersonalInformation = ({ userCurrent }) => {
         msgError={isEdit && email && Translate(msgError.email(email), language)}
         ref={emailInputRef}
         onKeyDown={onKeyDownEmail}
+        styleContainer={styles.inputContainer}
       />
       <Input
         value={phoneNumber}
@@ -179,6 +184,7 @@ const PersonalInformation = ({ userCurrent }) => {
         ref={phoneInputRef}
         onKeyDown={onKeyDownPhone}
         disabled
+        styleContainer={styles.inputContainer}
         msgError={
           errorPhone === "phoneNumberExists"
             ? Translate("phoneNumberExists", language)

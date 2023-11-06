@@ -4,7 +4,7 @@ import {
   addLeaveRequests,
   deleteLeave,
   changeStatusLeave,
-  fetchIsNewLeave,
+  fetchNewLeaveRequests,
 } from "./action";
 
 const initialState = {
@@ -17,6 +17,11 @@ const initialState = {
 const leaveRequestsSlice = createSlice({
   name: "leaveRequest",
   initialState,
+  reducers: {
+    UpdateIsNewLeave: (state, action) => {
+      state.isNewLeave = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchLeaveRequests.pending, (state) => {
       state.isLoading = true;
@@ -63,17 +68,20 @@ const leaveRequestsSlice = createSlice({
     builder.addCase(changeStatusLeave.rejected, (state) => {
       state.isLoading = false;
     });
-    builder.addCase(fetchIsNewLeave.pending, (state) => {
-      state.isLoading = true;
-    });
-    builder.addCase(fetchIsNewLeave.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.isNewLeave = action.payload;
-    });
-    builder.addCase(fetchIsNewLeave.rejected, (state) => {
-      state.isLoading = false;
+    builder.addCase(fetchNewLeaveRequests.fulfilled, (state, action) => {
+      const { leaveList, type } = action.payload;
+      if (type === "REQUEST_ANSWER") {
+        state.leaveRequests = state.leaveRequests.map((l) =>
+          l.id === leaveList.id ? leaveList : l
+        );
+        state.isNewLeave = true;
+      } else {
+        state.leaveRequests.push(leaveList);
+        state.isNewLeave = !leaveList.seen;
+      }
     });
   },
 });
 
+export const { UpdateIsNewLeave } = leaveRequestsSlice.actions;
 export default leaveRequestsSlice.reducer;
