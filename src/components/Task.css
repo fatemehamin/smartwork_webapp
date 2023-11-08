@@ -13,6 +13,7 @@
   font-family: "VT323", monospace;
   background-color: #269dd830;
   cursor: pointer;
+  word-break: normal;
 }
 .task_time {
   font-size: 23px;

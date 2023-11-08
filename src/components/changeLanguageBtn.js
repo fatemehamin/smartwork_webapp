@@ -12,7 +12,7 @@ const ChangeLanguageBtn = () => {
   const [selectLang, setSelectLang] = useState(language);
 
   const dispatch = useDispatch();
-  const translateX = useSpring({ x: selectLang === "EN" ? 0 : 65 });
+  const translateX = useSpring({ x: selectLang === "EN" ? 0 : 70 });
 
   useEffect(() => {
     dispatch(changeLanguage(selectLang));

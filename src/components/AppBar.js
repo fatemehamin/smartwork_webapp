@@ -20,6 +20,7 @@ const CustomAppBar = ({ label, type = "Menu" }) => {
     AppBarStyle: styled(AppBar)({
       backgroundColor: "#269dd8",
       zIndex: 2,
+      height: 56,
     }),
     label: {
       flexGrow: 1,

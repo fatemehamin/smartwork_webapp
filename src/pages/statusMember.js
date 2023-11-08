@@ -62,16 +62,16 @@ const StatusMember = () => {
           label="excel"
           description="accessExcel"
         />
+        <AccessLocation
+          userCurrent={userCurrent}
+          CustomCollapse={CustomCollapse}
+        />
         <PermissionSwitch
           userCurrent={userCurrent}
           typePermission="autoExit"
           initCheck={userCurrent.permissionAutoExit}
           label="autoExit"
           description="autoExitDescription"
-        />
-        <AccessLocation
-          userCurrent={userCurrent}
-          CustomCollapse={CustomCollapse}
         />
         <SelectProjectToUser
           userCurrent={userCurrent}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
 import { Switch } from "@mui/material";
@@ -12,8 +12,9 @@ const PermissionSwitch = ({
   label,
   description,
 }) => {
+  const [isSwitch, setIsSwitch] = useState(false);
+
   const { language } = useSelector((state) => state.i18n);
-  const { isLoading } = useSelector((state) => state.users);
   const { phoneNumber } = useSelector((state) => state.auth.userInfo);
 
   const [openSnackbar] = useSnackbar();
@@ -26,10 +27,12 @@ const PermissionSwitch = ({
 
   const disabled =
     typePermission === "accessExcel"
-      ? phoneNumber === userCurrent.phone_number || isLoading
-      : isLoading;
+      ? phoneNumber === userCurrent.phone_number || isSwitch
+      : isSwitch;
 
   const handleToggleExcel = () => {
+    setIsSwitch(true);
+
     const _error = (error) => {
       openSnackbar(
         error.code === "ERR_NETWORK"
@@ -44,7 +47,10 @@ const PermissionSwitch = ({
       isToggle: !initCheck,
     };
 
-    dispatch(permissionExcelAutoExit(args)).unwrap().catch(_error);
+    dispatch(permissionExcelAutoExit(args))
+      .unwrap()
+      .then((res) => setIsSwitch(false))
+      .catch(_error);
   };
 
   const className = {

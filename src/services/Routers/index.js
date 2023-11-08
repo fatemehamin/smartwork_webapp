@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Init from "../../pages/init";
 import Login from "../../pages/login";
 import Signup from "../../pages/signup";
@@ -12,19 +12,33 @@ import Location from "../../pages/location";
 import ExportExcel from "../../pages/exportExcel";
 import StatusMember from "../../pages/statusMember";
 import PrivacyPolicy from "../../pages/privacyPolicy";
+import getTokenDeviceFCM from "../../messaging_init_in_sw";
 import { remoteNotification } from "../../utils/notification";
 import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { addFcmToken } from "../../features/notification/action";
 
 const Routers = () => {
   // fix direction for change i18n
   const { isRTL } = useSelector((state) => state.i18n.I18nManager);
+  const { isAuthentication } = useSelector((state) => state.auth);
+  const { id } = useSelector((state) => state.notification);
+
+  const [fcmToken, setFcmToken] = useState(null);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     remoteNotification(dispatch);
   }, []);
+
+  useEffect(() => {
+    if (id === null) {
+      fcmToken === null
+        ? getTokenDeviceFCM(setFcmToken)
+        : dispatch(addFcmToken({ fcm_token: fcmToken, model: "web" }));
+    }
+  }, [fcmToken, isAuthentication]);
 
   document.documentElement.style.setProperty("--dir", isRTL ? "rtl" : "ltr");
   document.documentElement.style.setProperty(

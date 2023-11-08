@@ -1,20 +1,17 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import Logo from "../assets/images/Logo.png";
 import Button from "../components/button";
 import Input from "../components/input";
 import ChangeLanguageBtn from "../components/changeLanguageBtn";
-import getTokenDeviceFCM from "../messaging_init_in_sw";
 import { Link, useNavigate } from "react-router-dom";
 import { LockOutlined } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
 import { Translate } from "../features/i18n/translate";
 import { login } from "../features/auth/action";
-import { addFcmToken } from "../features/notification/action";
 import "./login.css";
 
 const Login = () => {
-  const [fcmToken, setFcmToken] = useState(null);
   const [country, setCountry] = useState("IR");
   const [callingCode, setCallingCode] = useState("+98");
   const [phoneNumber, setPhoneNumber] = useState("+98");
@@ -27,10 +24,6 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const passwordInputRef = useRef(null);
-
-  useEffect(() => {
-    getTokenDeviceFCM(setFcmToken);
-  }, [fcmToken]);
 
   const handleSignup = () => navigate("/signup");
   const handleLogin = () => {
@@ -48,7 +41,6 @@ const Login = () => {
 
     const _then = (res) => {
       navigate(res.type === "boss" ? "/manager" : "/myTasks");
-      dispatch(addFcmToken({ fcm_token: fcmToken, model: "web" }));
     };
 
     const args = { country, callingCode, phoneNumber, password };

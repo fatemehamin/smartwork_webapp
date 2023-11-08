@@ -98,12 +98,8 @@ const usersSlice = createSlice({
     builder.addCase(editUsers.rejected, (state) => {
       state.isLoading = false;
     });
-    builder.addCase(permissionExcelAutoExit.pending, (state) => {
-      state.isLoading = true;
-    });
     builder.addCase(permissionExcelAutoExit.fulfilled, (state, action) => {
       const { phoneNumber, isToggle, typePermission } = action.payload;
-      state.isLoading = false;
       state.users = state.users.map((user) =>
         user.phone_number === phoneNumber
           ? typePermission === "accessExcel"
@@ -111,9 +107,6 @@ const usersSlice = createSlice({
             : { ...user, permissionAutoExit: isToggle }
           : user
       );
-    });
-    builder.addCase(permissionExcelAutoExit.rejected, (state) => {
-      state.isLoading = false;
     });
     builder.addCase(fetchUsersLocation.pending, (state) => {
       state.isLoading = true;
