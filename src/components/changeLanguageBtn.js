@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { animated, useSpring } from "@react-spring/web";
 import { useDispatch, useSelector } from "react-redux";
-import { changeLanguage } from "../features/i18n/i18nSlice";
+import { changeLanguage } from "../features/i18n/action";
 import IR from "../assets/images/iran.png";
 import UK from "../assets/images/united-kingdom.png";
 import "./changeLanguageBtn.css";
@@ -14,12 +14,17 @@ const ChangeLanguageBtn = () => {
   const dispatch = useDispatch();
   const translateX = useSpring({ x: selectLang === "EN" ? 0 : 70 });
 
-  useEffect(() => {
-    dispatch(changeLanguage(selectLang));
-  }, [selectLang]);
+  const selectEn = () => {
+    dispatch(changeLanguage("EN"))
+      .unwrap()
+      .then((res) => setSelectLang("EN"));
+  };
 
-  const selectEn = () => setSelectLang("EN");
-  const selectPr = () => setSelectLang("FA");
+  const selectPr = () => {
+    dispatch(changeLanguage("FA"))
+      .unwrap()
+      .then((res) => setSelectLang("FA"));
+  };
 
   return (
     <div className="container_change_lang_btn">

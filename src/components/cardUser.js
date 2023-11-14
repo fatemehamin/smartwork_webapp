@@ -30,6 +30,7 @@ const CardUser = ({
   lastName,
   phoneNumber,
   nowActiveProject,
+  languageUser,
 }) => {
   const { language } = useSelector((state) => state.i18n);
   const { userInfo } = useSelector((state) => state.auth);
@@ -79,10 +80,10 @@ const CardUser = ({
     const _then = (res) => {
       const msg =
         nowActiveProject === "entry"
-          ? `${Translate("exitByAdmin", language)}`
-          : `${Translate("task", language)} ${nowActiveProject} ${Translate(
+          ? `${Translate("exitByAdmin", languageUser)}`
+          : `${Translate("task", languageUser)} ${nowActiveProject} ${Translate(
               "stoppedByAdmin",
-              language
+              languageUser
             )}`;
 
       dispatch(

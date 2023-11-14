@@ -68,6 +68,7 @@ const TabUsers = () => {
             lastName={user.last_name}
             phoneNumber={user.phone_number}
             nowActiveProject={user.now_active_project}
+            languageUser={user.language}
           />
         );
       })

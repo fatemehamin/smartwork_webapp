@@ -1,10 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-
-const localStorageLang = localStorage.getItem("language");
+import { changeLanguage, getLanguage } from "./action";
 
 const initialState = {
-  language: localStorageLang ? localStorageLang : "EN",
-  I18nManager: { isRTL: localStorageLang === "FA" },
+  language: "EN",
+  I18nManager: { isRTL: false },
   error: null,
   isLoading: false,
 };
@@ -12,13 +11,29 @@ const initialState = {
 const i18nSlice = createSlice({
   name: "i18n",
   initialState,
-  reducers: {
-    changeLanguage: (state, action) => {
-      localStorage.setItem("language", action.payload);
+  extraReducers: (builder) => {
+    builder.addCase(getLanguage.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(getLanguage.fulfilled, (state, action) => {
+      state.isLoading = false;
       state.language = action.payload;
       state.I18nManager = { isRTL: action.payload === "FA" };
-    },
+    });
+    builder.addCase(getLanguage.rejected, (state) => {
+      state.isLoading = false;
+    });
+    builder.addCase(changeLanguage.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(changeLanguage.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.language = action.payload;
+      state.I18nManager = { isRTL: action.payload === "FA" };
+    });
+    builder.addCase(changeLanguage.rejected, (state) => {
+      state.isLoading = false;
+    });
   },
 });
-export const { changeLanguage } = i18nSlice.actions;
 export default i18nSlice.reducer;

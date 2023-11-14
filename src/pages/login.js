@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
 import { Translate } from "../features/i18n/translate";
 import { login } from "../features/auth/action";
+import { changeLanguage } from "../features/i18n/action";
 import "./login.css";
 
 const Login = () => {
@@ -41,6 +42,7 @@ const Login = () => {
 
     const _then = (res) => {
       navigate(res.type === "boss" ? "/manager" : "/myTasks");
+      dispatch(changeLanguage(language)); // after authentication need to save language
     };
 
     const args = { country, callingCode, phoneNumber, password };
@@ -53,6 +55,7 @@ const Login = () => {
       passwordInputRef.current.focus();
     }
   };
+
   const onKeyDownPassword = (e) => {
     if (e.keyCode === 13) {
       handleLogin();

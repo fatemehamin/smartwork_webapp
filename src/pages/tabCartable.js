@@ -251,7 +251,7 @@ const TabCartable = () => {
                           status === "accept"
                             ? "RequestAccepted"
                             : "RequestRejected",
-                          language
+                          user.language
                         ),
                         typeNotification: "REQUEST_ANSWER",
                         to: req.phone_number,
@@ -333,7 +333,7 @@ const TabCartable = () => {
                           status === "accept"
                             ? "RequestAccepted"
                             : "RequestRejected",
-                          language
+                          user.language
                         ),
                         typeNotification: "REQUEST_ANSWER",
                         to: req.from,
@@ -463,7 +463,7 @@ const TabCartable = () => {
       closeModalLeaveRequest();
       dispatch(
         sendNotification({
-          msg: Translate("leaveRequest", language),
+          msg: Translate("leaveRequest", res.language_boss_for_notification),
           typeNotification: "LEAVE_REQUEST",
           id_data: res.id,
         })

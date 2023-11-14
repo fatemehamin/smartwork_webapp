@@ -10,6 +10,7 @@ import { Translate } from "../features/i18n/translate";
 import { checkType } from "../features/auth/action";
 import { ReactComponent as LogoutIcon } from "../assets/icons/logout.svg";
 import { deleteFcmToken } from "../features/notification/action";
+import { getLanguage } from "../features/i18n/action";
 import "./drawer.css";
 import {
   Box,
@@ -58,6 +59,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
 
   useEffect(() => {
     dispatch(checkType());
+    dispatch(getLanguage());
   }, []);
 
   const handleLogout = () => {
