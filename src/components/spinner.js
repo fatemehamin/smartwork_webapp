@@ -8,7 +8,6 @@
 //   useEffect(() => {
 //     setWindow({ width: window.innerWidth, height: window.innerHeight });
 //   }, [window.innerWidth, window.innerHeight]);
-//   console.log(Window);
 //   return isLoading ? (
 //     <div
 //       style={{
@@ -40,6 +39,7 @@
 //     borderRadius: 10,
 //     alignItems: "center",
 //     justifyContent: "center",
+//     // display: "flex",
 //     // display: "flex",
 //   },
 // };
