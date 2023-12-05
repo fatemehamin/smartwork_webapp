@@ -186,6 +186,8 @@ const ShiftWork = () => {
     setShiftDay(s.shiftDay[0]);
     setModalVisible(true);
     setIsEdit(true);
+    setIsEditDay(false);
+    collapsed && toggleCollapse();
   };
 
   const onClickDays = (index) => {
@@ -209,6 +211,8 @@ const ShiftWork = () => {
     setIsOvertimeOnHolidays(false);
     setModalVisible(true);
     setIsEdit(false);
+    setIsEditDay(false);
+    collapsed && toggleCollapse();
   };
 
   const calculateLengthShift = () => {
@@ -356,7 +360,7 @@ const ShiftWork = () => {
         {!(shiftDay?.holiday || shiftDay?.remote) &&
           (isEditDay ? (
             <div className="SW-define-container">
-              <div className="display-flex-center container_btn_row direction">
+              <div className="display-flex-center container_btn_row direction SW-mt10">
                 <TimeBox
                   title="startTime"
                   className="SW-fill-box"
@@ -463,7 +467,7 @@ const ShiftWork = () => {
                   disabled
                 />
 
-                <div>
+                <div className="SW-box-edit">
                   <TbEditCircle
                     size={30}
                     color="#166085"

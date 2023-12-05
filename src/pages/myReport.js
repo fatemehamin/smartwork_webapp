@@ -164,7 +164,7 @@ const MyReport = () => {
           isLoading={isLoading}
           onClick={handleResultReport}
         />
-        {detailedReport.length > 0 && (
+        {summeryReport != null && (
           <>
             <Tabs
               tabs={[{ title: "summaryStatus" }, { title: "moreDetails" }]}

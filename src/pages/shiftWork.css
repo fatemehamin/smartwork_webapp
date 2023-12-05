@@ -134,3 +134,12 @@
   padding: 3px;
   cursor: pointer;
 }
+.SW-box-edit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 0px;
+}
+.SW-mt10 {
+  margin-top: 10px;
+}
