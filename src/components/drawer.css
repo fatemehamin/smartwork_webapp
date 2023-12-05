@@ -1,5 +1,9 @@
 .drawer {
   width: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 .drawer-img {
   height: 210px;
@@ -35,4 +39,7 @@
 }
 .drawer-item-icon-indicator {
   color: #f6921e;
+}
+.drawer-p5 {
+  padding: 5px;
 }

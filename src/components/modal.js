@@ -26,8 +26,8 @@ const Modal = ({
 
   const styles = {
     modal: {
-      borderTopLeftRadius: 50,
-      borderTopRightRadius: 50,
+      borderTopLeftRadius: 30,
+      borderTopRightRadius: 30,
       paddingBottom: 3,
     },
   };

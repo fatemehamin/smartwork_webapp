@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 import "./checkBox.css";
 
-const CheckBox = ({ name, toggle, disabled, onChange }) => {
+const CheckBox = ({ name, toggle, disabled, onChange, style, sx }) => {
   const [toggleCheckBox, setToggleCheckBox] = useState(false);
 
   useEffect(() => {
@@ -10,8 +10,12 @@ const CheckBox = ({ name, toggle, disabled, onChange }) => {
   }, [toggle]);
 
   return (
-    <FormGroup className="text-align direction" style={{ marginLeft: 16 }}>
+    <FormGroup
+      className="text-align direction"
+      style={{ marginLeft: 16, ...style }}
+    >
       <FormControlLabel
+        sx={sx}
         control={
           <Checkbox
             color="secondary"

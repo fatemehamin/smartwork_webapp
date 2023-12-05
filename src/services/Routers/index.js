@@ -9,6 +9,7 @@ import Manager from "../../pages/manager";
 import MyTask from "../../pages/myTask";
 import MyReport from "../../pages/myReport";
 import Location from "../../pages/location";
+import ShiftWork from "../../pages/shiftWork";
 import ExportExcel from "../../pages/exportExcel";
 import StatusMember from "../../pages/statusMember";
 import PrivacyPolicy from "../../pages/privacyPolicy";
@@ -60,6 +61,7 @@ const Routers = () => {
         <Route path="/myTasks" element={<MyTask />} />
         <Route path="/myReport" element={<MyReport />} />
         <Route path="/location" element={<Location />} />
+        <Route path="/shiftWork" element={<ShiftWork />} />
         <Route path="/exportExcel" element={<ExportExcel />} />
         <Route path="/statusMember/:currentId" element={<StatusMember />} />
       </Routes>

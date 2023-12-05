@@ -31,6 +31,7 @@ import {
   Home,
   Language,
   ExitToAppOutlined,
+  AccessTime,
 } from "@mui/icons-material";
 
 const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
@@ -109,60 +110,66 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
             <p className="drawer-text drawer-text-bold">Smart Work</p>
             <p className="drawer-text">v1.1.0</p>
           </div>
-          {position === "boss" && (
-            <Item
-              label="home"
-              Icon={Home}
-              onClick={() => navigate("/manager")}
-              CurrentLabel={CurrentLabel}
-            />
-          )}
-          <Item
-            label={position === "boss" ? "myTasks" : "home"}
-            Icon={position === "boss" ? TaskAlt : Home}
-            onClick={() => navigate("/myTasks")}
-            CurrentLabel={CurrentLabel}
-          />
-          <Item
-            label="myReport"
-            Icon={ChatBubble}
-            onClick={() => navigate("/myReport")}
-            CurrentLabel={CurrentLabel}
-          />
-          {position === "boss" && (
-            <>
-              {/* <Item label="List of projects" Icon={Dns}  onClick={() => navigate("/listOfProjects")}  /> */}
+          <div className="drawer-p5">
+            {position === "boss" && (
               <Item
-                label="location"
-                Icon={FmdGood}
-                onClick={() => navigate("/location")}
+                label="home"
+                Icon={Home}
+                onClick={() => navigate("/manager")}
                 CurrentLabel={CurrentLabel}
               />
-            </>
-          )}
-          {(position === "financial" || position === "boss") && (
+            )}
             <Item
-              label="exportExcel"
-              Icon={Folder}
-              onClick={() => navigate("/exportExcel")}
+              label={position === "boss" ? "myTasks" : "home"}
+              Icon={position === "boss" ? TaskAlt : Home}
+              onClick={() => navigate("/myTasks")}
               CurrentLabel={CurrentLabel}
             />
-          )}
-        </List>
-        <Divider />
-        <List>
-          <Item
-            label="language"
-            Icon={Language}
-            onClick={openAlertChangeLanguage}
-            CurrentLabel={CurrentLabel}
-          />
-          <Item
-            label="logout"
-            Icon={ExitToAppOutlined}
-            onClick={openAlertLogout}
-            CurrentLabel={CurrentLabel}
-          />
+            <Item
+              label="myReport"
+              Icon={ChatBubble}
+              onClick={() => navigate("/myReport")}
+              CurrentLabel={CurrentLabel}
+            />
+            {position === "boss" && (
+              <>
+                {/* <Item label="List of projects" Icon={Dns}  onClick={() => navigate("/listOfProjects")}  /> */}
+                <Item
+                  label="location"
+                  Icon={FmdGood}
+                  onClick={() => navigate("/location")}
+                  CurrentLabel={CurrentLabel}
+                />
+                <Item
+                  label="shiftWork"
+                  Icon={AccessTime}
+                  onClick={() => navigate("/shiftWork")}
+                  CurrentLabel={CurrentLabel}
+                />
+              </>
+            )}
+            {(position === "financial" || position === "boss") && (
+              <Item
+                label="exportExcel"
+                Icon={Folder}
+                onClick={() => navigate("/exportExcel")}
+                CurrentLabel={CurrentLabel}
+              />
+            )}
+            <Divider />
+            <Item
+              label="language"
+              Icon={Language}
+              onClick={openAlertChangeLanguage}
+              CurrentLabel={CurrentLabel}
+            />
+            <Item
+              label="logout"
+              Icon={ExitToAppOutlined}
+              onClick={openAlertLogout}
+              CurrentLabel={CurrentLabel}
+            />
+          </div>
         </List>
         <Alert open={openAlert} setOpen={setOpenAlert} {...alert[alertType]}>
           {alertType === "language" && <ChangeLanguageBtn />}

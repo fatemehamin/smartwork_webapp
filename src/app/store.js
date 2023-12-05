@@ -1,6 +1,6 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";
+import storage from "redux-persist/lib/storage";
 import thunk from "redux-thunk";
 import i18nReducer from "../features/i18n/i18nSlice";
 import authReducer from "../features/auth/authSlice";
@@ -13,6 +13,7 @@ import msgReducer from "../features/msg/msgSlice";
 import leaveRequestReducer from "../features/leaveRequests/leaveRequestSlice";
 import configReducer from "../features/config/configSlice";
 import notificationReducer from "../features/notification/notificationSlice";
+import shiftWorkReducer from "../features/shiftWork/shiftWorkSlice";
 
 const combineReducer = combineReducers({
   i18n: i18nReducer,
@@ -26,6 +27,7 @@ const combineReducer = combineReducers({
   leaveRequest: leaveRequestReducer,
   config: configReducer,
   notification: notificationReducer,
+  shift: shiftWorkReducer,
 });
 
 const rootReducer = (state, action) => {
