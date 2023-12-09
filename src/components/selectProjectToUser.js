@@ -1,16 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
-import { Done } from "@mui/icons-material";
+import { Done, ExpandLess, ExpandMore } from "@mui/icons-material";
 import { fetchProject } from "../features/projects/action";
 import { useSnackbar } from "react-simple-snackbar";
-import { Chip, Stack } from "@mui/material";
+import { Chip, Collapse, Stack } from "@mui/material";
 import {
   addProjectToUsers,
   deleteProjectToUsers,
 } from "../features/users/action";
 
 const SelectProjectToUser = ({ userCurrent, CustomCollapse }) => {
+  const [isCollapseProject, setIsCollapseProject] = useState(false);
+
   const { isLoading } = useSelector((state) => state.users);
   const { projects } = useSelector((state) => state.projects);
   const { language } = useSelector((state) => state.i18n);
@@ -42,65 +44,84 @@ const SelectProjectToUser = ({ userCurrent, CustomCollapse }) => {
     },
   };
 
-  const contentCollapse = () => (
-    <Stack direction="row" className="chip-container" spacing={1} rowGap={2}>
-      {projects.length > 0 ? (
-        projects.map((project, i) => {
-          const isSelected =
-            userCurrent.project_list.find(
-              (p) => p.project_name === project.project_name
-            ) !== undefined;
+  const toggleCollapse = () => {
+    setIsCollapseProject((isCollapse) => !isCollapse);
+  };
 
-          const handleToggleProject = () => {
-            const arg = {
-              phone_number: userCurrent.phone_number,
-              project_name: project.project_name,
-            };
-            dispatch(
-              isSelected ? deleteProjectToUsers(arg) : addProjectToUsers(arg)
-            )
-              .unwrap()
-              .catch(_error);
+  const getListProject = () => {
+    return projects.length > 0 ? (
+      projects.map((project, i) => {
+        const isSelected =
+          userCurrent.project_list.find(
+            (p) => p.project_name === project.project_name
+          ) !== undefined;
+
+        const handleToggleProject = () => {
+          const arg = {
+            phone_number: userCurrent.phone_number,
+            project_name: project.project_name,
           };
+          dispatch(
+            isSelected ? deleteProjectToUsers(arg) : addProjectToUsers(arg)
+          )
+            .unwrap()
+            .catch(_error);
+        };
 
-          return isSelected ? (
-            <Chip
-              key={i}
-              label={project.project_name}
-              deleteIcon={<Done sx={{ color: "#b14a00 !important" }} />}
-              disabled={isLoading}
-              style={styles.check}
-              onDelete={handleToggleProject}
-            />
-          ) : (
-            <Chip
-              key={i}
-              label={project.project_name}
-              variant="outlined"
-              disabled={isLoading}
-              onClick={handleToggleProject}
-              style={styles.unCheck}
-            />
-          );
-        })
-      ) : (
-        <div className="noItemText direction">
-          {Translate("notExistProject", language)}
-        </div>
-      )}
-    </Stack>
-  );
+        return isSelected ? (
+          <Chip
+            key={i}
+            label={project.project_name}
+            deleteIcon={<Done sx={{ color: "#b14a00 !important" }} />}
+            disabled={isLoading}
+            style={styles.check}
+            onDelete={handleToggleProject}
+          />
+        ) : (
+          <Chip
+            key={i}
+            label={project.project_name}
+            variant="outlined"
+            disabled={isLoading}
+            onClick={handleToggleProject}
+            style={styles.unCheck}
+          />
+        );
+      })
+    ) : (
+      <div className="noItemText direction">
+        {Translate("notExistProject", language)}
+      </div>
+    );
+  };
 
   return (
     <div className="section-container">
       <div className="main-title text-align">
         {Translate("project", language)}
       </div>
-      <CustomCollapse
-        label={Translate("addProjectToUser", language)}
-        content={contentCollapse}
-        type="project"
-      />
+
+      <div className="collapse direction" onClick={toggleCollapse}>
+        <span>{Translate("addProjectToUser", language)}</span>
+        <span style={{ color: "#f6921e" }}>
+          {isCollapseProject ? (
+            <ExpandLess fontSize="large" />
+          ) : (
+            <ExpandMore fontSize="large" />
+          )}
+        </span>
+      </div>
+
+      <Collapse in={isCollapseProject}>
+        <Stack
+          direction="row"
+          className="chip-container"
+          spacing={1}
+          rowGap={2}
+        >
+          {getListProject()}
+        </Stack>
+      </Collapse>
     </div>
   );
 };

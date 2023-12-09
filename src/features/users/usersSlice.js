@@ -10,6 +10,7 @@ import {
   fetchUsers,
   fetchUsersLocation,
   permissionExcelAutoExit,
+  toggleShiftToUsers,
 } from "./action";
 
 const initialState = {
@@ -204,6 +205,19 @@ const usersSlice = createSlice({
       );
     });
     builder.addCase(deleteProjectToUsers.rejected, (state) => {
+      state.isLoading = false;
+    });
+    builder.addCase(toggleShiftToUsers.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(toggleShiftToUsers.fulfilled, (state, action) => {
+      const { user_id, shift_id } = action.payload;
+      state.isLoading = false;
+      state.users = state.users.map((user) =>
+        user.id === user_id ? { ...user, shift: shift_id } : user
+      );
+    });
+    builder.addCase(toggleShiftToUsers.rejected, (state) => {
       state.isLoading = false;
     });
   },

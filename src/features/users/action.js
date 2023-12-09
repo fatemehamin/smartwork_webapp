@@ -140,3 +140,15 @@ export const deleteProjectToUsers = createAsyncThunk(
     return { phone_number, project_name };
   }
 );
+
+export const toggleShiftToUsers = createAsyncThunk(
+  "users/toggleShiftToUsers",
+  async ({ user_id, shift_id }) => {
+    await axiosAPI.patch(
+      shift_id
+        ? `/shift_work/${user_id}/${shift_id}/`
+        : `/shift_work/${user_id}/`
+    );
+    return { user_id, shift_id };
+  }
+);
