@@ -81,7 +81,7 @@ const SelectShiftToUser = ({ userCurrent }) => {
             ))
           ) : (
             <div className="noItemText direction">
-              {Translate("notExistLocation", language)}
+              {Translate("noWorkShift", language)}
             </div>
           )}
         </RadioGroup>
