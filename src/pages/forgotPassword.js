@@ -10,12 +10,13 @@ import Button from "../components/button";
 import "./forgotPassword.css";
 
 const ForgotPassword = () => {
-  const [phoneNumber, setPhoneNumber] = useState("+98");
-  const [country, setCountry] = useState("IR");
-  const [callingCode, setCallingCode] = useState("+98");
-
-  const { isLoading } = useSelector((state) => state.auth);
+  const { isLoading, userInfo } = useSelector((state) => state.auth);
   const { language } = useSelector((state) => state.i18n);
+
+  const [country, setCountry] = useState(userInfo.country);
+  const [callingCode, setCallingCode] = useState(userInfo.callingCode);
+  const [phoneNumber, setPhoneNumber] = useState(userInfo.phoneNumber);
+
   const [openSnackbar] = useSnackbar();
 
   const navigate = useNavigate();

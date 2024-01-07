@@ -32,7 +32,21 @@ const combineReducer = combineReducers({
 
 const rootReducer = (state, action) => {
   if (state?.auth?.isAuthentication && action.type === "auth/logout") {
-    state = undefined;
+    const { userInfo } = state.auth;
+    const { i18n } = state;
+    state = {
+      auth: {
+        userInfo,
+        type: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthentication: false,
+        error: null,
+        isLoading: false,
+      },
+      i18n,
+    }; // clear all state except auth and i18n
+    // state = undefined; //clear all state
   }
   return combineReducer(state, action);
 };

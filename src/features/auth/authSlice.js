@@ -1,5 +1,6 @@
 import { createAction, createSlice } from "@reduxjs/toolkit";
 import {
+  changePassword,
   checkType,
   createUserLoading,
   forgotPassword,
@@ -8,17 +9,16 @@ import {
   verifyCode,
 } from "./action";
 
-const accessToken = localStorage.getItem("accessToken");
-const refreshToken = localStorage.getItem("refreshToken");
-const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-const type = localStorage.getItem("type");
-
 const initialState = {
-  userInfo,
-  type,
-  accessToken,
-  refreshToken,
-  isAuthentication: accessToken != null,
+  userInfo: {
+    callingCode: "+98",
+    country: "IR",
+    phoneNumber: "+98",
+  },
+  type: null,
+  accessToken: null,
+  refreshToken: null,
+  isAuthentication: false,
   error: null,
   isLoading: false,
 };
@@ -28,7 +28,6 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     getAccessToken: (state, action) => {
-      localStorage.setItem("accessToken", action.payload);
       state.accessToken = action.payload;
     },
     updateUser: (state, action) => {
@@ -36,9 +35,6 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(logout, () => {
-      localStorage.clear();
-    });
     builder.addCase(login.pending, (state) => {
       state.isLoading = true;
     });
@@ -50,10 +46,6 @@ const authSlice = createSlice({
       state.isAuthentication = true;
       state.userInfo = userInfo;
       state.type = type;
-      localStorage.setItem("type", type);
-      localStorage.setItem("refreshToken", refresh);
-      localStorage.setItem("accessToken", access);
-      localStorage.setItem("userInfo", JSON.stringify(state.userInfo));
     });
     builder.addCase(login.rejected, (state) => {
       state.isLoading = false;
@@ -64,7 +56,6 @@ const authSlice = createSlice({
     builder.addCase(checkType.fulfilled, (state, action) => {
       state.isLoading = false;
       state.type = action.payload;
-      localStorage.setItem("type", action.payload);
     });
     builder.addCase(checkType.rejected, (state) => {
       state.isLoading = false;
@@ -98,7 +89,7 @@ const authSlice = createSlice({
     });
     builder.addCase(forgotPassword.fulfilled, (state, action) => {
       state.isLoading = false;
-      state.userInfo = { ...state.userInfo, ...action.payload };
+      state.userInfo = action.payload;
     });
     builder.addCase(forgotPassword.rejected, (state) => {
       state.isLoading = false;
@@ -106,15 +97,21 @@ const authSlice = createSlice({
     builder.addCase(verifyCode.pending, (state) => {
       state.isLoading = true;
     });
-    builder.addCase(verifyCode.fulfilled, (state) => {
+    builder.addCase(verifyCode.fulfilled, (state, action) => {
       state.isLoading = false;
-      localStorage.setItem(
-        "userInfo",
-        // don't save password for security
-        JSON.stringify({ ...state.userInfo, password: null })
-      );
+      state.userInfo = { ...state.userInfo, ...action.payload };
     });
     builder.addCase(verifyCode.rejected, (state) => {
+      state.isLoading = false;
+    });
+    builder.addCase(changePassword.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(changePassword.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.userInfo = { ...state.userInfo, ...action.payload };
+    });
+    builder.addCase(changePassword.rejected, (state) => {
       state.isLoading = false;
     });
   },

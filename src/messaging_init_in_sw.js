@@ -26,15 +26,25 @@ const getTokenDeviceFCM = (SetFcmToken) => {
       getToken(messaging, {
         vapidKey:
           "BGIwZ_kyTWrx8FZ3EL6O9ZkTrunkVwlhiClz3rjIduK7EE0WMuSu39Kl5A0V118D5Q3k9IYQF-9wed_epvOZiw0",
-      }).then((currentToken) => {
-        if (currentToken) {
-          SetFcmToken(currentToken);
-        } else {
-          console.log("can not get token");
-        }
-      });
+      })
+        .then((currentToken) =>
+          currentToken
+            ? SetFcmToken(currentToken)
+            : console.log("Unable to get initial token")
+        )
+        .catch((error) => console.error("Error getting initial token:", error));
+
+      // messaging.onTokenRefresh(() => {
+      //   getToken(messaging)
+      //     .then((refreshedToken) =>
+      //       refreshedToken
+      //         ? SetFcmToken(refreshedToken)
+      //         : console.log("can not get refresh token")
+      //     )
+      //     .catch((error) => console.error("Error refreshing token:", error));
+      // });
     } else {
-      console.log("Do not have permission.");
+      console.log("Do not have permission for notifications.");
     }
   });
 };

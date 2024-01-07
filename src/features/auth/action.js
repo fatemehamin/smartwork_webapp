@@ -1,4 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import * as Crypto from "../../utils/crypto";
 import axiosAPI from "../../services/API";
 
 export const login = createAsyncThunk(
@@ -8,11 +9,15 @@ export const login = createAsyncThunk(
       username: phoneNumber === callingCode ? "" : phoneNumber,
       password,
     });
+
     const type = await axiosAPI.get("/check_state/", {
       headers: {
         Authorization: `Bearer ${res.data.access}`,
       },
     });
+
+    Crypto.saveSecureData("auth", { phoneNumber, password });
+
     return {
       ...res.data,
       type: type.data.place,
@@ -50,6 +55,9 @@ export const createUserLoading = createAsyncThunk(
       company: companyName,
       phone_number: phoneNumber,
     });
+
+    Crypto.saveSecureData("auth", { phoneNumber, password });
+
     return {
       firstName,
       lastName,
@@ -57,7 +65,6 @@ export const createUserLoading = createAsyncThunk(
       country,
       callingCode,
       phoneNumber,
-      password,
     };
   }
 );
@@ -80,16 +87,20 @@ export const verifyCode = createAsyncThunk(
       code,
     });
 
+    const password = Crypto.getSecureData("auth").password;
+
     type === "createUser" && // when signup
       (await axiosAPI.post("/register/", {
         first_name: userInfo.firstName,
         last_name: userInfo.lastName,
         company: userInfo.companyName,
         email: userInfo.email,
-        password: userInfo.password,
+        password,
         phone_number: userInfo.phoneNumber,
         country_code: userInfo.country + userInfo.callingCode,
       }));
+
+    return { phoneNumber: userInfo.phoneNumber };
   }
 );
 
@@ -97,6 +108,9 @@ export const changePassword = createAsyncThunk(
   "auth/changePassword",
   async ({ username, password }) => {
     await axiosAPI.patch("/forgot_password/", { username, password });
-    return {};
+
+    Crypto.saveSecureData("auth", { username, password });
+
+    return { phoneNumber: username };
   }
 );

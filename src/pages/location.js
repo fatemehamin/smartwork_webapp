@@ -12,6 +12,13 @@ import Input from "../components/input";
 import Icon from "../assets/images/marker-icon-2x-gold.png";
 import L from "leaflet";
 import LocateControl from "../utils/locatecontrol";
+// import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
+// import { GeoSearchControl, MapBoxProvider } from "leaflet-geosearch";
+
+// import SearchControl from "react-leaflet-search";
+// import SearchControl from "react-leaflet-search/lib/Search-v1";
+// import "../../node_modules/leaflet-geosearch/dist/geosearch.css";
+
 import "./location.css";
 import {
   addLocation,
@@ -115,6 +122,70 @@ const Location = () => {
       </>
     );
   };
+
+  // const SearchField = ({ apiKey }) => {
+  //   const map = useMap();
+  //   const provider = new OpenStreetMapProvider();
+  //   const searchControl = new GeoSearchControl({
+  //     provider,
+  //   });
+  //   // const [inputValue, setInputValue] = useState("");
+  //   // const provider = new MapBoxProvider({
+  //   // params: {
+  //   //   access_token: apiKey,
+  //   // },
+  //   // });
+  //   // const t = async () => {
+  //   //   const results = await provider.search({ query: inputValue });
+  //   //   console.log(results);
+  //   // };
+  //   // console.log(
+  //   //   "fff",
+  //   //   (document.getElementsByClassName("glass").value = "میدان ولیعصر")
+  //   // );
+  //   // const results =  provider.search({ query: input.value });
+  //   // const searchControl = new GeoSearchControl({
+  //   // provider,
+  //   // style: "bar",
+  //   // autoComplete: true,
+  //   // showMarker: true,
+  //   // showPopup: false,
+  //   // autoClose: true,
+  //   // searchLabel: Translate("search", language),
+  //   //   style: "bar",
+  //   //   position: "topright",
+  //   //   showMarker: false,
+  //   //   showPopup: false,
+  //   //   autoClose: false,
+  //   //   retainZoomLevel: false,
+  //   //   animateZoom: true,
+  //   //   keepResult: false,
+  //   //   searchLabel: "Enter Address",
+  //   // });
+
+  //   useEffect(() => {
+  //     // searchControl._provider.on("results", (data) => {
+  //     //   if (data?.length > 0) {
+  //     //     const firstResult = data[0]; // در اینجا اولین نتیجه را در نظر می‌گیریم
+  //     //     const { x, y } = firstResult?.location || {};
+  //     //     if (x && y) {
+  //     //       // x به معنای longitude و y به معنای latitude است
+  //     //       console.log("Latitude:", y);
+  //     //       console.log("Longitude:", x);
+  //     //       // می‌توانید این مختصات را برای هر کاری که نیاز دارید، مانند نشان دادن مارکر در نقشه، استفاده کنید.
+  //     //     }
+  //     //   }
+  //     // });
+
+  //     // console.log("ffff", t());
+
+  //     map.addControl(searchControl);
+
+  //     return () => map.removeControl(searchControl);
+  //   }, [modalVisible, map, language]);
+
+  //   return null;
+  // };
 
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
@@ -224,6 +295,11 @@ const Location = () => {
       { text: "cancel", action: closeModal },
     ],
   };
+  // const mapOptions = {
+  //   searchControl: {
+  //     provider: "OpenStreetMap", // یا هر سرویس نقشه‌ای که استفاده می‌کنید
+  //   },
+  // };
 
   return (
     <>
@@ -241,6 +317,8 @@ const Location = () => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        {/* <SearchControl options={mapOptions.searchControl} /> */}
+        {/* <SearchField apiKey={"AIzaSyDQmrTGz3Vf2pPHPs0cDCScBAasVhmp6zw"} /> */}
         {locations.length > 0 &&
           locations.map((coordinate, index) => (
             <Marker

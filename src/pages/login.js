@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import Logo from "../assets/images/Logo.png";
+import Logo from "../assets/images/Logo.svg";
 import Button from "../components/button";
 import Input from "../components/input";
 import ChangeLanguageBtn from "../components/changeLanguageBtn";
@@ -13,20 +13,22 @@ import { changeLanguage } from "../features/i18n/action";
 import "./login.css";
 
 const Login = () => {
-  const [country, setCountry] = useState("IR");
-  const [callingCode, setCallingCode] = useState("+98");
-  const [phoneNumber, setPhoneNumber] = useState("+98");
-  const [password, setPassword] = useState("");
-
-  const [openSnackbar] = useSnackbar();
-  const { isLoading } = useSelector((state) => state.auth);
+  const { isLoading, userInfo } = useSelector((state) => state.auth);
   const { language } = useSelector((state) => state.i18n);
 
+  const [password, setPassword] = useState("");
+  const [country, setCountry] = useState(userInfo.country);
+  const [callingCode, setCallingCode] = useState(userInfo.callingCode);
+  const [phoneNumber, setPhoneNumber] = useState(userInfo.phoneNumber);
+
+  const [openSnackbar] = useSnackbar();
+
+  const passwordInputRef = useRef(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const passwordInputRef = useRef(null);
 
   const handleSignup = () => navigate("/signup");
+
   const handleLogin = () => {
     const _error = (error) => {
       openSnackbar(

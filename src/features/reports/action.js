@@ -49,6 +49,7 @@ export const exportExcel = createAsyncThunk(
   }) => {
     const res = await axiosAPI.post(`/export_report/${year}/${month}/`, {
       employee_username: phoneNumber,
+      filter_project: filterProject,
     });
     const dailyReports = await axiosAPI.get(
       `/daily_report/${phoneNumber}/${startDate}/${endDate}/`
@@ -56,6 +57,7 @@ export const exportExcel = createAsyncThunk(
 
     return {
       reports: res.data.report,
+      projects: res.data.projects,
       dailyReports: dailyReports.data["report dictionary : "],
       daysInMonth,
       FilterProject: filterProject,

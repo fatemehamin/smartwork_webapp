@@ -39,11 +39,12 @@ const Signup = () => {
   const passwordInputRef = useRef(null);
   const rePasswordInputRef = useRef(null);
 
+  const isEmptyFieldPhone = phoneNumber.replace(callingCode, "");
+
   useEffect(() => {
     // check phoneNumber realtime
-    phoneNumber.replace(callingCode, "") &&
-      dispatch(phoneNumberCheck(phoneNumber));
-  }, [phoneNumber]);
+    isEmptyFieldPhone && dispatch(phoneNumberCheck(phoneNumber));
+  }, [dispatch, isEmptyFieldPhone, phoneNumber]);
 
   const disableSignup = !(
     password &&
@@ -56,9 +57,10 @@ const Signup = () => {
 
   const errorMsg = {
     phoneNumber:
-      error === "phoneNumberExists"
+      isEmptyFieldPhone &&
+      (error === "phoneNumberExists"
         ? Translate("phoneNumberExists", language)
-        : error,
+        : error),
     password: isPress && Translate(msgError.password(password), language),
     rePassword:
       isPress && Translate(msgError.rePassword(rePassword, password), language),

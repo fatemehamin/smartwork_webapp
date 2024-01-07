@@ -5,6 +5,7 @@ import * as XLSX from "xlsx";
 import jMoment from "moment-jalaali";
 import Modal from "../components/modal";
 import Button from "../components/button";
+import Excel from "../assets/icons/excel.svg";
 import { emptyReport } from "../features/reports/reportsSlice";
 import { Checkbox, Collapse, FormControlLabel, FormGroup } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
@@ -79,11 +80,7 @@ const ExportExcel = () => {
   const ExcelFileView = () =>
     excelReport != null && (
       <div className="excel-file">
-        <img
-          src={require("../assets/images/excel.png")}
-          className="excel-icon"
-          alt="excel"
-        />
+        <img src={Excel} className="excel-icon" alt="excel" />
         <div className="excel-modal-text excel-one-line">{filename}.xlsx</div>
         <span
           onClick={() => exportFile(filename)}

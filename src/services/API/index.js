@@ -1,38 +1,54 @@
 import axios from "axios";
-import { getAccessToken, logout } from "../../features/auth/authSlice";
+import axiosRetry from "axios-retry";
 import jwtDecode from "jwt-decode";
+import { getAccessToken, logout } from "../../features/auth/authSlice";
 
 const baseURL = "https://smartbyhub.com/smart_time/api";
 // const baseURL = "http://127.0.0.1:8000/api";
 // const baseURL = "https://smartwork.backend.smartbyhub.com/api";
 
 const axiosAPI = axios.create({ baseURL });
+
+axiosRetry(axiosAPI, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  // retryCondition: () => true, // for all error
+  retryCondition: (error) =>
+    axiosRetry.isNetworkError(error) ||
+    (error.response && error.response.status === 401),
+});
+
 let store;
 
 export const injectStore = (_store) => {
   store = _store;
 };
 
-const checkTokenRequest = (config) => {
-  const accessToken = localStorage.getItem("accessToken");
-  const refreshToken = localStorage.getItem("refreshToken");
+const checkTokenRequest = async (config) => {
+  const { accessToken, refreshToken } = store.getState().auth;
 
-  if (accessToken !== null && refreshToken !== null) {
+  if (refreshToken) {
     if (jwtDecode(refreshToken).exp * 1000 <= new Date().getTime()) {
       store.dispatch(logout());
-    } else if (jwtDecode(accessToken).exp * 1000 <= new Date().getTime()) {
-      axios
-        .post(`${baseURL}/token/refresh/`, { refresh: refreshToken })
-        .then((res) => {
-          store.dispatch(getAccessToken(res.data.access));
-        })
-        .catch((err) => console.log("refreshTokenError", err));
+    } else if (
+      accessToken === null ||
+      jwtDecode(accessToken).exp * 1000 <= new Date().getTime()
+    ) {
+      try {
+        const res = await axios.post(`${baseURL}/token/refresh/`, {
+          refresh: refreshToken,
+        });
+        store.dispatch(getAccessToken(res.data.access));
+      } catch (err) {
+        console.log("refreshTokenError", err);
+        store.dispatch(logout());
+      }
     }
-    const currentAccessToken = localStorage.getItem("accessToken");
+
+    const currentAccessToken = store.getState().auth.accessToken;
     config.headers.Authorization = `Bearer ${currentAccessToken}`;
-  } else {
-    store.dispatch(logout());
   }
+
   return config;
 };
 
@@ -41,8 +57,10 @@ axiosAPI.interceptors.request.use(checkTokenRequest);
 axiosAPI.interceptors.response.use(
   (response) => {
     return response;
+  },
+  (error) => {
+    throw new Error(error);
   }
-  // ,(error) => {    throw error  }
 );
 
 export default axiosAPI;

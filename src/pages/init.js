@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import launchScreenP from "../assets/images/launch_screen.jpg";
-import launchScreenL from "../assets/images/launch_screen_land.jpg";
+import launchScreenP from "../assets/images/launch_screen.svg";
+import launchScreenL from "../assets/images/launch_screen_land.svg";
 
 const Init = () => {
   const navigate = useNavigate();
