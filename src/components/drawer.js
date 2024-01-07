@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import ImgDrawer from "../assets/images/texture.jpeg";
+import ImgDrawer from "../assets/images/texture.png";
 import TokenChecker from "../components/tokenChecker";
 import ChangeLanguageBtn from "../components/changeLanguageBtn";
 import Alert from "./alert";
