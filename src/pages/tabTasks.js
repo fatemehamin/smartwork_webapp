@@ -61,10 +61,12 @@ const TabTasks = () => {
     );
 
   const handleDailyReport = () => {
+    setDailyReportToday(dailyReportToday.trim());
+
     dispatch(
       setDailyReport({
         date: new Date().toISOString().slice(0, 10),
-        dailyReport: dailyReportToday,
+        dailyReport: dailyReportToday.trim(),
       })
     )
       .unwrap()

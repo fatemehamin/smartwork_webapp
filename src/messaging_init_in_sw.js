@@ -16,13 +16,12 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const messaging = getMessaging(app);
 
 // Initialize Firebase Cloud Messaging and get a reference to the service
 const getTokenDeviceFCM = (SetFcmToken) => {
   Notification.requestPermission().then((permission) => {
     if (permission === "granted") {
-      const messaging = getMessaging(app);
-
       getToken(messaging, {
         vapidKey:
           "BGIwZ_kyTWrx8FZ3EL6O9ZkTrunkVwlhiClz3rjIduK7EE0WMuSu39Kl5A0V118D5Q3k9IYQF-9wed_epvOZiw0",

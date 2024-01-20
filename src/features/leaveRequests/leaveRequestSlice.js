@@ -21,6 +21,11 @@ const leaveRequestsSlice = createSlice({
     UpdateIsNewLeave: (state, action) => {
       state.isNewLeave = action.payload;
     },
+    DeleteLeave: (state, action) => {
+      state.leaveRequests = state.leaveRequests.filter(
+        (l) => l.id != action.payload
+      );
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchLeaveRequests.pending, (state) => {
@@ -76,12 +81,17 @@ const leaveRequestsSlice = createSlice({
         );
         state.isNewLeave = true;
       } else {
-        state.leaveRequests.push(leaveList);
-        state.isNewLeave = !leaveList.seen;
+        const isExistLeave = state.leaveRequests.find(
+          (l) => l.id === leaveList.id
+        );
+        if (!isExistLeave) {
+          state.leaveRequests.push(leaveList);
+          state.isNewLeave = !leaveList.seen;
+        }
       }
     });
   },
 });
 
-export const { UpdateIsNewLeave } = leaveRequestsSlice.actions;
+export const { UpdateIsNewLeave, DeleteLeave } = leaveRequestsSlice.actions;
 export default leaveRequestsSlice.reducer;

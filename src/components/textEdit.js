@@ -47,8 +47,8 @@ const TextEdit = ({ report, jDate }) => {
           : error.message
       );
     };
-
-    dispatch(setDailyReport({ date, dailyReport: DReport, jDate }))
+    setDReport(DReport.trim());
+    dispatch(setDailyReport({ date, dailyReport: DReport.trim(), jDate }))
       .unwrap()
       .then(() => setIsEdit(false))
       .catch(_error);

@@ -12,6 +12,7 @@ import Location from "../../pages/location";
 import ShiftWork from "../../pages/shiftWork";
 import ExportExcel from "../../pages/exportExcel";
 import StatusMember from "../../pages/statusMember";
+import NotFound from "../../pages/notFound";
 import PrivacyPolicy from "../../pages/privacyPolicy";
 import getTokenDeviceFCM from "../../messaging_init_in_sw";
 import { addFcmToken } from "../../features/notification/action";
@@ -26,12 +27,17 @@ import {
 
 const Routers = () => {
   const { isRTL } = useSelector((state) => state.i18n.I18nManager);
-  const { isAuthentication, refreshToken } = useSelector((state) => state.auth);
   const { id } = useSelector((state) => state.notification);
+  const { isAuthentication, refreshToken, type } = useSelector(
+    (state) => state.auth
+  );
 
   const [fcmToken, setFcmToken] = useState(null);
 
   const dispatch = useDispatch();
+
+  const admin = type === "boss";
+  const financial = admin || type === "financial";
 
   useEffect(() => {
     remoteNotification(dispatch);
@@ -55,8 +61,16 @@ const Routers = () => {
     return refreshToken ? <Navigate to="/" /> : <Component />;
   };
 
-  const mainElement = (Component) => {
-    return refreshToken ? <Component /> : <Navigate to="/login" />;
+  const mainElement = (Component, permission = true) => {
+    return refreshToken ? (
+      permission ? (
+        <Component />
+      ) : (
+        <NotFound />
+      )
+    ) : (
+      <Navigate to="/login" />
+    );
   };
 
   return (
@@ -72,15 +86,18 @@ const Routers = () => {
           path="/verifyCode/:phoneNumber/:type"
           element={authElement(VerifyCode)}
         />
-        <Route path="/manager" element={mainElement(Manager)} />
+        <Route path="/manager" element={mainElement(Manager, admin)} />
         <Route path="/myTasks" element={mainElement(MyTask)} />
         <Route path="/myReport" element={mainElement(MyReport)} />
-        <Route path="/location" element={mainElement(Location)} />
-        <Route path="/shiftWork" element={mainElement(ShiftWork)} />
-        <Route path="/exportExcel" element={mainElement(ExportExcel)} />
+        <Route path="/location" element={mainElement(Location, admin)} />
+        <Route path="/shiftWork" element={mainElement(ShiftWork, admin)} />
+        <Route
+          path="/exportExcel"
+          element={mainElement(ExportExcel, financial)}
+        />
         <Route
           path="/statusMember/:currentId"
-          element={mainElement(StatusMember)}
+          element={mainElement(StatusMember, admin)}
         />
       </Routes>
     </Router>

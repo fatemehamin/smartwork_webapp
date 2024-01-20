@@ -21,6 +21,9 @@ const msgSlice = createSlice({
     UpdateIsNewMsg: (state, action) => {
       state.isNewMsg = action.payload;
     },
+    DeleteMsg: (state, action) => {
+      state.msg = state.msg.filter((m) => m.id != action.payload);
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchMsg.pending, (state) => {
@@ -70,12 +73,15 @@ const msgSlice = createSlice({
         state.msg = state.msg.map((m) => (m.id === msg.id ? msg : m));
         state.isNewMsg = true;
       } else {
-        state.msg.push(msg);
-        state.isNewMsg = !msg.seen;
+        const isExistMsg = state.msg.find((m) => m.id === msg.id);
+        if (!isExistMsg) {
+          state.msg.push(msg);
+          state.isNewMsg = !msg.seen;
+        }
       }
     });
   },
 });
 
-export const { UpdateIsNewMsg } = msgSlice.actions;
+export const { UpdateIsNewMsg, DeleteMsg } = msgSlice.actions;
 export default msgSlice.reducer;

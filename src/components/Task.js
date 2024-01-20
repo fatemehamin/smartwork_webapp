@@ -106,6 +106,7 @@ const Task = ({
 
   const onClickHandler = () => {
     const entryFirstHandler = () => setOpenAlert(true);
+
     const handleStartTask = () => {
       const _error = (error) => {
         emptyWidth();
@@ -125,6 +126,8 @@ const Task = ({
         openSnackbar(
           error.code === "ERR_NETWORK"
             ? Translate("connectionFailed", language)
+            : error.message.slice(-3) === "406"
+            ? Translate("existMoreStartError", language)
             : error.message
         );
       };

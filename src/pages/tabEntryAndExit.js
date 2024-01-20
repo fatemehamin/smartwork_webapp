@@ -128,16 +128,25 @@ const TabEntryAndExit = () => {
   const exitEntryHandler = () => {
     const _exit = () => {
       const args = { phoneNumber: userInfo.phoneNumber, isExitWithBoss: false };
-      dispatch(exit(args))
-        .unwrap()
-        .then(() => {
-          setIsEntry(false);
-          emptyWidth();
-        })
-        .catch((error) => {
-          emptyWidth();
-          _error(error);
-        });
+
+      const _thenExit = () => {
+        setIsEntry(false);
+        emptyWidth();
+      };
+
+      const _errorExit = (error) => {
+        emptyWidth();
+
+        openSnackbar(
+          error.code === "ERR_NETWORK"
+            ? Translate("connectionFailed", language)
+            : error.message.slice(-3) === "406"
+            ? Translate("existMoreEntryError", language)
+            : error.message
+        );
+      };
+
+      dispatch(exit(args)).unwrap().then(_thenExit).catch(_errorExit);
     };
 
     const argsEndTime = {
@@ -156,9 +165,24 @@ const TabEntryAndExit = () => {
       _error(error);
     };
 
+    const _errorEndTime = (error) => {
+      emptyWidth();
+
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message.slice(-3) === "406"
+          ? Translate("existMoreStartError", language)
+          : error.message
+      );
+    };
+
     isEntry
       ? currentTask.start // if have enable task first all task disable then exit
-        ? dispatch(endTime(argsEndTime)).unwrap().then(_exit).catch(_error)
+        ? dispatch(endTime(argsEndTime))
+            .unwrap()
+            .then(_exit)
+            .catch(_errorEndTime)
         : _exit()
       : dispatch(entry()).unwrap().then(_thenEntry).catch(_errorEntry);
   };

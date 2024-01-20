@@ -196,5 +196,7 @@
   "shiftNameExist": "This shift name exists in the system. Please choose another name.",
   "noWorkShift": "There is no work shift.",
   "addShiftToUser": "Add shift to user",
-  "noShift": "No Shift"
+  "noShift": "No Shift",
+  "existMoreStartError": "exist more that one start for this project.",
+  "existMoreEntryError": "exist more that one entry."
 }

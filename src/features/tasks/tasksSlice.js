@@ -133,21 +133,24 @@ const tasksSlice = createSlice({
     });
     builder.addCase(fetchNewTasksLog.fulfilled, (state, action) => {
       const { log, last_duration_task } = action.payload;
-      state.taskLogList.push(log);
-      state.isNewLog = !log.seen;
-      if (log.project_name === "entry") {
-        state.lastEntry = 0;
-      } else {
-        state.currentTask.start = 0;
-        state.tasks = state.tasks.map((t) =>
-          t.project_name === state.currentTask.name
-            ? {
-                ...t,
-                today_duration:
-                  t.today_duration + JSON.parse(last_duration_task),
-              }
-            : t
-        );
+      const isExistLog = state.taskLogList.find((t) => t.id === log.id);
+      if (!isExistLog) {
+        state.taskLogList.push(log);
+        state.isNewLog = !log.seen;
+        if (log.project_name === "entry") {
+          state.lastEntry = 0;
+        } else {
+          state.currentTask.start = 0;
+          state.tasks = state.tasks.map((t) =>
+            t.project_name === state.currentTask.name
+              ? {
+                  ...t,
+                  today_duration:
+                    t.today_duration + JSON.parse(last_duration_task),
+                }
+              : t
+          );
+        }
       }
     });
   },
