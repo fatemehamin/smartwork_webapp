@@ -261,7 +261,18 @@ const TabCartable = () => {
                     );
                   })
                   .catch(_error)
-              : dispatch(deleteLeave(req.id)).unwrap().catch(_error);
+              : dispatch(deleteLeave(req.id))
+                  .unwrap()
+                  .then((res) => {
+                    dispatch(
+                      sendNotification({
+                        typeNotification: "REMOVE_REQUEST",
+                        id_data: res,
+                        request: "leave",
+                      })
+                    );
+                  })
+                  .catch(_error);
           };
 
           const user = findUser(req.phone_number);
@@ -343,7 +354,18 @@ const TabCartable = () => {
                     );
                   })
                   .catch(_error)
-              : dispatch(deleteMsg(req.id)).unwrap().catch(_error);
+              : dispatch(deleteMsg(req.id))
+                  .unwrap()
+                  .then((res) => {
+                    dispatch(
+                      sendNotification({
+                        typeNotification: "REMOVE_REQUEST",
+                        id_data: res,
+                        request: "msg",
+                      })
+                    );
+                  })
+                  .catch(_error);
           };
 
           const user = findUser(getUserPhoneToShowName());

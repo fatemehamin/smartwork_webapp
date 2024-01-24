@@ -198,5 +198,13 @@
   "addShiftToUser": "افزودن شیفت به کاربر",
   "noShift": "بدون شیفت",
   "existMoreStartError": "بیش از یک شروع برای این پروژه وجود دارد.",
-  "existMoreEntryError": "بیش از یک ورود وجود دارد."
+  "existMoreEntryError": "بیش از یک ورود وجود دارد.",
+  "daysWeek": "روزهای هفته",
+  "TOTAL": "مجموع",
+  "EXIT": "خروج",
+  "DURATION": "مدت زمان",
+  "start": "شروع",
+  "end": "پایان",
+  "duration": "مدت زمان",
+  "total": "مجموع"
 }

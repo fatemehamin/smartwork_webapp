@@ -6,6 +6,7 @@ import jMoment from "moment-jalaali";
 import Modal from "../components/modal";
 import Button from "../components/button";
 import Excel from "../assets/icons/excel.svg";
+import moment from "moment-jalaali";
 import { emptyReport } from "../features/reports/reportsSlice";
 import { Checkbox, Collapse, FormControlLabel, FormGroup } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
@@ -37,7 +38,7 @@ const ExportExcel = () => {
   });
 
   const { users } = useSelector((state) => state.users);
-  const { language } = useSelector((state) => state.i18n);
+  const { language, I18nManager } = useSelector((state) => state.i18n);
   const { projects, isLoading } = useSelector((state) => state.projects);
   const { excelReport, isLoading: isLoadingRep } = useSelector(
     (state) => state.reports
@@ -46,17 +47,20 @@ const ExportExcel = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(emptyReport());
     dispatch(fetchUsers());
     dispatch(fetchProject());
   }, []);
 
   const pad = (n) => (n < 10 ? "0" + n : n);
+
   const nowTime = new Date().getTime();
+
   const filename = `${employees.name[indexEmployeeCurrent]}_${jYear}${pad(
     jMonth + 1
   )}_${nowTime}`;
 
-  const getEmployee = () => {
+  const getUsers = () => {
     let number = [];
     let name = [];
     let data = [];
@@ -69,10 +73,281 @@ const ExportExcel = () => {
     setIndexEmployeeCurrent(indexEmployeeCurrent);
   };
 
+  const calculateExcel = () => {
+    const {
+      reports,
+      projects,
+      daysInMonth,
+      dailyReports,
+      userName,
+      jYear,
+      jMonth,
+    } = excelReport;
+
+    const formatTimeExcel = (timestamp) => {
+      const time = new Date(parseInt(timestamp)).toTimeString().slice(0, 8);
+      return { t: "s", v: time, z: "hh:mm:ss" };
+    };
+
+    const formatDurationExcel = (timestamp) => {
+      const duration = moment.duration(timestamp);
+      const time = `${pad(duration.hours())}:${pad(duration.minutes())}:${pad(
+        duration.seconds()
+      )}`;
+      return { t: "s", v: time, z: "[h]:mm:ss" };
+    };
+
+    const convertToDate = (jDate) => {
+      const date = jMoment(jDate, "jYYYY-jM-jD");
+      return date.toISOString().slice(0, 10);
+    };
+
+    const convertToJDate = (timestamp) => {
+      return `${jMoment(timestamp).jYear()}-${pad(
+        jMoment(timestamp).jMonth() + 1
+      )}-${pad(jMoment(timestamp).jDate())}`;
+    };
+
+    const findLargestArray = (obj) => {
+      const largestArray = Object.values(obj).reduce(
+        (maxArray, currentArray) =>
+          currentArray !== undefined && currentArray.length > maxArray.length
+            ? currentArray
+            : maxArray,
+        []
+      );
+      return largestArray;
+    };
+
+    const cellMerge = (startRow, startColumn, endRow, endColumn) => ({
+      s: { c: startColumn, r: startRow },
+      e: { c: endColumn, r: endRow },
+    });
+
+    const nameCellExcel = (indexColumn, indexRow) => {
+      // this function support just until two letter
+      let letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      if (indexColumn < letter.length) {
+        return letter[indexColumn] + indexRow;
+      } else {
+        const firstLetter = parseInt(indexColumn / letter.length) - 1;
+        const secondLetter = indexColumn % letter.length;
+        return letter[firstLetter] + letter[secondLetter] + indexRow;
+      }
+    };
+
+    // change date of report to jalaali
+    const ReportOfJDate = reports.map((report) => ({
+      ...report,
+      date: convertToJDate(report.date),
+    }));
+
+    const headerAndTotal = (data = []) =>
+      projects.reduce(
+        (pre, project, index) => {
+          const startCellTotal = nameCellExcel(index * 4 + 5, 4);
+          const endCellTotal = nameCellExcel(index * 4 + 5, data.length);
+          const funTotal = `SUM(${startCellTotal}:${endCellTotal})`;
+
+          const total = {
+            f: funTotal,
+            ...formatDurationExcel(
+              reports
+                .filter((report) => report.project_name === project)
+                .reduce(
+                  (total, report) => total + parseInt(report.duration || 0),
+                  0
+                )
+            ),
+          };
+
+          const start = 4 * index + 3;
+          const end = start + 3;
+
+          const hiddenColumn = [
+            ...pre.hiddenColumn,
+            { width: 8 },
+            { width: 8 },
+            { hidden: true },
+            { width: 8 },
+          ];
+
+          if (project === "entry") {
+            return {
+              ...pre,
+              first: [
+                ...pre.first,
+                Translate("ENTRY", language),
+                Translate("EXIT", language),
+                Translate("DURATION", language),
+                Translate("TOTAL", language),
+              ],
+              second: [...pre.second, "", "", "", ""],
+              total: [...pre.total, total, total, total, total],
+              hiddenColumn,
+            };
+          }
+          return {
+            ...pre,
+            first: [...pre.first, project, project, project, project],
+            second: [
+              ...pre.second,
+              Translate("start", language),
+              Translate("end", language),
+              Translate("duration", language),
+              Translate("total", language),
+            ],
+            total: [...pre.total, total, total, total, total],
+            mergeProName: [...pre.mergeProName, cellMerge(1, start, 1, end)],
+            hiddenColumn,
+          };
+        },
+        {
+          first: [
+            Translate("date", language),
+            Translate("daysWeek", language),
+            Translate("dailyReport", language),
+          ],
+          second: ["", "", ""],
+          total: [
+            Translate("TOTAL", language),
+            Translate("TOTAL", language),
+            Translate("TOTAL", language),
+          ],
+          mergeProName: [],
+          hiddenColumn: [{ width: 10 }, { width: 16 }, { width: 11 }],
+        }
+      );
+
+    let merge = [];
+    let data = [[userName], headerAndTotal().first, headerAndTotal().second];
+
+    Array.from({ length: daysInMonth }, (_, dayIndex) => {
+      const date = `${jYear}-${pad(jMonth)}-${pad(dayIndex + 1)}`;
+
+      const dateObject = new Date(date);
+      const dateFormatter = new Intl.DateTimeFormat(
+        language === "EN" ? "en-US" : "fa-IR",
+        { weekday: "long" }
+      );
+      const dayOfWeekName = dateFormatter.format(dateObject);
+
+      const dailyReport = dailyReports[convertToDate(date)];
+
+      const reportsDay = ReportOfJDate.filter((rep) => rep.date === date);
+
+      const newReportsDay = projects.reduce((acc, project) => {
+        if (reportsDay.length > 0) {
+          const sameProject = reportsDay.filter(
+            (p) => project === p.project_name
+          );
+
+          const totalDurationDay = sameProject.reduce(
+            (total, report) => total + parseInt(report.duration || 0),
+            0
+          );
+
+          const newSameProject = sameProject
+            .sort((a) => a.start) // sort in start time
+            .map((sp) => ({
+              start: formatTimeExcel(sp.start),
+              end: formatTimeExcel(sp.end),
+              duration: sp.duration,
+              total: totalDurationDay,
+            }));
+
+          return {
+            ...acc,
+            [project]: sameProject.length > 0 ? newSameProject : undefined,
+          };
+        }
+        return { ...acc, [project]: undefined };
+      }, {});
+
+      const maxLengthDayReport = findLargestArray(newReportsDay).length;
+      const startRowNum = data.length;
+
+      const endRowNum = maxLengthDayReport
+        ? startRowNum + maxLengthDayReport - 1
+        : startRowNum;
+
+      for (
+        let index = 0;
+        index < maxLengthDayReport || (!maxLengthDayReport && !index);
+        index++
+      ) {
+        const rowArrayProjects = projects.reduce((preRow, project, i) => {
+          const report = newReportsDay[project]
+            ? newReportsDay[project][index] || {}
+            : {};
+
+          const startCellDuration = nameCellExcel(i * 4 + 3, data.length + 1);
+          const endCellDuration = nameCellExcel(i * 4 + 4, data.length + 1);
+          const funDuration = endCellDuration + "-" + startCellDuration;
+
+          const duration = {
+            ...formatDurationExcel(report.duration),
+            f: funDuration,
+          };
+
+          const startCellTotal = nameCellExcel(i * 4 + 5, startRowNum + 1);
+          const endCellTotal = nameCellExcel(i * 4 + 5, endRowNum + 1);
+          const funTotal = startCellTotal + ":" + endCellTotal;
+
+          const total = { ...formatDurationExcel(report.total), f: funTotal };
+
+          return [...preRow, report.start, report.end, duration, total];
+        }, []);
+
+        data.push([date, dayOfWeekName, dailyReport, ...rowArrayProjects]);
+      }
+
+      if (maxLengthDayReport > 1) {
+        merge.push(
+          cellMerge(startRowNum, 0, endRowNum, 0), //merge date colum
+          cellMerge(startRowNum, 1, endRowNum, 1), //merge day of weekName colum
+          cellMerge(startRowNum, 2, endRowNum, 2), //merge daily report colum
+          ...projects.map((_, index) => {
+            const colum = 4 * index + 6;
+            return cellMerge(startRowNum, colum, endRowNum, colum);
+          })
+        );
+      }
+
+      return { date, dayOfWeekName, dailyReport, ...newReportsDay };
+    });
+
+    data.push(headerAndTotal(data).total);
+
+    const lastRowNumber = data.length - 1;
+
+    merge.push(
+      cellMerge(0, 0, 0, projects.length * 4 + 2), // merge member name
+      cellMerge(lastRowNumber, 0, lastRowNumber, 2), // merge total Title
+      ...headerAndTotal().mergeProName, // merge project name
+      ...projects.reduce((pre, _, index) => {
+        const start = 4 * index + 3;
+        const end = start + 3;
+        return [...pre, cellMerge(lastRowNumber, start, lastRowNumber, end)]; // merge total row
+      }, [])
+    );
+
+    return { data, config: merge, hiddenColumn: headerAndTotal().hiddenColumn };
+  };
+
   const exportFile = (filename) => {
     const wb = XLSX.utils.book_new();
-    let ws = XLSX.utils.aoa_to_sheet(excelReport.data);
-    ws["!merges"] = excelReport.config;
+    let ws = XLSX.utils.aoa_to_sheet(calculateExcel().data);
+
+    //Create workbook and set Views if workbook is not already defined
+    if (!wb.Workbook) {
+      wb.Workbook = {};
+    }
+    wb.Workbook.Views = [{ RTL: I18nManager.isRTL }];
+
+    ws["!cols"] = calculateExcel().hiddenColumn;
+    ws["!merges"] = calculateExcel().config;
+
     XLSX.utils.book_append_sheet(wb, ws, "ReportSheet");
     XLSX.writeFile(wb, `${filename}.xlsx`);
   };
@@ -132,7 +407,7 @@ const ExportExcel = () => {
   const closeModal = () => setModalVisible(false);
   const openModal = () => {
     setModalVisible(true);
-    getEmployee();
+    getUsers();
   };
 
   const toggleCollapse = () => setIsCollapse(!isCollapse);

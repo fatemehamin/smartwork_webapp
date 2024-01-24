@@ -198,5 +198,13 @@
   "addShiftToUser": "Add shift to user",
   "noShift": "No Shift",
   "existMoreStartError": "exist more that one start for this project.",
-  "existMoreEntryError": "exist more that one entry."
+  "existMoreEntryError": "exist more that one entry.",
+  "daysWeek": "Days of the Week",
+  "TOTAL": "TOTAL",
+  "EXIT": "EXIT",
+  "DURATION": "DURATION",
+  "start": "Start",
+  "end": "End",
+  "duration": "Duration",
+  "total": "Total"
 }

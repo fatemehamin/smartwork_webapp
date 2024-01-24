@@ -60,7 +60,6 @@ export const exportExcel = createAsyncThunk(
       projects: res.data.projects,
       dailyReports: dailyReports.data["report dictionary : "],
       daysInMonth,
-      FilterProject: filterProject,
       jYear: year,
       jMonth: month,
       userName,
