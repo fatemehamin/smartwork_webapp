@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import AppBar from "../components/appBar";
 import Calendar from "../components/picker";
-import * as XLSX from "xlsx";
+import moment from "moment-jalaali";
 import jMoment from "moment-jalaali";
 import Modal from "../components/modal";
 import Button from "../components/button";
-import Excel from "../assets/icons/excel.svg";
-import moment from "moment-jalaali";
+import ExcelFile from "../components/excelFile";
+import CheckBox from "../components/checkBox";
 import { emptyReport } from "../features/reports/reportsSlice";
 import { Checkbox, Collapse, FormControlLabel, FormGroup } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,36 +15,26 @@ import { Translate } from "../features/i18n/translate";
 import { useSnackbar } from "react-simple-snackbar";
 import { fetchProject } from "../features/projects/action";
 import { fetchUsers } from "../features/users/action";
-import {
-  FileDownload,
-  ExpandLess,
-  ExpandMore,
-  ArrowBackIos,
-} from "@mui/icons-material";
+import { ExpandLess, ExpandMore, ArrowBackIos } from "@mui/icons-material";
 import "./exportExcel.css";
 
 const ExportExcel = () => {
   const [jYear, setJYear] = useState(jMoment(new Date()).jYear());
   const [jMonth, setJMonth] = useState(jMoment(new Date()).jMonth());
   const [modalVisible, setModalVisible] = useState(false);
-  const [indexEmployeeCurrent, setIndexEmployeeCurrent] = useState(0);
+  const [indexUserCurrent, setIndexUserCurrent] = useState(0);
   const [isCollapse, setIsCollapse] = useState(false);
   const [filterProject, setFilterProject] = useState(["entry"]);
-  const [openSnackbar] = useSnackbar();
-  const [employees, setEmployees] = useState({
-    name: [""],
-    number: [],
-    data: [],
-  });
 
   const { users } = useSelector((state) => state.users);
-  const { language, I18nManager } = useSelector((state) => state.i18n);
+  const { language } = useSelector((state) => state.i18n);
   const { projects, isLoading } = useSelector((state) => state.projects);
   const { excelReport, isLoading: isLoadingRep } = useSelector(
     (state) => state.reports
   );
 
   const dispatch = useDispatch();
+  const [openSnackbar] = useSnackbar();
 
   useEffect(() => {
     dispatch(emptyReport());
@@ -52,54 +42,57 @@ const ExportExcel = () => {
     dispatch(fetchProject());
   }, []);
 
-  const pad = (n) => (n < 10 ? "0" + n : n);
+  const closeModal = () => setModalVisible(false);
+  const openModal = () => setModalVisible(true);
 
-  const nowTime = new Date().getTime();
+  const toggleCollapse = () => setIsCollapse(!isCollapse);
 
-  const filename = `${employees.name[indexEmployeeCurrent]}_${jYear}${pad(
-    jMonth + 1
-  )}_${nowTime}`;
-
-  const getUsers = () => {
-    let number = [];
-    let name = [];
-    let data = [];
-    users.forEach((employee) => {
-      number = [...number, employee.phone_number];
-      name = [...name, `${employee.first_name} ${employee.last_name}`];
-      data = [...data, ""];
-    });
-    setEmployees(() => ({ number, name, data }));
-    setIndexEmployeeCurrent(indexEmployeeCurrent);
+  const handelBackBtnModal = () => {
+    closeModal();
+    setIsCollapse(false);
   };
 
   const calculateExcel = () => {
     const {
       reports,
       projects,
+      leaves,
+      delays,
+      overTimes,
+      lowTimes,
       daysInMonth,
       dailyReports,
-      userName,
       jYear,
       jMonth,
     } = excelReport;
+
+    const pad = (n) => (n < 10 ? "0" + n : n);
 
     const formatTimeExcel = (timestamp) => {
       const time = new Date(parseInt(timestamp)).toTimeString().slice(0, 8);
       return { t: "s", v: time, z: "hh:mm:ss" };
     };
 
-    const formatDurationExcel = (timestamp) => {
+    const formatDurationExcel = (timestamp, formula) => {
       const duration = moment.duration(timestamp);
       const time = `${pad(duration.hours())}:${pad(duration.minutes())}:${pad(
         duration.seconds()
       )}`;
-      return { t: "s", v: time, z: "[h]:mm:ss" };
+
+      return {
+        t: "s",
+        v: time,
+        w: time,
+        z: "[hh]:mm:ss",
+        f: formula ? formula : `=TIMEVALUE("${time}")`,
+      };
     };
 
     const convertToDate = (jDate) => {
       const date = jMoment(jDate, "jYYYY-jM-jD");
-      return date.toISOString().slice(0, 10);
+      // تاریخ یک روز بعد
+      const nextDay = date.add(1, "day");
+      return nextDay.toISOString().slice(0, 10);
     };
 
     const convertToJDate = (timestamp) => {
@@ -136,6 +129,12 @@ const ExportExcel = () => {
       }
     };
 
+    const funTotalColum = (colum, lastRow) => {
+      const start = nameCellExcel(colum, 3);
+      const end = nameCellExcel(colum, lastRow);
+      return `SUM(${start}:${end})`;
+    };
+
     // change date of report to jalaali
     const ReportOfJDate = reports.map((report) => ({
       ...report,
@@ -145,24 +144,92 @@ const ExportExcel = () => {
     const headerAndTotal = (data = []) =>
       projects.reduce(
         (pre, project, index) => {
-          const startCellTotal = nameCellExcel(index * 4 + 5, 4);
-          const endCellTotal = nameCellExcel(index * 4 + 5, data.length);
-          const funTotal = `SUM(${startCellTotal}:${endCellTotal})`;
+          const columDuration = index * 4 + (index ? 9 : 5);
 
-          const total = {
-            f: funTotal,
-            ...formatDurationExcel(
-              reports
-                .filter((report) => report.project_name === project)
-                .reduce(
-                  (total, report) => total + parseInt(report.duration || 0),
-                  0
-                )
+          const totals = formatDurationExcel(
+            reports
+              .filter((report) => report.project_name === project)
+              .reduce((total, r) => total + parseInt(r.duration || 0), 0),
+            funTotalColum(columDuration, data.length)
+          );
+
+          const leaveTotal = formatDurationExcel(
+            leaves.reduce((total, l) => total + parseInt(l.time_leave || 0), 0),
+            funTotalColum(7, data.length)
+          );
+
+          const delayTotal = formatDurationExcel(
+            delays.reduce((total, d) => total + parseInt(d.delay || 0), 0),
+            funTotalColum(8, data.length)
+          );
+
+          const deductionTotal = formatDurationExcel(
+            lowTimes.reduce((total, l) => total + parseInt(l.lowtime || 0), 0),
+            funTotalColum(10, data.length)
+          );
+
+          const overTimeTotal = formatDurationExcel(
+            overTimes.reduce(
+              (total, o) => total + parseInt(o.over_time || 0),
+              0
             ),
-          };
+            funTotalColum(9, data.length)
+          );
 
-          const start = 4 * index + 3;
+          const start = 4 * index + 7;
           const end = start + 3;
+
+          if (project === "entry") {
+            const first = [
+              ...pre.first,
+              Translate("ENTRY", language),
+              Translate("EXIT", language),
+              Translate("DURATION", language),
+              Translate("TOTAL", language),
+              Translate("leave", language),
+              Translate("delay", language),
+              Translate("overTime", language),
+              Translate("deduction", language),
+            ];
+
+            const second = [...pre.second, "", "", "", "", "", "", "", ""];
+
+            const hiddenColumn = [
+              ...pre.hiddenColumn,
+              { width: 8 },
+              { width: 8 },
+              { hidden: true },
+              { width: 8 },
+              { width: 8 },
+              { width: 8 },
+              { width: 8 },
+              { width: 8 },
+            ];
+
+            const total = [
+              ...pre.total,
+              totals,
+              totals,
+              totals,
+              totals,
+              leaveTotal,
+              delayTotal,
+              overTimeTotal,
+              deductionTotal,
+            ];
+
+            return { ...pre, first, second, total, hiddenColumn };
+          }
+
+          const first = [...pre.first, project, project, project, project];
+
+          const second = [
+            ...pre.second,
+            Translate("start", language),
+            Translate("end", language),
+            Translate("duration", language),
+            Translate("total", language),
+          ];
 
           const hiddenColumn = [
             ...pre.hiddenColumn,
@@ -172,35 +239,14 @@ const ExportExcel = () => {
             { width: 8 },
           ];
 
-          if (project === "entry") {
-            return {
-              ...pre,
-              first: [
-                ...pre.first,
-                Translate("ENTRY", language),
-                Translate("EXIT", language),
-                Translate("DURATION", language),
-                Translate("TOTAL", language),
-              ],
-              second: [...pre.second, "", "", "", ""],
-              total: [...pre.total, total, total, total, total],
-              hiddenColumn,
-            };
-          }
-          return {
-            ...pre,
-            first: [...pre.first, project, project, project, project],
-            second: [
-              ...pre.second,
-              Translate("start", language),
-              Translate("end", language),
-              Translate("duration", language),
-              Translate("total", language),
-            ],
-            total: [...pre.total, total, total, total, total],
-            mergeProName: [...pre.mergeProName, cellMerge(1, start, 1, end)],
-            hiddenColumn,
-          };
+          const total = [...pre.total, totals, totals, totals, totals];
+
+          const mergeProName = [
+            ...pre.mergeProName,
+            cellMerge(0, start, 0, end),
+          ];
+
+          return { ...pre, first, second, total, mergeProName, hiddenColumn };
         },
         {
           first: [
@@ -220,12 +266,12 @@ const ExportExcel = () => {
       );
 
     let merge = [];
-    let data = [[userName], headerAndTotal().first, headerAndTotal().second];
+    let data = [headerAndTotal().first, headerAndTotal().second];
 
     Array.from({ length: daysInMonth }, (_, dayIndex) => {
       const date = `${jYear}-${pad(jMonth)}-${pad(dayIndex + 1)}`;
 
-      const dateObject = new Date(date);
+      const dateObject = new Date(convertToDate(date));
       const dateFormatter = new Intl.DateTimeFormat(
         language === "EN" ? "en-US" : "fa-IR",
         { weekday: "long" }
@@ -233,6 +279,24 @@ const ExportExcel = () => {
       const dayOfWeekName = dateFormatter.format(dateObject);
 
       const dailyReport = dailyReports[convertToDate(date)];
+
+      const leave = leaves.filter((l) => l.date === convertToDate(date));
+      const leaveRow = formatDurationExcel(
+        leave.reduce((total, l) => total + (l ? l.time_leave : 0), 0)
+      );
+
+      const delay = delays.filter((d) => d.date === convertToDate(date));
+      const DelayRow = formatDurationExcel(delay[0] ? delay[0].delay : 0);
+
+      const overTime = overTimes.filter((o) => o.date === convertToDate(date));
+      const overTimeRow = formatDurationExcel(
+        overTime[0] ? overTime[0].over_time : 0
+      );
+
+      const lowTime = lowTimes.filter((l) => l.date === convertToDate(date));
+      const lowTimeRow = formatDurationExcel(
+        lowTime[0] ? lowTime[0].lowtime : 0
+      );
 
       const reportsDay = ReportOfJDate.filter((rep) => rep.date === date);
 
@@ -271,44 +335,52 @@ const ExportExcel = () => {
         ? startRowNum + maxLengthDayReport - 1
         : startRowNum;
 
+      let isOneFiscal = true;
+
       for (
         let index = 0;
         index < maxLengthDayReport || (!maxLengthDayReport && !index);
         index++
       ) {
-        const rowArrayProjects = projects.reduce((preRow, project, i) => {
+        const rowArrayProjects = projects.reduce((pre, project, i) => {
           const report = newReportsDay[project]
             ? newReportsDay[project][index] || {}
             : {};
 
-          const startCellDuration = nameCellExcel(i * 4 + 3, data.length + 1);
-          const endCellDuration = nameCellExcel(i * 4 + 4, data.length + 1);
+          const Column = i * 4 + i ? 11 : 3;
+
+          const startCellDuration = nameCellExcel(Column, data.length + 1);
+          const endCellDuration = nameCellExcel(Column + 1, data.length + 1);
           const funDuration = endCellDuration + "-" + startCellDuration;
+          const duration = formatDurationExcel(report.duration, funDuration);
 
-          const duration = {
-            ...formatDurationExcel(report.duration),
-            f: funDuration,
-          };
+          const startCellTotal = nameCellExcel(Column + 2, startRowNum + 1);
+          const endCellTotal = nameCellExcel(Column + 2, endRowNum + 1);
+          const funTotal = `SUM(${startCellTotal}:${endCellTotal})`;
+          const total = formatDurationExcel(report.total, funTotal);
 
-          const startCellTotal = nameCellExcel(i * 4 + 5, startRowNum + 1);
-          const endCellTotal = nameCellExcel(i * 4 + 5, endRowNum + 1);
-          const funTotal = startCellTotal + ":" + endCellTotal;
+          const fiscal =
+            isOneFiscal && project === "entry"
+              ? [leaveRow, DelayRow, overTimeRow, lowTimeRow]
+              : [];
 
-          const total = { ...formatDurationExcel(report.total), f: funTotal };
+          isOneFiscal = false;
 
-          return [...preRow, report.start, report.end, duration, total];
+          return [...pre, report.start, report.end, duration, total, ...fiscal];
         }, []);
 
         data.push([date, dayOfWeekName, dailyReport, ...rowArrayProjects]);
       }
 
       if (maxLengthDayReport > 1) {
+        //merge colum(0=date, 1=day of weekName, 2=daily report, 7=leave, 8=delay, 9=overtime, 10=lowTime)
         merge.push(
-          cellMerge(startRowNum, 0, endRowNum, 0), //merge date colum
-          cellMerge(startRowNum, 1, endRowNum, 1), //merge day of weekName colum
-          cellMerge(startRowNum, 2, endRowNum, 2), //merge daily report colum
+          ...[0, 1, 2, 7, 8, 9, 10].map((i) =>
+            cellMerge(startRowNum, i, endRowNum, i)
+          ),
+          //merge colum total project
           ...projects.map((_, index) => {
-            const colum = 4 * index + 6;
+            const colum = 4 * index + (index ? 10 : 6);
             return cellMerge(startRowNum, colum, endRowNum, colum);
           })
         );
@@ -322,51 +394,23 @@ const ExportExcel = () => {
     const lastRowNumber = data.length - 1;
 
     merge.push(
-      cellMerge(0, 0, 0, projects.length * 4 + 2), // merge member name
       cellMerge(lastRowNumber, 0, lastRowNumber, 2), // merge total Title
       ...headerAndTotal().mergeProName, // merge project name
       ...projects.reduce((pre, _, index) => {
-        const start = 4 * index + 3;
+        const start = 4 * index + (index ? 7 : 3);
         const end = start + 3;
         return [...pre, cellMerge(lastRowNumber, start, lastRowNumber, end)]; // merge total row
       }, [])
     );
 
+    for (let i = 0; i < 11; i++) {
+      merge.push(cellMerge(0, i, 1, i)); // merge first header row
+    }
+
     return { data, config: merge, hiddenColumn: headerAndTotal().hiddenColumn };
   };
 
-  const exportFile = (filename) => {
-    const wb = XLSX.utils.book_new();
-    let ws = XLSX.utils.aoa_to_sheet(calculateExcel().data);
-
-    //Create workbook and set Views if workbook is not already defined
-    if (!wb.Workbook) {
-      wb.Workbook = {};
-    }
-    wb.Workbook.Views = [{ RTL: I18nManager.isRTL }];
-
-    ws["!cols"] = calculateExcel().hiddenColumn;
-    ws["!merges"] = calculateExcel().config;
-
-    XLSX.utils.book_append_sheet(wb, ws, "ReportSheet");
-    XLSX.writeFile(wb, `${filename}.xlsx`);
-  };
-
-  const ExcelFileView = () =>
-    excelReport != null && (
-      <div className="excel-file">
-        <img src={Excel} className="excel-icon" alt="excel" />
-        <div className="excel-modal-text excel-one-line">{filename}.xlsx</div>
-        <span
-          onClick={() => exportFile(filename)}
-          className="excel-icon-download"
-        >
-          <FileDownload />
-        </span>
-      </div>
-    );
-
-  const onExportFilterHandler = () => {
+  const handelExport = () => {
     const changeToDate = (jYear, jMonth, day) => {
       const d = jMoment(`${jYear}/${jMonth + 1}/${day}`, "jYYYY/jM/jD");
       return `${d.year()}/${d.month() + 1}/${d.date()}`;
@@ -374,53 +418,62 @@ const ExportExcel = () => {
 
     const daysInMonth = jMoment.jDaysInMonth(parseInt(jYear), jMonth);
 
-    dispatch(
-      exportExcel({
-        year: parseInt(jYear),
-        month: jMonth + 1,
-        daysInMonth,
-        startDate: changeToDate(jYear, jMonth, 1),
-        endDate: changeToDate(jYear, jMonth, daysInMonth),
-        phoneNumber: employees.number[indexEmployeeCurrent],
-        userName: employees.name[indexEmployeeCurrent],
-        filterProject,
-      })
-    )
-      .unwrap()
-      .then((res) => {
-        if (res.reports.length <= 0) {
-          openSnackbar(Translate("notExistReport", language));
-          dispatch(emptyReport());
-        } else {
-          backModal();
-        }
-      })
-      .catch((error) => {
-        openSnackbar(
-          error.code === "ERR_NETWORK"
-            ? Translate("connectionFailed", language)
-            : error.message
-        );
-      });
+    const args = {
+      year: parseInt(jYear),
+      month: jMonth + 1,
+      daysInMonth,
+      startDate: changeToDate(jYear, jMonth, 1),
+      endDate: changeToDate(jYear, jMonth, daysInMonth),
+      phoneNumber: users[indexUserCurrent].phone_number,
+      filterProject,
+    };
+
+    const _then = (res) => {
+      if (res.reports.length <= 0) {
+        openSnackbar(Translate("notExistReport", language));
+        dispatch(emptyReport());
+      } else {
+        handelBackBtnModal();
+      }
+    };
+
+    const _error = (error) => {
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message
+      );
+    };
+
+    dispatch(exportExcel(args)).unwrap().then(_then).catch(_error);
   };
 
-  const closeModal = () => setModalVisible(false);
-  const openModal = () => {
-    setModalVisible(true);
-    getUsers();
-  };
+  const getListProject = projects.map((project, index) => {
+    const { project_name } = project;
 
-  const toggleCollapse = () => setIsCollapse(!isCollapse);
-  const closeCollapse = () => setIsCollapse(false);
+    const toggleProject = (e) => {
+      setFilterProject(
+        e.target.checked
+          ? [...filterProject, project_name]
+          : filterProject.filter((p) => p !== project_name)
+      );
+    };
 
-  const backModal = () => {
-    closeModal();
-    closeCollapse();
-  };
+    return (
+      <CheckBox
+        key={index}
+        name={project_name}
+        onChange={toggleProject}
+        disabled={isLoading}
+        toggle={filterProject.find((p) => p === project_name) !== undefined}
+      />
+    );
+  });
 
   return (
     <>
       <AppBar label="exportExcel" />
+
       <div className="excel-container">
         <div className="excel-text direction">
           {Translate("selectDateUserProject", language)}
@@ -429,20 +482,29 @@ const ExportExcel = () => {
           onClick={openModal}
           label={Translate("exportExcel", language)}
         />
-        <ExcelFileView />
+        {excelReport != null && (
+          <ExcelFile
+            dataExcel={calculateExcel()}
+            fullName={users[indexUserCurrent].full_name}
+            jMonth={jMonth + 1}
+            jYear={jYear}
+          />
+        )}
+
         <Modal
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
           customStyle={styles.customStyleModal}
         >
           <div className="excel-header-modal">
-            <span className="excel-back-icon" onClick={backModal}>
+            <span className="excel-back-icon" onClick={handelBackBtnModal}>
               <ArrowBackIos />
             </span>
             <div className="excel-header-modal-text">
               {Translate("export", language)}
             </div>
           </div>
+
           <div className="excel-modal-section direction excel-modal-section-date">
             <span className="excel-modal-text ">
               {Translate("date", language)} :
@@ -455,16 +517,18 @@ const ExportExcel = () => {
               isCalendar
             />
           </div>
+
           <div className="excel-modal-section direction">
             <Calendar
               label={`${Translate("user", language)} : `}
               onePicker={{
-                data: employees.name,
-                init: indexEmployeeCurrent,
-                onSelect: (selectItem) => setIndexEmployeeCurrent(selectItem),
+                data: users.map((u) => u.full_name),
+                init: indexUserCurrent,
+                onSelect: (selectItem) => setIndexUserCurrent(selectItem),
               }}
             />
           </div>
+
           <div className="excel-modal-section direction">
             <div className="excel-modal-collapse" onClick={toggleCollapse}>
               <span className="excel-modal-text">
@@ -472,6 +536,7 @@ const ExportExcel = () => {
               </span>
               {isCollapse ? <ExpandLess /> : <ExpandMore />}
             </div>
+
             <Collapse in={isCollapse} className="excel-modal-content-collapse">
               <FormGroup>
                 <FormControlLabel
@@ -484,60 +549,19 @@ const ExportExcel = () => {
                   control={<Checkbox checked={true} />}
                   label={Translate("dailyReport", language)}
                 />
-                {projects.map((project, index) => (
-                  <CheckBoxProject
-                    key={index}
-                    filterProject={filterProject}
-                    setFilterProject={setFilterProject}
-                    projectName={project.project_name}
-                    disabled={isLoading}
-                  />
-                ))}
+                {getListProject}
               </FormGroup>
             </Collapse>
           </div>
+
           <Button
             label={Translate("export", language)}
-            onClick={onExportFilterHandler}
+            onClick={handelExport}
             isLoading={isLoadingRep}
           />
         </Modal>
       </div>
     </>
-  );
-};
-
-const CheckBoxProject = ({
-  filterProject,
-  setFilterProject,
-  projectName,
-  disabled,
-}) => {
-  const [toggle, setToggle] = useState(false);
-
-  useEffect(() => {
-    setToggle(
-      filterProject.find((proFilter) => proFilter === projectName) !== undefined
-    );
-  }, [projectName]);
-
-  const onChange = (e) => {
-    setFilterProject(
-      toggle
-        ? filterProject.filter((p) => p !== projectName)
-        : [...filterProject, projectName]
-    );
-    setToggle(e.target.checked);
-  };
-
-  return (
-    <FormControlLabel
-      label={projectName}
-      className="excel-check"
-      control={
-        <Checkbox checked={toggle} disabled={disabled} onChange={onChange} />
-      }
-    />
   );
 };
 

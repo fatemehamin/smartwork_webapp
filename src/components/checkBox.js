@@ -10,21 +10,18 @@ const CheckBox = ({ name, toggle, disabled, onChange, style, sx }) => {
   }, [toggle]);
 
   return (
-    <FormGroup
-      className="text-align direction"
-      style={{ marginLeft: 16, ...style }}
-    >
+    <FormGroup className="text-align direction" style={style}>
       <FormControlLabel
         sx={sx}
+        label={name}
         control={
           <Checkbox
-            color="secondary"
+            color="primary"
             disabled={disabled}
             checked={toggleCheckBox}
             onChange={onChange}
           />
         }
-        label={name}
       />
     </FormGroup>
   );

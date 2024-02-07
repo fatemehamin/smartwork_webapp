@@ -206,5 +206,9 @@
   "start": "شروع",
   "end": "پایان",
   "duration": "مدت زمان",
-  "total": "مجموع"
+  "total": "مجموع",
+  "leave": "مرخصی",
+  "delay": "تاخیر",
+  "overTime": "اضافه کار",
+  "deduction": "کسر"
 }

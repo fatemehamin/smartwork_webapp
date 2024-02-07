@@ -206,5 +206,9 @@
   "start": "Start",
   "end": "End",
   "duration": "Duration",
-  "total": "Total"
+  "total": "Total",
+  "leave": "Leave",
+  "delay": "Delay",
+  "overTime": "Over Time",
+  "deduction": "Deduction"
 }

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
+import CheckBox from "./checkBox";
 import { useDispatch, useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
 import { fetchLocations } from "../features/locations/action";
 import { useSnackbar } from "react-simple-snackbar";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Collapse } from "@mui/material";
-import CheckBox from "./checkBox";
 import {
   addLocationToUsers,
   deleteLocationToUsers,
@@ -73,6 +73,7 @@ const AccessLocation = ({ userCurrent }) => {
           locations.map((l, i) => (
             <CheckBox
               key={i}
+              style={{ marginLeft: 16 }}
               name={l.location_name}
               disabled={isLoading}
               onChange={(e) => onChangeCheck(e, l)}
