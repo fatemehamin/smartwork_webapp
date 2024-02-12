@@ -149,7 +149,7 @@ const ShiftWork = () => {
   const toggleAllowDelay = (e) => {
     const newDay = {
       ...shiftDay,
-      allowed_delay: e.target.checked ? "1701642600000" : null, //default 2 hours
+      allowed_delay: e.target.checked ? "7200" : null, //default 2 hours
     };
     setShiftDay(newDay);
   };
@@ -157,7 +157,7 @@ const ShiftWork = () => {
   const toggleDelayCompensation = (e) => {
     const newDay = {
       ...shiftDay,
-      delay_compensation: e.target.checked ? "1701642600000" : null, //default 2 hours
+      delay_compensation: e.target.checked ? "7200" : null, //default 2 hours
     };
     setShiftDay(newDay);
   };
@@ -165,7 +165,7 @@ const ShiftWork = () => {
   const toggleOvertime = (e) => {
     const newDay = {
       ...shiftDay,
-      overtime: e.target.checked ? "1701642600000" : null, //default 2 hours
+      overtime: e.target.checked ? "7200" : null, //default 2 hours
     };
     setShiftDay(newDay);
   };
@@ -173,7 +173,7 @@ const ShiftWork = () => {
   const toggleBeforeOvertime = (e) => {
     const newDay = {
       ...shiftDay,
-      overtime_before_starting_work: e.target.checked ? "1701642600000" : null, //default 2 hours
+      overtime_before_starting_work: e.target.checked ? "7200" : null, //default 2 hours
     };
     setShiftDay(newDay);
   };
@@ -254,11 +254,29 @@ const ShiftWork = () => {
       .catch(_error);
   };
 
-  const TimeBox = ({ title, className, timestamp, keyTimeType, ...props }) => {
+  const TimeBox = ({
+    title,
+    className,
+    timestamp,
+    durationInSeconds,
+    keyTimeType,
+    ...props
+  }) => {
     const onChangeTime = (d) => {
-      const newDay = { ...shiftDay, [keyTimeType]: d.$d.getTime() };
-      setShiftDay(newDay);
+      if (durationInSeconds) {
+        const newDurationInSeconds = d.$H * 3600 + d.$m * 60;
+
+        const newDay = { ...shiftDay, [keyTimeType]: newDurationInSeconds };
+        setShiftDay(newDay);
+      } else {
+        const newDay = { ...shiftDay, [keyTimeType]: d.$d.getTime() };
+        setShiftDay(newDay);
+      }
     };
+
+    const defaultValue = durationInSeconds
+      ? dayjs().startOf("day").add(durationInSeconds, "seconds")
+      : dayjs(new Date(parseInt(timestamp)));
 
     return (
       <div className={className}>
@@ -267,7 +285,7 @@ const ShiftWork = () => {
             <p className="SW-text-title-time">{Translate(title, language)}</p>
           )}
           <TimePicker
-            defaultValue={dayjs(new Date(parseInt(timestamp)))}
+            defaultValue={defaultValue}
             ampm={false}
             onChange={onChangeTime}
             {...props}
@@ -320,6 +338,7 @@ const ShiftWork = () => {
         />
         <CheckBox
           name={Translate("overtimeOnHolidays", language)}
+          style={{ marginLeft: 16 }}
           toggle={isOvertimeOnHolidays}
           onChange={toggleOverTimeOnHolidays}
           color="#f6921e"
@@ -342,6 +361,7 @@ const ShiftWork = () => {
         <div className={`direction SW-row-model-container`}>
           <CheckBox
             name={Translate("holiday", language)}
+            style={{ marginLeft: 16 }}
             toggle={shiftDay.holiday}
             onChange={toggleHoliday}
             color="#f6921e"
@@ -357,7 +377,7 @@ const ShiftWork = () => {
           )}
         </div>
 
-        {!(shiftDay?.holiday || shiftDay?.remote) &&
+        {!shiftDay?.holiday &&
           (isEditDay ? (
             <div className="SW-define-container">
               <div className="display-flex-center container_btn_row direction SW-mt10">
@@ -407,7 +427,7 @@ const ShiftWork = () => {
                   <TimeBox
                     disabled={!shiftDay.allowed_delay}
                     keyTimeType="allowed_delay"
-                    timestamp={shiftDay.allowed_delay}
+                    durationInSeconds={shiftDay.allowed_delay}
                   />
                 </div>
                 <div className="display-flex-center-space direction">
@@ -420,7 +440,7 @@ const ShiftWork = () => {
                   <TimeBox
                     disabled={!shiftDay.delay_compensation}
                     keyTimeType="delay_compensation"
-                    timestamp={shiftDay.delay_compensation}
+                    durationInSeconds={shiftDay.delay_compensation}
                   />
                 </div>
                 <div className="display-flex-center-space direction">
@@ -433,7 +453,7 @@ const ShiftWork = () => {
                   <TimeBox
                     disabled={!shiftDay.overtime}
                     keyTimeType="overtime"
-                    timestamp={shiftDay.overtime}
+                    durationInSeconds={shiftDay.overtime}
                   />
                 </div>
                 <div className="display-flex-center-space  direction">
@@ -448,7 +468,7 @@ const ShiftWork = () => {
                   <TimeBox
                     disabled={!shiftDay.overtime_before_starting_work}
                     keyTimeType="overtime_before_starting_work"
-                    timestamp={shiftDay.overtime_before_starting_work}
+                    durationInSeconds={shiftDay.overtime_before_starting_work}
                   />
                 </div>
               </Collapse>
