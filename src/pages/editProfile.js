@@ -2,15 +2,30 @@ import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
 import { Translate } from "../features/i18n/translate";
-import { PersonOutlineOutlined, EmailOutlined } from "@mui/icons-material";
+import { EmailOutlined, PersonOutlineRounded } from "@mui/icons-material";
 import { phoneNumberCheck } from "../features/auth/action";
 import { editUsers } from "../features/users/action";
 import { updateUser } from "../features/auth/authSlice";
+import { useParams } from "react-router-dom";
 import Input from "../components/input";
 import Button from "../components/button";
 import msgError from "../utils/msgError";
+import UploadProfile from "../components/uploadProfile";
+import AppBar from "../components/appBar";
+import "./editProfile.css";
 
-const PersonalInformation = ({ userCurrent }) => {
+const PersonalInformation = () => {
+  const { currentId } = useParams();
+
+  const { language } = useSelector((state) => state.i18n);
+  const { isLoading, users, profileUsers } = useSelector(
+    (state) => state.users
+  );
+  const { error, userInfo } = useSelector((state) => state.auth);
+
+  const userCurrent = users.filter((user) => user.id == currentId)[0];
+  const profileUser = profileUsers.find((p) => p.id == currentId)?.profile;
+
   const [errorPhone, setErrorPhone] = useState(null);
   const [firstName, setFirstName] = useState(userCurrent.first_name);
   const [lastName, setLastName] = useState(userCurrent.last_name);
@@ -24,10 +39,6 @@ const PersonalInformation = ({ userCurrent }) => {
 
   const [openSnackbar] = useSnackbar();
 
-  const { language } = useSelector((state) => state.i18n);
-  const { isLoading } = useSelector((state) => state.users);
-  const { error, userInfo } = useSelector((state) => state.auth);
-
   const lastNameInputRef = useRef(null);
   const emailInputRef = useRef(null);
   const phoneInputRef = useRef(null);
@@ -39,7 +50,8 @@ const PersonalInformation = ({ userCurrent }) => {
     lastName.trim() &&
     phoneNumber.trim() &&
     errorPhone === null &&
-    (!email || !msgError.email(email))
+    (!email || !msgError.email(email)) &&
+    isEdit
   );
 
   useEffect(() => {
@@ -100,17 +112,6 @@ const PersonalInformation = ({ userCurrent }) => {
     dispatch(editUsers(args)).unwrap().then(_then).catch(_error);
   };
 
-  const handelCancel = () => {
-    setIsEdit(false);
-    setFirstName(userCurrent.first_name);
-    setLastName(userCurrent.last_name);
-    setEmail(userCurrent.email);
-    setPhoneNumber(userCurrent.phone_number);
-    setCountry(userCurrent.calling_code.slice(0, 2));
-    setCallingCode(userCurrent.calling_code.slice(2));
-    setErrorPhone(null);
-  };
-
   const onKeyDownFirstName = (e) => {
     if (e.keyCode === 13) {
       lastNameInputRef.current.focus();
@@ -130,85 +131,76 @@ const PersonalInformation = ({ userCurrent }) => {
   };
 
   const onKeyDownPhone = (e) => {
-    if (e.keyCode === 13 && isEdit && !disableEdit) {
+    if (e.keyCode === 13 && !disableEdit) {
       handelEditInfo();
     }
   };
 
-  const styles = { inputContainer: { width: "90%", margin: "0px 20px" } };
-
   return (
-    <div className="section-container">
-      <div className="main-title text-align">
-        {Translate("personalInformation", language)}
-      </div>
-      <Input
-        value={firstName}
-        setValue={setFirstName}
-        label={Translate("firstName", language)}
-        placeholder={Translate("firstName", language)}
-        Icon={PersonOutlineOutlined}
-        onKeyDown={onKeyDownFirstName}
-        styleContainer={styles.inputContainer}
-      />
-      <Input
-        value={lastName}
-        setValue={setLastName}
-        label={Translate("lastName", language)}
-        placeholder={Translate("lastName", language)}
-        Icon={PersonOutlineOutlined}
-        ref={lastNameInputRef}
-        onKeyDown={onKeyDownLastName}
-        styleContainer={styles.inputContainer}
-      />
-      <Input
-        value={email}
-        setValue={setEmail}
-        label={Translate("email", language)}
-        placeholder={Translate("email", language)}
-        Icon={EmailOutlined}
-        msgError={isEdit && email && Translate(msgError.email(email), language)}
-        ref={emailInputRef}
-        onKeyDown={onKeyDownEmail}
-        styleContainer={styles.inputContainer}
-      />
-      <Input
-        value={phoneNumber}
-        setValue={setPhoneNumber}
-        label={Translate("phoneNumber", language)}
-        placeholder={Translate("phoneNumber", language)}
-        country={country}
-        setCountry={setCountry}
-        callingCode={callingCode}
-        setCallingCode={setCallingCode}
-        ref={phoneInputRef}
-        onKeyDown={onKeyDownPhone}
-        disabled
-        styleContainer={styles.inputContainer}
-        msgError={
-          errorPhone === "phoneNumberExists"
-            ? Translate("phoneNumberExists", language)
-            : errorPhone
-        }
-      />
-      {isEdit && (
-        <div className="container_btn_row direction">
+    <>
+      <AppBar label={Translate("editProfile", language)} type="back" />
+      <div className="edit-profile-container">
+        <UploadProfile id={userCurrent.id} img={profileUser} isEdit />
+
+        <div className="edit-profile-form">
+          <Input
+            value={firstName}
+            setValue={setFirstName}
+            label={Translate("firstName", language)}
+            placeholder={Translate("firstName", language)}
+            Icon={PersonOutlineRounded}
+            onKeyDown={onKeyDownFirstName}
+          />
+          <Input
+            value={lastName}
+            setValue={setLastName}
+            label={Translate("lastName", language)}
+            placeholder={Translate("lastName", language)}
+            Icon={PersonOutlineRounded}
+            ref={lastNameInputRef}
+            onKeyDown={onKeyDownLastName}
+          />
+          <Input
+            value={email}
+            setValue={setEmail}
+            label={Translate("email", language)}
+            placeholder={Translate("email", language)}
+            Icon={EmailOutlined}
+            ref={emailInputRef}
+            onKeyDown={onKeyDownEmail}
+            msgError={
+              isEdit && email && Translate(msgError.email(email), language)
+            }
+          />
+          <Input
+            value={phoneNumber}
+            setValue={setPhoneNumber}
+            label={Translate("phoneNumber", language)}
+            placeholder={Translate("phoneNumber", language)}
+            country={country}
+            setCountry={setCountry}
+            callingCode={callingCode}
+            setCallingCode={setCallingCode}
+            ref={phoneInputRef}
+            onKeyDown={onKeyDownPhone}
+            disabled
+            msgError={
+              errorPhone === "phoneNumberExists"
+                ? Translate("phoneNumberExists", language)
+                : errorPhone
+            }
+          />
+
           <Button
-            label={Translate("ok", language)}
-            customStyle={{ width: "40%" }}
+            label={Translate("save", language)}
+            customStyle={{ margin: "30px 0px" }}
             isLoading={isLoading}
             onClick={handelEditInfo}
             disabled={disableEdit}
           />
-          <Button
-            label={Translate("cancel", language)}
-            customStyle={{ width: "40%" }}
-            type="SECONDARY"
-            onClick={handelCancel}
-          />
         </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 };
 

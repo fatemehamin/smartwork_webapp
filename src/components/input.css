@@ -1,6 +1,11 @@
+:root {
+  --flag: inline-flex;
+}
 .input_container {
   width: 80%;
   margin: 5px auto;
+  display: flex;
+  flex-direction: column;
 }
 .input-label {
   font-weight: bold;
@@ -8,7 +13,6 @@
   margin-bottom: 10px;
 }
 .input {
-  width: 100%;
   color: #000;
   border: none;
   display: block;
@@ -21,4 +25,7 @@
 .input_icon {
   color: #777;
   padding: 4px;
+}
+.MuiPhoneNumber-flagButton {
+  display: var(--flag) !important; /* Hide the flag icon */
 }

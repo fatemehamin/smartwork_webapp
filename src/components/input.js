@@ -20,6 +20,7 @@ const CustomInput = forwardRef(
       IconEnd,
       customStyle,
       styleContainer,
+      disabled,
       ...props
     },
     ref
@@ -27,6 +28,11 @@ const CustomInput = forwardRef(
     const [visiblePassword, setVisiblePassword] = useState(false);
 
     const { I18nManager } = useSelector((state) => state.i18n);
+
+    document.documentElement.style.setProperty(
+      "--flag",
+      disabled ? "none" : "inline-flex"
+    );
 
     const onChangeInput = (event) => setValue(event.target.value);
     const onChangePhoneNumber = (phoneNumber, details) => {
@@ -93,6 +99,8 @@ const CustomInput = forwardRef(
               maxLength: callingCode === "+98" ? 13 : undefined,
               ref: ref,
             }}
+            countryCodeEditable={disabled}
+            disabled={disabled}
             {...props}
           />
         ) : (
@@ -105,6 +113,7 @@ const CustomInput = forwardRef(
             endAdornment={endAdornment}
             type={visiblePassword ? "text" : type}
             inputRef={ref}
+            disabled={disabled}
             {...props}
           />
         )}
