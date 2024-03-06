@@ -11,7 +11,8 @@ import MyReport from "../../pages/myReport";
 import Location from "../../pages/location";
 import ShiftWork from "../../pages/shiftWork";
 import ExportExcel from "../../pages/exportExcel";
-import StatusMember from "../../pages/statusMember";
+import ProfileSetting from "../../pages/profileSetting";
+import EditProfile from "../../pages/editProfile";
 import NotFound from "../../pages/notFound";
 import PrivacyPolicy from "../../pages/privacyPolicy";
 import getTokenDeviceFCM from "../../messaging_init_in_sw";
@@ -97,7 +98,11 @@ const Routers = () => {
         />
         <Route
           path="/statusMember/:currentId"
-          element={mainElement(StatusMember, admin)}
+          element={mainElement(ProfileSetting, admin)}
+        />
+        <Route
+          path="/statusMember/:currentId/editProfile"
+          element={mainElement(EditProfile, admin)}
         />
       </Routes>
     </Router>

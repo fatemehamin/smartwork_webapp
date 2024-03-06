@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
-import { fetchUsers } from "../features/users/action";
+import { FetchImageUsers, fetchUsers } from "../features/users/action";
 import { Translate } from "../features/i18n/translate";
 import FloatingButton from "../components/floatingButton";
 import AddUserModal from "../components/addUserModal";
@@ -13,7 +13,7 @@ const TabUsers = () => {
   const [modalVisibleUser, setModalVisibleUser] = useState(false);
   const [modalVisibleProject, setModalVisibleProject] = useState(false);
 
-  const { users } = useSelector((state) => state.users);
+  const { users, profileUsers } = useSelector((state) => state.users);
   const { phoneNumber } = useSelector((state) => state.auth.userInfo);
   const { language } = useSelector((state) => state.i18n);
 
@@ -21,17 +21,18 @@ const TabUsers = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const _error = (error) => {
-      openSnackbar(
-        error.code === "ERR_NETWORK"
-          ? Translate("connectionFailed", language)
-          : error.message
-      );
-    };
-
     dispatch(fetchUsers()).unwrap().catch(_error);
+    dispatch(FetchImageUsers()).unwrap().catch(_error);
     window.scrollTo(0, 0);
   }, []);
+
+  const _error = (error) => {
+    openSnackbar(
+      error.code === "ERR_NETWORK"
+        ? Translate("connectionFailed", language)
+        : error.message
+    );
+  };
 
   const getUsersCard = () => {
     const idleUsers = users.filter(
@@ -39,11 +40,13 @@ const TabUsers = () => {
         item.now_active_project === "nothing" &&
         item.phone_number !== phoneNumber
     );
+
     const busyUsers = users.filter(
       (item) =>
         item.now_active_project !== "nothing" &&
         item.phone_number !== phoneNumber
     );
+
     const boss = users.find((item) => item.phone_number === phoneNumber);
 
     const compareByName = (a, b) => {
@@ -60,15 +63,17 @@ const TabUsers = () => {
     return (
       boss !== undefined &&
       newUsers.map((user, index) => {
+        const profileUser = profileUsers.find((p) => p.id == user.id)?.profile;
+
         return (
           <CardUser
             key={index}
             id={user.id}
-            firstName={user.first_name}
-            lastName={user.last_name}
+            fullName={user.full_name}
             phoneNumber={user.phone_number}
             nowActiveProject={user.now_active_project}
             languageUser={user.language}
+            profileUser={profileUser}
           />
         );
       })

@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  addImageUser,
   addLocationToUsers,
   addProjectToUsers,
   addUsers,
@@ -7,6 +8,7 @@ import {
   deleteProjectToUsers,
   deleteUsers,
   editUsers,
+  FetchImageUsers,
   fetchUsers,
   fetchUsersLocation,
   permissionExcelAutoExit,
@@ -15,6 +17,7 @@ import {
 
 const initialState = {
   users: [],
+  profileUsers: [],
   isLoading: false,
   error: null,
 };
@@ -79,24 +82,44 @@ const usersSlice = createSlice({
         new_phone_number,
         calling_code,
       } = action.payload;
-      state.isLoading = false;
-      state.users = state.users.map((user) =>
+
+      const updateUser = (user) =>
         user.phone_number === old_phone_number
           ? {
               ...user,
               email,
               first_name,
               last_name,
+              full_name: first_name + " " + last_name,
               calling_code,
               phone_number:
                 new_phone_number !== undefined
                   ? new_phone_number
                   : old_phone_number,
             }
-          : user
-      );
+          : user;
+
+      state.isLoading = false;
+      state.users = state.users.map(updateUser);
     });
     builder.addCase(editUsers.rejected, (state) => {
+      state.isLoading = false;
+    });
+    builder.addCase(FetchImageUsers.fulfilled, (state, action) => {
+      state.profileUsers = action.payload;
+    });
+    builder.addCase(addImageUser.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(addImageUser.fulfilled, (state, action) => {
+      const { id, profile } = action.payload;
+      state.isLoading = false;
+      state.profileUsers = [
+        ...state.profileUsers.filter((p) => p.id !== id),
+        { id, profile },
+      ];
+    });
+    builder.addCase(addImageUser.rejected, (state) => {
       state.isLoading = false;
     });
     builder.addCase(permissionExcelAutoExit.fulfilled, (state, action) => {

@@ -16,7 +16,7 @@ export const addUsers = createAsyncThunk(
     country,
     phoneNumber,
   }) => {
-    await axiosAPI.post("/employee_register/", {
+    const res = await axiosAPI.post("/employee_register/", {
       first_name: firstName,
       last_name: lastName,
       password,
@@ -26,12 +26,19 @@ export const addUsers = createAsyncThunk(
     return {
       first_name: firstName,
       last_name: lastName,
+      full_name: firstName + " " + lastName,
       calling_code: country + callingCode,
       password,
       phone_number: phoneNumber,
+      email: "",
       deactive_project: [],
+      financial_group: false,
+      permissionAutoExit: false,
+      language: "EN",
+      shift: null,
       now_active_project: "nothing",
       project_list: [],
+      id: res.data.user_id,
     };
   }
 );
@@ -78,6 +85,32 @@ export const editUsers = createAsyncThunk(
       new_phone_number,
       calling_code: country + callingCode,
     };
+  }
+);
+
+export const FetchImageUsers = createAsyncThunk(
+  "users/FetchImageUsers",
+  async () => {
+    const res = await axiosAPI.get("/image_user/");
+
+    return res.data.list_profile;
+  }
+);
+
+export const addImageUser = createAsyncThunk(
+  "users/addImageUser",
+  async ({ base64Profile, fileName, profile, id }) => {
+    const formData = new FormData();
+    formData.append(fileName, profile);
+
+    await axiosAPI({
+      method: "post",
+      url: `/image_user/${id}/${fileName}/`,
+      data: formData,
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    return { id, profile: base64Profile };
   }
 );
 

@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
+import Alert from "./alert";
+import AvatarProfile from "./avatarProfile";
+// import { ReactComponent as PersonDelete } from "../assets/icons/person_delete.svg";
+// import { deleteUsers } from "../features/users/action";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { ReactComponent as PersonDelete } from "../assets/icons/person_delete.svg";
-import { ReactComponent as Avatar } from "../assets/icons/avatar.svg";
 import { Translate } from "../features/i18n/translate";
 import { useSnackbar } from "react-simple-snackbar";
 import { animated, useSpring } from "@react-spring/web";
-import { deleteUsers } from "../features/users/action";
 import { endTime, exit } from "../features/tasks/action";
 import { updateNowActiveProject } from "../features/users/usersSlice";
 import { sendNotification } from "../features/notification/action";
-import Alert from "./alert";
 import "./cardUser.css";
 import {
   setCartableFilter,
@@ -20,17 +20,17 @@ import {
   Settings,
   MoreHorizOutlined,
   ErrorOutlineRounded,
-  Cancel,
   DoDisturb,
+  // Cancel,
 } from "@mui/icons-material";
 
 const CardUser = ({
   id,
-  firstName,
-  lastName,
+  fullName,
   phoneNumber,
   nowActiveProject,
   languageUser,
+  profileUser,
 }) => {
   const { language } = useSelector((state) => state.i18n);
   const { userInfo } = useSelector((state) => state.auth);
@@ -45,8 +45,7 @@ const CardUser = ({
   const navigate = useNavigate();
   const moreRef = useRef();
 
-  const name = `${firstName} ${lastName}`;
-  const isBoss = userInfo.phoneNumber === phoneNumber;
+  // const isBoss = userInfo.phoneNumber === phoneNumber;
   const isNothing = nowActiveProject === "nothing";
 
   useEffect(() => {
@@ -58,7 +57,6 @@ const CardUser = ({
     return () => document.removeEventListener("mousedown", handelCloseMore);
   }, []);
 
-  const openAlertRemove = () => setOpenAlert(true);
   const toggleMoreIcon = () => setIsPressMore((isMore) => !isMore);
 
   const navigateStatusMember = () => navigate(`/statusMember/${id}`);
@@ -115,18 +113,18 @@ const CardUser = ({
       .catch(_error);
   };
 
-  const handleRemoveUser = () => {
-    const _error = (error) =>
-      openSnackbar(
-        error.code === "ERR_NETWORK"
-          ? Translate("connectionFailed", language)
-          : error.message.slice(-3) === "403"
-          ? Translate("canNotRemoveَAdmin", language)
-          : error.message
-      );
+  // const handleRemoveUser = () => {
+  //   const _error = (error) =>
+  //     openSnackbar(
+  //       error.code === "ERR_NETWORK"
+  //         ? Translate("connectionFailed", language)
+  //         : error.message.slice(-3) === "403"
+  //         ? Translate("canNotRemoveَAdmin", language)
+  //         : error.message
+  //     );
 
-    dispatch(deleteUsers(phoneNumber)).unwrap().catch(_error);
-  };
+  //   dispatch(deleteUsers(phoneNumber)).unwrap().catch(_error);
+  // };
 
   const alert = {
     stopTask: {
@@ -139,28 +137,28 @@ const CardUser = ({
         { text: "cancel", type: "SECONDARY" },
       ],
     },
-    deleteUser: {
-      title: "deleteUser",
-      description: "deleteUserDescription",
-      Icon: PersonDelete,
-      ButtonAction: [
-        { text: "continue", onClick: handleRemoveUser, isLoading },
-        { text: "cancel", type: "SECONDARY" },
-      ],
-    },
+    // deleteUser: {
+    //   title: "deleteUser",
+    //   description: "deleteUserDescription",
+    //   Icon: PersonDelete,
+    //   ButtonAction: [
+    //     { text: "continue", onClick: handleRemoveUser, isLoading },
+    //     { text: "cancel", type: "SECONDARY" },
+    //   ],
+    // },
   };
 
-  const handleAlertRemove = () => {
-    if (!isBoss) {
-      openAlertRemove();
-      setAlertType("deleteUser");
-    }
-  };
+  // const handleAlertRemove = () => {
+  //   if (!isBoss) {
+  //     setOpenAlert(true);
+  //     setAlertType("deleteUser");
+  //   }
+  // };
 
   const handleAlertStopTask = () => {
     if (!isNothing) {
+      setOpenAlert(true);
       setAlertType("stopTask");
-      openAlertRemove();
     }
   };
 
@@ -174,14 +172,16 @@ const CardUser = ({
     heightContainer: {
       height: x.to({
         range: [0, 1],
-        output: [205, 300],
+        // output: [205, 300],
+        output: [205, 250],
       }),
     },
     displayMore: {
       overflow: isPressMore ? "visible" : "hidden",
       height: x.to({
         range: [0, 1],
-        output: [0, 90],
+        // output: [0, 90],
+        output: [0, 45],
       }),
     },
     displayItemStopTask: {
@@ -190,12 +190,12 @@ const CardUser = ({
         output: [0, 0, 0.5, 1],
       }),
     },
-    displayItemRemove: {
-      opacity: x.to({
-        range: [0, 0.25, 0.75, 0.8, 0.9, 1],
-        output: [0, 0, 0, 0.1, 0.5, 1],
-      }),
-    },
+    // displayItemRemove: {
+    //   opacity: x.to({
+    //     range: [0, 0.25, 0.75, 0.8, 0.9, 1],
+    //     output: [0, 0, 0, 0.1, 0.5, 1],
+    //   }),
+    // },
   };
 
   const className = {
@@ -205,9 +205,9 @@ const CardUser = ({
     stopTaskText: `card-user-icon-text ${
       isNothing ? "card-user-icon-text-disable" : ""
     }`,
-    removeUser: `card-user-icon-text ${
-      isBoss ? "card-user-icon-text-disable" : ""
-    }`,
+    // removeUser: `card-user-icon-text ${
+    //   isBoss ? "card-user-icon-text-disable" : ""
+    // }`,
     more: `card-user-icon${isPressMore ? "-more" : ""}`,
   };
 
@@ -217,13 +217,16 @@ const CardUser = ({
       ref={moreRef}
       style={animationStyle.heightContainer}
     >
-      <Avatar className="card-user-avatar" />
-      <div className="card-user-name">{name}</div>
+      <AvatarProfile img={profileUser} />
+
+      <div className="card-user-name">{fullName}</div>
+
       <div className="card-user-option card-user-active">
         <span className={className.nowActiveProject}>
           {isNothing ? Translate("nothing", language) : nowActiveProject}
         </span>
       </div>
+
       <div className="display-flex-center">
         <Settings className="card-user-icon" onClick={navigateStatusMember} />
         <ErrorOutlineRounded
@@ -235,6 +238,7 @@ const CardUser = ({
           onClick={toggleMoreIcon}
         />
       </div>
+
       <animated.div
         style={animationStyle.displayMore}
         className="card-user-option-container"
@@ -249,7 +253,8 @@ const CardUser = ({
             {Translate("stopTask", language)}
           </span>
         </animated.div>
-        <animated.div
+
+        {/* <animated.div
           className={className.moreTask}
           onClick={handleAlertRemove}
           style={animationStyle.displayItemRemove}
@@ -258,8 +263,9 @@ const CardUser = ({
           <span className={className.removeUser}>
             {Translate("remove", language)}
           </span>
-        </animated.div>
+        </animated.div> */}
       </animated.div>
+
       <Alert open={openAlert} setOpen={setOpenAlert} {...alert[alertType]} />
     </animated.div>
   );

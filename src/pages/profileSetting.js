@@ -386,6 +386,7 @@ const ProfileSetting = () => {
           title="accessExcel"
           info="accessExcelDescription"
           Icon={AssignmentRounded}
+          disabled={isBoss}
           EndAdornment={() => (
             <Switch
               defaultChecked={false}
@@ -459,7 +460,8 @@ const ProfileSetting = () => {
           title="removeUser"
           info="allUserInfoRemove"
           Icon={Cancel}
-          color={isBoss ? "#9d0a0a50" : "#9d0a0a"}
+          color="#9d0a0a"
+          disabled={isBoss}
         />
       </div>
 

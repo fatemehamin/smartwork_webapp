@@ -9,33 +9,46 @@ import {
 } from "@mui/icons-material";
 
 const SettingBar = ({
+  onClick,
   title,
   info,
   Icon,
   EndAdornment,
   Collapse,
   color = "#176085",
-  ...props
+  disabled,
 }) => {
   const { language, I18nManager } = useSelector((state) => state.i18n);
 
-  const styleTitle = { color: color !== "#176085" && color };
+  const style = {
+    title: {
+      color: disabled ? color + "50" : color !== "#176085" ? color : "#176085",
+    },
+    info: { color: disabled ? "#00000050" : "#00000091" },
+    disabledColor: { color: disabled ? color + "50" : color },
+  };
 
   return (
     <Grid container>
-      <Grid container className="setting-bar-container direction" {...props}>
+      <Grid
+        container
+        onClick={onClick}
+        className="setting-bar-container direction"
+      >
         <Grid item xs={2} sm={1} className="display-flex-center">
-          <Icon className="icon_bar" style={{ color }} />
+          <Icon className="icon_bar" style={style.disabledColor} />
         </Grid>
 
         <Grid item xs={8} sm={10}>
-          <p style={styleTitle} className="text-title text-align">
+          <p style={style.title} className="text-title text-align">
             {Translate(title, language)}
           </p>
-          <p className="text-info text-align">{Translate(info, language)}</p>
+          <p className="text-info text-align" style={style.info}>
+            {Translate(info, language)}
+          </p>
         </Grid>
 
-        <Grid item xs={2} sm={1} style={{ color }}>
+        <Grid item xs={2} sm={1} style={style.disabledColor}>
           {EndAdornment ? (
             <EndAdornment />
           ) : I18nManager.isRTL ? (

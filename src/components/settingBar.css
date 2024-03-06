@@ -18,7 +18,6 @@
 .text-info {
   margin: 0px;
   font-size: 11px;
-  color: #00000091;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
