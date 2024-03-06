@@ -1,0 +1,28 @@
+.setting-bar-container {
+  width: 100%;
+  padding: 15px 10px;
+  box-sizing: border-box;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.text-title {
+  margin: 0px;
+  font-weight: bold;
+  color: #000000;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.text-info {
+  margin: 0px;
+  font-size: 11px;
+  color: #00000091;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.icon_bar {
+  padding: 10px;
+}

@@ -78,7 +78,6 @@
   "home": "خانه",
   "logout": "خروج از حساب کاربری",
   "logoutDescription": "آیا برای خروج از حساب کاربری خود اطمینان دارید؟",
-  "personalInformation": "اطلاعات شخصی",
   "accessExcel": "دسترسی اکسل",
   "addLocationToUser": "افزودن موقعت مکانی به کاربر",
   "project": "پروژه",
@@ -157,7 +156,7 @@
   "language": "زبان",
   "languageDescription": "زبان خود را انتخاب کنید.",
   "autoExit": "خروج اتوماتیک",
-  "autoExitDescription": "در صورت خروج کاربر از محدوده مکانی به صورت خودکار خروج ثبت می شود.",
+  "autoExitDescription": "ثبت خروج خارج از محدوده به صورت اتوماتیک",
   "permissionRequired": "درخواست مجوز",
   "permissionRequiredDescription": "لطفاً در تنظیمات برنامه اجازه دسترسی به موقعیت مکانی پس‌زمینه را بدهید.",
   "settings": "تنظیمات",
@@ -210,5 +209,13 @@
   "leave": "مرخصی",
   "delay": "تاخیر",
   "overTime": "اضافه کار",
-  "deduction": "کسر"
+  "deduction": "کسر",
+  "profileSetting": "تنظیمات پروفایل",
+  "general": "عمومی",
+  "editProfile": "ویرایش مشخصات کاربر",
+  "changeProfilePictureNameNumber": "تغییر تصویر کاربر، نام و شماره تماس",
+  "accessExcelDescription": "دسترسی به تب اکسل برای دریافت خروجی",
+  "removeUser": "حذف کاربر",
+  "allUserInfoRemove": "تمام اطلاعات کاربر به طور کامل حذف میشود.",
+  "editPhoto": "ویرایش تصویر"
 }

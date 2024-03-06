@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 import "./checkBox.css";
 
-const CheckBox = ({ name, toggle, disabled, onChange, style, sx }) => {
+const CheckBox = ({ name, toggle, style, sx, ...props }) => {
   const [toggleCheckBox, setToggleCheckBox] = useState(false);
 
   useEffect(() => {
@@ -12,15 +12,10 @@ const CheckBox = ({ name, toggle, disabled, onChange, style, sx }) => {
   return (
     <FormGroup className="text-align direction" style={style}>
       <FormControlLabel
-        sx={sx}
+        sx={{ width: "100%", margin: 0, ...sx }}
         label={name}
         control={
-          <Checkbox
-            color="primary"
-            disabled={disabled}
-            checked={toggleCheckBox}
-            onChange={onChange}
-          />
+          <Checkbox color="primary" checked={toggleCheckBox} {...props} />
         }
       />
     </FormGroup>

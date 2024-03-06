@@ -78,7 +78,6 @@
   "home": "Home",
   "logout": "Logout",
   "logoutDescription": "Are you sure want to logout?",
-  "personalInformation": "Personal Information",
   "accessExcel": "Access Excel",
   "addLocationToUser": "Add location to user.",
   "project": "Project",
@@ -157,7 +156,7 @@
   "language": "Language",
   "languageDescription": "Choose your language.",
   "autoExit": "Auto Exit",
-  "autoExitDescription": "When the user exits the location, they are automatically logged out.",
+  "autoExitDescription": "Registering out of bounds automatically",
   "permissionRequired": "Permission Required",
   "permissionRequiredDescription": "Please allow background location access in the app settings.",
   "settings": "Settings",
@@ -210,5 +209,13 @@
   "leave": "Leave",
   "delay": "Delay",
   "overTime": "Over Time",
-  "deduction": "Deduction"
+  "deduction": "Deduction",
+  "profileSetting": "Profile Setting",
+  "general": "General",
+  "editProfile": "Edit Profile",
+  "changeProfilePictureNameNumber": "Change profile picture, name, number",
+  "accessExcelDescription": "Access the Excel tab to get the output",
+  "removeUser": "Remove User",
+  "allUserInfoRemove": "All user information will be completely deleted.",
+  "editPhoto": "Edit Photo"
 }
