@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import AppBar from "../components/appBar";
 import CheckBox from "../components/checkBox";
 import AvatarProfile from "../components/avatarProfile";
@@ -22,6 +22,7 @@ import {
   AccessTimeFilledRounded,
   AutoModeRounded,
   AddTaskRounded,
+  AdminPanelSettingsRounded,
 } from "@mui/icons-material";
 import {
   addLocationToUsers,
@@ -30,7 +31,7 @@ import {
   deleteProjectToUsers,
   deleteUsers,
   fetchUsersLocation,
-  permissionExcelAutoExit,
+  permissionAccess,
   toggleShiftToUsers,
 } from "../features/users/action";
 import {
@@ -49,6 +50,7 @@ const ProfileSetting = () => {
 
   const [isLoadingExcel, setIsLoadingExcel] = useState(false);
   const [isLoadingAutoExit, setIsLoadingAutoExit] = useState(false);
+  const [isLoadingAdmin, setIsLoadingAdmin] = useState(false);
   const [isCollapseLocation, setIsCollapseLocation] = useState(false);
   const [isCollapseProject, setIsCollapseProject] = useState(false);
   const [isCollapseShift, setIsCollapseShift] = useState(false);
@@ -68,8 +70,15 @@ const ProfileSetting = () => {
 
   const [openSnackbar] = useSnackbar();
 
-  const userCurrent = users.filter((user) => user.id == currentId)[0];
-  const profileUser = profileUsers.find((p) => p.id == currentId)?.profile;
+  const userCurrent = useMemo(
+    () => users.filter((user) => user.id == currentId)[0],
+    [users, currentId]
+  );
+
+  const profileUser = useMemo(
+    () => profileUsers.find((p) => p.id == currentId)?.profile,
+    [profileUsers, currentId]
+  );
   const isBoss = phoneNumber === userCurrent.phone_number;
 
   useEffect(() => {
@@ -108,7 +117,7 @@ const ProfileSetting = () => {
           ? Translate("canNotRemoveَAdmin", language)
           : error.message
       ),
-    []
+    [language]
   );
 
   const handleRemoveUser = useCallback(() => {
@@ -118,23 +127,29 @@ const ProfileSetting = () => {
       .catch(_errorRemoveUser);
   }, [userCurrent]);
 
-  const propsAlert = {
-    title: "deleteUser",
-    description: "deleteUserDescription",
-    Icon: PersonDelete,
-    ButtonAction: [
-      { text: "continue", onClick: handleRemoveUser, isLoading },
-      { text: "cancel", type: "SECONDARY" },
-    ],
-  };
+  const propsAlert = useMemo(
+    () => ({
+      title: "deleteUser",
+      description: "deleteUserDescription",
+      Icon: PersonDelete,
+      ButtonAction: [
+        { text: "continue", onClick: handleRemoveUser, isLoading },
+        { text: "cancel", type: "SECONDARY" },
+      ],
+    }),
+    [isLoading]
+  );
 
-  const _error = useCallback((error) => {
-    openSnackbar(
-      error.code === "ERR_NETWORK"
-        ? Translate("connectionFailed", language)
-        : error.message
-    );
-  }, []);
+  const _error = useCallback(
+    (error) => {
+      openSnackbar(
+        error.code === "ERR_NETWORK"
+          ? Translate("connectionFailed", language)
+          : error.message
+      );
+    },
+    [language]
+  );
 
   const handelEditProfile = useCallback(
     () => navigate(`/statusMember/${currentId}/editProfile`),
@@ -145,33 +160,42 @@ const ProfileSetting = () => {
 
   const checkExcel = isBoss || userCurrent.financial_group;
 
-  const disabledExcel = isBoss || isLoadingExcel;
+  const disabledExcel = isBoss || isLoadingExcel || userCurrent.access_admin;
+
+  const disabledAdmin = isBoss || isLoadingAdmin;
+
+  const checkAdmin = isBoss || userCurrent.access_admin;
 
   const handleSwitch = useCallback(
-    (typePermission) => {
-      const setIsLoading =
-        typePermission === "accessExcel"
-          ? setIsLoadingExcel
-          : setIsLoadingAutoExit;
+    (loadingFunc, typePermission) => {
+      loadingFunc(true);
 
-      setIsLoading(true);
+      const isToggle = (() => {
+        switch (typePermission) {
+          case "accessExcel":
+            return !userCurrent.financial_group;
+          case "autoExit":
+            return !userCurrent.permissionAutoExit;
+          case "accessAdmin":
+            return !userCurrent.access_admin;
+          default:
+            return null;
+        }
+      })();
 
       const args = {
         phoneNumber: userCurrent.phone_number,
         typePermission,
-        isToggle: !(typePermission === "accessExcel"
-          ? userCurrent.financial_group
-          : userCurrent.permissionAutoExit),
+        isToggle,
       };
 
-      dispatch(permissionExcelAutoExit(args))
+      dispatch(permissionAccess(args))
         .unwrap()
-        .then((res) => setIsLoading(false))
+        .then((res) => loadingFunc(false))
         .catch(_error);
     },
     [userCurrent]
   );
-
   //--------------------------------------location--------------------------//
 
   const fetchLocation = useCallback(() => {
@@ -383,22 +407,6 @@ const ProfileSetting = () => {
         />
 
         <SettingBar
-          title="accessExcel"
-          info="accessExcelDescription"
-          Icon={AssignmentRounded}
-          disabled={isBoss}
-          EndAdornment={() => (
-            <Switch
-              defaultChecked={false}
-              checked={checkExcel}
-              disabled={disabledExcel}
-              color="primaryDark"
-              onChange={() => handleSwitch("accessExcel")}
-            />
-          )}
-        />
-
-        <SettingBar
           title="location"
           info="addLocationToUser"
           Icon={PinDropRounded}
@@ -417,6 +425,38 @@ const ProfileSetting = () => {
         </div>
 
         <SettingBar
+          title="accessAdmin"
+          info="accessAdminDescription"
+          Icon={AdminPanelSettingsRounded}
+          disabled={isBoss}
+          EndAdornment={() => (
+            <Switch
+              defaultChecked={false}
+              checked={checkAdmin}
+              disabled={disabledAdmin}
+              color="primaryDark"
+              onChange={() => handleSwitch(setIsLoadingAdmin, "accessAdmin")}
+            />
+          )}
+        />
+
+        <SettingBar
+          title="accessExcel"
+          info="accessExcelDescription"
+          Icon={AssignmentRounded}
+          disabled={disabledExcel}
+          EndAdornment={() => (
+            <Switch
+              defaultChecked={false}
+              checked={checkExcel}
+              disabled={disabledExcel}
+              color="primaryDark"
+              onChange={() => handleSwitch(setIsLoadingExcel, "accessExcel")}
+            />
+          )}
+        />
+
+        <SettingBar
           title="autoExit"
           info="autoExitDescription"
           Icon={AutoModeRounded}
@@ -426,7 +466,7 @@ const ProfileSetting = () => {
               checked={userCurrent.permissionAutoExit}
               disabled={isLoadingAutoExit}
               color="primaryDark"
-              onChange={() => handleSwitch("autoExit")}
+              onChange={() => handleSwitch(setIsLoadingAutoExit, "autoExit")}
             />
           )}
         />

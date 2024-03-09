@@ -217,5 +217,7 @@
   "accessExcelDescription": "Access the Excel tab to get the output",
   "removeUser": "Remove User",
   "allUserInfoRemove": "All user information will be completely deleted.",
-  "editPhoto": "Edit Photo"
+  "editPhoto": "Edit Photo",
+  "accessAdmin": "Access Admin",
+  "accessAdminDescription": "View, edit and delete the list of members, projects, shifts, etc."
 }

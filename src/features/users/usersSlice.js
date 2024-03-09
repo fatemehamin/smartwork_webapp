@@ -11,7 +11,7 @@ import {
   FetchImageUsers,
   fetchUsers,
   fetchUsersLocation,
-  permissionExcelAutoExit,
+  permissionAccess,
   toggleShiftToUsers,
 } from "./action";
 
@@ -122,13 +122,15 @@ const usersSlice = createSlice({
     builder.addCase(addImageUser.rejected, (state) => {
       state.isLoading = false;
     });
-    builder.addCase(permissionExcelAutoExit.fulfilled, (state, action) => {
+    builder.addCase(permissionAccess.fulfilled, (state, action) => {
       const { phoneNumber, isToggle, typePermission } = action.payload;
       state.users = state.users.map((user) =>
         user.phone_number === phoneNumber
-          ? typePermission === "accessExcel"
-            ? { ...user, financial_group: isToggle }
-            : { ...user, permissionAutoExit: isToggle }
+          ? typePermission === "autoExit"
+            ? { ...user, permissionAutoExit: isToggle }
+            : typePermission === "accessAdmin"
+            ? { ...user, access_admin: isToggle, financial_group: isToggle }
+            : { ...user, financial_group: isToggle }
           : user
       );
     });

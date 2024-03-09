@@ -217,5 +217,8 @@
   "accessExcelDescription": "دسترسی به تب اکسل برای دریافت خروجی",
   "removeUser": "حذف کاربر",
   "allUserInfoRemove": "تمام اطلاعات کاربر به طور کامل حذف میشود.",
-  "editPhoto": "ویرایش تصویر"
+  "editPhoto": "ویرایش تصویر",
+  "accessAdmin": "دسترسی ادمین",
+  "accessAdminDescription": "مشاهده، ویرایش و حذف لیست اعضا، پروژه، شیفت و غیره ",
+  "search": "جستجو"
 }

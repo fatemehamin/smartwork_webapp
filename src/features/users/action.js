@@ -114,7 +114,7 @@ export const addImageUser = createAsyncThunk(
   }
 );
 
-export const permissionExcelAutoExit = createAsyncThunk(
+export const permissionAccess = createAsyncThunk(
   "users/accessExcel",
   async ({ phoneNumber, typePermission, isToggle }) => {
     await axiosAPI.put(
