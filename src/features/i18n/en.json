@@ -219,5 +219,7 @@
   "allUserInfoRemove": "All user information will be completely deleted.",
   "editPhoto": "Edit Photo",
   "accessAdmin": "Access Admin",
-  "accessAdminDescription": "View, edit and delete the list of members, projects, shifts, etc."
+  "accessAdminDescription": "View, edit and delete the list of members, projects, shifts, etc.",
+  "admin": "Admin",
+  "boss": "Boss"
 }

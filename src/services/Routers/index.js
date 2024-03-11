@@ -12,7 +12,10 @@ import Location from "../../pages/location";
 import ShiftWork from "../../pages/shiftWork";
 import ExportExcel from "../../pages/exportExcel";
 import ProfileSetting from "../../pages/profileSetting";
-import EditProfile from "../../pages/editProfile";
+import EditProfile from "../../pages/settingEditProfile";
+import LocationUser from "../../pages/settingLocationUser";
+import ProjectUser from "../../pages/settingProjectUser";
+import ShiftUser from "../../pages/settingShiftUser";
 import NotFound from "../../pages/notFound";
 import PrivacyPolicy from "../../pages/privacyPolicy";
 import getTokenDeviceFCM from "../../messaging_init_in_sw";
@@ -37,7 +40,7 @@ const Routers = () => {
 
   const dispatch = useDispatch();
 
-  const admin = type === "boss";
+  const admin = type === "boss" || type === "admin";
   const financial = admin || type === "financial";
 
   useEffect(() => {
@@ -103,6 +106,18 @@ const Routers = () => {
         <Route
           path="/statusMember/:currentId/editProfile"
           element={mainElement(EditProfile, admin)}
+        />
+        <Route
+          path="/statusMember/:currentId/locationUser"
+          element={mainElement(LocationUser, admin)}
+        />
+        <Route
+          path="/statusMember/:currentId/projectUser"
+          element={mainElement(ProjectUser, admin)}
+        />
+        <Route
+          path="/statusMember/:currentId/shiftUser"
+          element={mainElement(ShiftUser, admin)}
         />
       </Routes>
     </Router>

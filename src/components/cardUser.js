@@ -31,6 +31,7 @@ const CardUser = ({
   nowActiveProject,
   languageUser,
   profileUser,
+  position,
 }) => {
   const { language } = useSelector((state) => state.i18n);
   const { userInfo } = useSelector((state) => state.auth);
@@ -217,6 +218,9 @@ const CardUser = ({
       ref={moreRef}
       style={animationStyle.heightContainer}
     >
+      <p className="card-user-position text-align">
+        {Translate(position, language)}
+      </p>
       <AvatarProfile img={profileUser} />
 
       <div className="card-user-name">{fullName}</div>

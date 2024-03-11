@@ -362,7 +362,7 @@ const ExportExcel = () => {
           const fiscal =
             isOneFiscal && project === "entry"
               ? [leaveRow, DelayRow, overTimeRow, lowTimeRow]
-              : [];
+              : [undefined, undefined, undefined, undefined];
 
           isOneFiscal = false;
 

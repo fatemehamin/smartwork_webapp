@@ -12,7 +12,7 @@ import Button from "../components/button";
 import msgError from "../utils/msgError";
 import UploadProfile from "../components/uploadProfile";
 import AppBar from "../components/appBar";
-import "./editProfile.css";
+import "./settingEditProfile.css";
 
 const PersonalInformation = () => {
   const { currentId } = useParams();
@@ -53,6 +53,10 @@ const PersonalInformation = () => {
     (!email || !msgError.email(email)) &&
     isEdit
   );
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     // check phoneNumber realtime

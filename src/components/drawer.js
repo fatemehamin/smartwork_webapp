@@ -48,6 +48,8 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
   const [openAlert, setOpenAlert] = useState(false);
   const [alertType, setAlertType] = useState("language");
 
+  const admin = position === "boss" || position === "admin";
+
   const openAlertLogout = () => {
     setOpenAlert(true);
     setAlertType("logout");
@@ -111,7 +113,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
             <p className="drawer-text">v1.1.0</p>
           </div>
           <div className="drawer-p5">
-            {position === "boss" && (
+            {admin && (
               <Item
                 label="home"
                 Icon={Home}
@@ -120,8 +122,8 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
               />
             )}
             <Item
-              label={position === "boss" ? "myTasks" : "home"}
-              Icon={position === "boss" ? TaskAlt : Home}
+              label={admin ? "myTasks" : "home"}
+              Icon={admin ? TaskAlt : Home}
               onClick={() => navigate("/myTasks")}
               CurrentLabel={CurrentLabel}
             />
@@ -131,7 +133,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
               onClick={() => navigate("/myReport")}
               CurrentLabel={CurrentLabel}
             />
-            {position === "boss" && (
+            {admin && (
               <>
                 {/* <Item label="List of projects" Icon={Dns}  onClick={() => navigate("/listOfProjects")}  /> */}
                 <Item
@@ -148,7 +150,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
                 />
               </>
             )}
-            {(position === "financial" || position === "boss") && (
+            {(position === "financial" || admin) && (
               <Item
                 label="exportExcel"
                 Icon={Folder}

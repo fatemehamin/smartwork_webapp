@@ -220,5 +220,6 @@
   "editPhoto": "ویرایش تصویر",
   "accessAdmin": "دسترسی ادمین",
   "accessAdminDescription": "مشاهده، ویرایش و حذف لیست اعضا، پروژه، شیفت و غیره ",
-  "search": "جستجو"
+  "admin": "ادمین",
+  "boss": "مدیر"
 }

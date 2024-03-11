@@ -5,6 +5,12 @@
   --dir: ltr;
   --align: left;
 }
+html,
+body,
+#root,
+.height {
+  height: 100%;
+}
 body {
   font-family: Vazirmatn, sans-serif !important;
   background-color: white;

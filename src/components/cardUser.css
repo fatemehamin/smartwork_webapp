@@ -82,3 +82,13 @@
   width: 60px;
   height: 60px;
 }
+.card-user-position {
+  position: absolute;
+  font-size: 12px;
+  top: 10px;
+  margin: 0px;
+  padding: 0px 10px;
+  width: 100%;
+  color: #00000050;
+  box-sizing: border-box;
+}

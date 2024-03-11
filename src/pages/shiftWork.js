@@ -325,7 +325,7 @@ const ShiftWork = () => {
   };
 
   return (
-    <>
+    <div>
       <AppBar label="shiftWork" />
       <ShiftList onClickEditShift={onClickEditShift} setIsAlert={setIsAlert} />
       <FloatingButton Icon={Add} onClick={onClickFTB} />
@@ -510,7 +510,7 @@ const ShiftWork = () => {
           ))}
       </Modal>
       <Alert {...propsAlert} />
-    </>
+    </div>
   );
 };
 

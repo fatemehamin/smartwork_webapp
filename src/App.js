@@ -32,7 +32,7 @@ const App = () => {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <SnackbarProvider>
-          <div className="text-center">
+          <div className="text-center height">
             <ThemeProvider theme={theme}>
               <Routers />
             </ThemeProvider>

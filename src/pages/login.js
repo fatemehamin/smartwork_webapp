@@ -43,7 +43,9 @@ const Login = () => {
     };
 
     const _then = (res) => {
-      navigate(res.type === "boss" ? "/manager" : "/myTasks");
+      navigate(
+        res.type === "boss" || res.type === "admin" ? "/manager" : "/myTasks"
+      );
       dispatch(changeLanguage(language)); // after authentication need to save language
     };
 

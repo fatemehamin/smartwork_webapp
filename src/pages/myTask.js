@@ -4,6 +4,7 @@ import { fetchTasks } from "../features/tasks/action";
 import { setMyTaskActiveTab } from "../features/config/configSlice";
 import { Translate } from "../features/i18n/translate";
 import { useSnackbar } from "react-simple-snackbar";
+import { fetchLeaveRequests } from "../features/leaveRequests/action";
 import AppBar from "../components/appBar";
 import Tabs from "../components/tabs";
 import TabEntryAndExit from "./tabEntryAndExit";
@@ -35,6 +36,7 @@ const MyTask = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     dispatch(fetchTasks()).unwrap().catch(_error);
+    dispatch(fetchLeaveRequests()); //
   }, [myTaskActiveTab]);
 
   const _error = (error) =>
@@ -44,9 +46,11 @@ const MyTask = () => {
         : error.message
     );
 
+  const admin = type === "boss" || type === "admin";
+
   return (
-    <>
-      <AppBar label={type === "boss" ? "myTasks" : "Smart Work"} />
+    <div>
+      <AppBar label={admin ? "myTasks" : "Smart Work"} />
       <Tabs activeTab={myTaskActiveTab} tabs={tabs} onSwitchTab={onSwitchTab} />
       {myTaskActiveTab === "entryAndExit" ? (
         <TabEntryAndExit />
@@ -55,7 +59,7 @@ const MyTask = () => {
       ) : (
         <TabCartable />
       )}
-    </>
+    </div>
   );
 };
 

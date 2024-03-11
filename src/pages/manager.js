@@ -16,7 +16,7 @@ const Manager = () => {
   const onSwitchTab = (activeTab) => dispatch(setManagerActiveTab(activeTab));
 
   return (
-    <>
+    <div>
       <AppBar label="Smart Work" />
       <Tabs
         tabs={[
@@ -27,7 +27,7 @@ const Manager = () => {
         onSwitchTab={onSwitchTab}
       />
       {managerActiveTab === "users" ? <TabUsers /> : <TabCartable />}
-    </>
+    </div>
   );
 };
 

@@ -47,7 +47,7 @@ const TabUsers = () => {
         item.phone_number !== phoneNumber
     );
 
-    const boss = users.find((item) => item.phone_number === phoneNumber);
+    const you = users.find((item) => item.phone_number === phoneNumber);
 
     const compareByName = (a, b) => {
       const nameA = a.last_name.toUpperCase();
@@ -58,12 +58,18 @@ const TabUsers = () => {
     idleUsers?.sort(compareByName);
     busyUsers?.sort(compareByName);
 
-    const newUsers = [boss, ...busyUsers, ...idleUsers];
+    const newUsers = [you, ...busyUsers, ...idleUsers];
 
     return (
-      boss !== undefined &&
+      you !== undefined &&
       newUsers.map((user, index) => {
         const profileUser = profileUsers.find((p) => p.id == user.id)?.profile;
+
+        const position = user.is_boss
+          ? "boss"
+          : user.access_admin
+          ? "admin"
+          : "";
 
         return (
           <CardUser
@@ -74,6 +80,7 @@ const TabUsers = () => {
             nowActiveProject={user.now_active_project}
             languageUser={user.language}
             profileUser={profileUser}
+            position={position}
           />
         );
       })
