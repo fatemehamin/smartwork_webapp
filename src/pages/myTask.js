@@ -24,14 +24,15 @@ const MyTask = () => {
 
   const onSwitchTab = (activeTab) => dispatch(setMyTaskActiveTab(activeTab));
 
-  const tabs =
-    type === "boss"
-      ? [{ title: "entryAndExit" }, { title: "tasks" }]
-      : [
-          { title: "entryAndExit" },
-          { title: "tasks" },
-          { title: "cartable", isBadge: isNewMsg || isNewLog || isNewLeave },
-        ];
+  const admin = type === "boss" || type === "admin";
+
+  const tabs = admin
+    ? [{ title: "entryAndExit" }, { title: "tasks" }]
+    : [
+        { title: "entryAndExit" },
+        { title: "tasks" },
+        { title: "cartable", isBadge: isNewMsg || isNewLog || isNewLeave },
+      ];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -45,8 +46,6 @@ const MyTask = () => {
         ? Translate("connectionFailed", language)
         : error.message
     );
-
-  const admin = type === "boss" || type === "admin";
 
   return (
     <div>

@@ -338,10 +338,9 @@ const ShiftWork = () => {
         />
         <CheckBox
           name={Translate("overtimeOnHolidays", language)}
-          style={{ marginLeft: 16 }}
+          style={{ margin: "0px 16px" }}
           toggle={isOvertimeOnHolidays}
           onChange={toggleOverTimeOnHolidays}
-          color="#f6921e"
         />
 
         <div className="SW-tab-days direction">
@@ -361,18 +360,16 @@ const ShiftWork = () => {
         <div className={`direction SW-row-model-container`}>
           <CheckBox
             name={Translate("holiday", language)}
-            style={{ marginLeft: 16 }}
+            style={{ margin: "0px 16px" }}
             toggle={shiftDay.holiday}
             onChange={toggleHoliday}
-            color="#f6921e"
           />
           {!shiftDay.holiday && (
             <CheckBox
               name={Translate("remote", language)}
               toggle={shiftDay.remote}
-              style={{ width: "40%" }}
+              style={{ margin: "0px 16px" }}
               onChange={toggleRemote}
-              color="#f6921e"
             />
           )}
         </div>
@@ -421,7 +418,6 @@ const ShiftWork = () => {
                   <CheckBox
                     name={Translate("allowedDelay", language)}
                     onChange={toggleAllowDelay}
-                    color="#f6921e"
                     toggle={shiftDay.allowed_delay !== null}
                   />
                   <TimeBox
@@ -432,7 +428,6 @@ const ShiftWork = () => {
                 </div>
                 <div className="display-flex-center-space direction">
                   <CheckBox
-                    color="#f6921e"
                     name={Translate("delayCompensation", language)}
                     onChange={toggleDelayCompensation}
                     toggle={shiftDay.delay_compensation !== null}
@@ -445,7 +440,6 @@ const ShiftWork = () => {
                 </div>
                 <div className="display-flex-center-space direction">
                   <CheckBox
-                    color="#f6921e"
                     name={Translate("isThereOvertime", language)}
                     onChange={toggleOvertime}
                     toggle={shiftDay.overtime !== null}
@@ -460,7 +454,6 @@ const ShiftWork = () => {
                   <CheckBox
                     name={Translate("overtimeBeforeStartingWork", language)}
                     onChange={toggleBeforeOvertime}
-                    color="#f6921e"
                     style={{ width: "60%" }}
                     sx={{ width: "100%" }}
                     toggle={shiftDay.overtime_before_starting_work !== null}

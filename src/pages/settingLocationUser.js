@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import AppBar from "../components/appBar";
 import CheckBox from "../components/checkBox";
 import SettingBar from "../components/settingBar";
@@ -15,7 +15,7 @@ import {
   fetchUsersLocation,
 } from "../features/users/action";
 
-const ProfileSetting = () => {
+const LocationUser = () => {
   const { currentId } = useParams();
 
   const { language } = useSelector((state) => state.i18n);
@@ -104,4 +104,4 @@ const ProfileSetting = () => {
   );
 };
 
-export default ProfileSetting;
+export default LocationUser;

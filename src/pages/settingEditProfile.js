@@ -14,7 +14,7 @@ import UploadProfile from "../components/uploadProfile";
 import AppBar from "../components/appBar";
 import "./settingEditProfile.css";
 
-const PersonalInformation = () => {
+const EditProfile = () => {
   const { currentId } = useParams();
 
   const { language } = useSelector((state) => state.i18n);
@@ -208,4 +208,4 @@ const PersonalInformation = () => {
   );
 };
 
-export default PersonalInformation;
+export default EditProfile;

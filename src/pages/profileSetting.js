@@ -73,9 +73,11 @@ const ProfileSetting = () => {
 
   const handleRemoveUser = useCallback(() => {
     navigate("/manager");
-    dispatch(deleteUsers(userCurrent.phone_number))
-      .unwrap()
-      .catch(_errorRemoveUser);
+    setTimeout(() => {
+      dispatch(deleteUsers(userCurrent.phone_number))
+        .unwrap()
+        .catch(_errorRemoveUser);
+    }, 1000);
   }, [userCurrent]);
 
   const propsAlert = useMemo(

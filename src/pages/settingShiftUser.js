@@ -14,7 +14,7 @@ import {
   AccessTimeFilledRounded,
 } from "@mui/icons-material";
 
-const ProfileSetting = () => {
+const ShiftUser = () => {
   const { currentId } = useParams();
 
   const { language } = useSelector((state) => state.i18n);
@@ -102,4 +102,4 @@ const ProfileSetting = () => {
   );
 };
 
-export default ProfileSetting;
+export default ShiftUser;

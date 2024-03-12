@@ -464,6 +464,7 @@ const ExportExcel = () => {
         key={index}
         name={project_name}
         onChange={toggleProject}
+        style={{ width: "100%" }}
         disabled={isLoading}
         toggle={filterProject.find((p) => p === project_name) !== undefined}
       />
@@ -541,11 +542,13 @@ const ExportExcel = () => {
               <FormGroup>
                 <FormControlLabel
                   disabled
+                  sx={{ m: 0 }}
                   control={<Checkbox checked={true} />}
                   label={Translate("entry&Exit", language)}
                 />
                 <FormControlLabel
                   disabled
+                  sx={{ m: 0 }}
                   control={<Checkbox checked={true} />}
                   label={Translate("dailyReport", language)}
                 />

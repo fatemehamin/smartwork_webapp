@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import AppBar from "../components/appBar";
 import SettingBar from "../components/settingBar";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
 import { Translate } from "../features/i18n/translate";
 import { fetchProject } from "../features/projects/action";
-import { Chip, Collapse, Stack } from "@mui/material";
+import { Chip, Stack } from "@mui/material";
 import "./profileSetting.css";
 import {
   Done,
@@ -18,10 +18,8 @@ import {
   deleteProjectToUsers,
 } from "../features/users/action";
 
-const ProfileSetting = () => {
+const ProjectUser = () => {
   const { currentId } = useParams();
-
-  const [isCollapseProject, setIsCollapseProject] = useState(false);
 
   const { language } = useSelector((state) => state.i18n);
   const { projects } = useSelector((state) => state.projects);
@@ -52,23 +50,25 @@ const ProfileSetting = () => {
     [language]
   );
 
+  const isSelect = useCallback(
+    (projectName) => !!project_list.find((p) => p.project_name === projectName),
+    [project_list]
+  );
+
   const handleToggleProject = useCallback(
-    (projectName, isSelected) => {
+    (projectName) => {
       const arg = {
         phone_number,
         project_name: projectName,
       };
 
+      const isSelected = isSelect(projectName);
+
       dispatch(isSelected ? deleteProjectToUsers(arg) : addProjectToUsers(arg))
         .unwrap()
         .catch(_error);
     },
-    [phone_number]
-  );
-
-  const isSelect = useCallback(
-    (projectName) => !!project_list.find((p) => p.project_name === projectName),
-    [project_list]
+    [phone_number, isSelect]
   );
 
   const styles = {
@@ -108,37 +108,21 @@ const ProfileSetting = () => {
                 rowGap={2}
               >
                 {projects.length > 0 ? (
-                  projects.map((project, i) =>
-                    isSelect(project.project_name) ? (
-                      <Chip
-                        key={i}
-                        label={project.project_name}
-                        disabled={isLoading}
-                        style={styles.check}
-                        deleteIcon={<Done sx={styles.doneIcon} />}
-                        onDelete={() =>
-                          handleToggleProject(
-                            project.project_name,
-                            isSelect(project.project_name)
-                          )
-                        }
-                      />
-                    ) : (
-                      <Chip
-                        key={i}
-                        label={project.project_name}
-                        disabled={isLoading}
-                        style={styles.unCheck}
-                        variant="outlined"
-                        onClick={() =>
-                          handleToggleProject(
-                            project.project_name,
-                            isSelect(project.project_name)
-                          )
-                        }
-                      />
-                    )
-                  )
+                  projects.map((p, i) => (
+                    <Chip
+                      key={i}
+                      label={p.project_name}
+                      disabled={isLoading}
+                      icon={<Done sx={styles.doneIcon} />}
+                      onClick={() => handleToggleProject(p.project_name)}
+                      style={
+                        styles[isSelect(p.project_name) ? "check" : "unCheck"]
+                      }
+                      variant={
+                        isSelect(p.project_name) ? undefined : "outlined"
+                      }
+                    />
+                  ))
                 ) : (
                   <div className="noItemText direction">
                     {Translate("notExistProject", language)}
@@ -153,4 +137,4 @@ const ProfileSetting = () => {
   );
 };
 
-export default ProfileSetting;
+export default ProjectUser;
