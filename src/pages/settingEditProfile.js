@@ -144,7 +144,7 @@ const EditProfile = () => {
     <>
       <AppBar label={Translate("editProfile", language)} type="back" />
       <div className="edit-profile-container">
-        <UploadProfile id={userCurrent.id} img={profileUser} isEdit />
+        <UploadProfile id={userCurrent.id} img={profileUser} />
 
         <div className="edit-profile-form">
           <Input

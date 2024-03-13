@@ -347,7 +347,7 @@ const ExportExcel = () => {
             ? newReportsDay[project][index] || {}
             : {};
 
-          const Column = i * 4 + i ? 11 : 3;
+          const Column = i * 4 + (i ? 7 : 3);
 
           const startCellDuration = nameCellExcel(Column, data.length + 1);
           const endCellDuration = nameCellExcel(Column + 1, data.length + 1);
@@ -360,9 +360,11 @@ const ExportExcel = () => {
           const total = formatDurationExcel(report.total, funTotal);
 
           const fiscal =
-            isOneFiscal && project === "entry"
-              ? [leaveRow, DelayRow, overTimeRow, lowTimeRow]
-              : [undefined, undefined, undefined, undefined];
+            project === "entry"
+              ? isOneFiscal
+                ? [leaveRow, DelayRow, overTimeRow, lowTimeRow]
+                : [undefined, undefined, undefined, undefined]
+              : [];
 
           isOneFiscal = false;
 

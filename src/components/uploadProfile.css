@@ -1,0 +1,34 @@
+.upload-image-container {
+  cursor: pointer;
+}
+.user-avatar {
+  color: #1a8de650;
+  text-align: center;
+  width: 70px;
+  height: 70px;
+  background-color: #1a8de610;
+  border-radius: 80px;
+  fill: #1a8de6;
+  object-fit: cover;
+}
+.user-avatar-edit {
+  color: #1a8de650;
+  width: 140px;
+  height: 140px;
+  border-radius: 150px;
+  background-color: #1a8de610;
+  fill: #1a8de6;
+}
+.camera-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 30px;
+  background-color: black;
+  border: 2px white solid;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  bottom: 2px;
+  right: 20px;
+}

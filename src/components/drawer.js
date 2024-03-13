@@ -110,7 +110,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
           <img src={ImgDrawer} className="drawer-img" alt="SmartWorkDrawer" />
           <div className="drawer-label">
             <p className="drawer-text drawer-text-bold">Smart Work</p>
-            <p className="drawer-text">v1.1.0</p>
+            <p className="drawer-text">v1.1.4</p>
           </div>
           <div className="drawer-p5">
             {admin && (

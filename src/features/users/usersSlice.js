@@ -106,7 +106,10 @@ const usersSlice = createSlice({
       state.isLoading = false;
     });
     builder.addCase(FetchImageUsers.fulfilled, (state, action) => {
-      state.profileUsers = action.payload;
+      state.profileUsers = action.payload.map((image) => ({
+        ...image,
+        profile: image.image_urls,
+      }));
     });
     builder.addCase(addImageUser.pending, (state) => {
       state.isLoading = true;
