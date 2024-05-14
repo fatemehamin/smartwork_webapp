@@ -55,7 +55,7 @@ const ShiftUser = () => {
 
   return (
     <div className="status-member ">
-      <AppBar label={Translate("shiftWork", language)} type="back" />
+      <AppBar label="shiftWork" type="back" />
 
       <div className="section-container">
         <SettingBar

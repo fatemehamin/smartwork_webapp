@@ -165,7 +165,7 @@ const ProfileSetting = () => {
 
   return (
     <div className="status-member ">
-      <AppBar label={Translate("profileSetting", language)} type="back" />
+      <AppBar label="profileSetting" type="back" />
 
       <div className="display-flex-center direction section-container">
         <AvatarProfile img={profileUser} />

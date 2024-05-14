@@ -6,6 +6,9 @@
   align-items: center;
   flex-wrap: wrap;
 }
+.setting-bar-container:active {
+  background-color: #00000005;
+}
 .text-title {
   margin: 0px;
   font-weight: bold;

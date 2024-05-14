@@ -139,7 +139,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
                 <Item
                   label="location"
                   Icon={FmdGood}
-                  onClick={() => navigate("/location")}
+                  onClick={() => navigate("/location/0")}
                   CurrentLabel={CurrentLabel}
                 />
                 <Item

@@ -4,7 +4,11 @@ import "./uploadProfile.css";
 
 const AvatarProfile = ({ img, isEdit }) => {
   return img ? (
-    <img className={`user-avatar${isEdit ? "-edit" : ""}`} src={img} />
+    <img
+      className={`user-avatar${isEdit ? "-edit" : ""}`}
+      src={img}
+      alt="avatar"
+    />
   ) : (
     <Avatar className={isEdit ? "user-avatar-edit" : "user-avatar"} />
   );

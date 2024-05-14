@@ -91,7 +91,7 @@ const ProjectUser = () => {
 
   return (
     <div className="status-member ">
-      <AppBar label={Translate("project", language)} type="back" />
+      <AppBar label="project" type="back" />
 
       <div className="section-container">
         <SettingBar

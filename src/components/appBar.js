@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { Translate } from "../features/i18n/translate";
 import Drawer from "./drawer";
 
-const CustomAppBar = ({ label, type = "Menu" }) => {
+const CustomAppBar = ({ label, type = "Menu", RightHeader = () => null }) => {
   const [openDrawer, setOpenDrawer] = useState(false);
 
   const { language } = useSelector((state) => state.i18n);
@@ -47,6 +47,7 @@ const CustomAppBar = ({ label, type = "Menu" }) => {
           <Typography variant="h6" component="div" sx={styles.label}>
             {Translate(label, language) ? Translate(label, language) : label}
           </Typography>
+          <RightHeader />
         </Toolbar>
       </styles.AppBarStyle>
       {type === "Menu" && (

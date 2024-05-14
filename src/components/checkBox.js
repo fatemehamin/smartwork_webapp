@@ -15,7 +15,7 @@ const CheckBox = ({ name, toggle, style, sx, ...props }) => {
         sx={{ width: "100%", margin: 0, ...sx }}
         label={name}
         control={
-          <Checkbox color="primary" checked={toggleCheckBox} {...props} />
+          <Checkbox color="primaryDark" checked={toggleCheckBox} {...props} />
         }
       />
     </FormGroup>

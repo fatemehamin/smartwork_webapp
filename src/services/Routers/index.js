@@ -93,8 +93,11 @@ const Routers = () => {
         <Route path="/manager" element={mainElement(Manager, admin)} />
         <Route path="/myTasks" element={mainElement(MyTask)} />
         <Route path="/myReport" element={mainElement(MyReport)} />
-        <Route path="/location" element={mainElement(Location, admin)} />
         <Route path="/shiftWork" element={mainElement(ShiftWork, admin)} />
+        <Route
+          path="/location/:isBack"
+          element={mainElement(Location, admin)}
+        />
         <Route
           path="/exportExcel"
           element={mainElement(ExportExcel, financial)}

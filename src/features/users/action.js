@@ -99,18 +99,18 @@ export const FetchImageUsers = createAsyncThunk(
 
 export const addImageUser = createAsyncThunk(
   "users/addImageUser",
-  async ({ base64Profile, fileName, profile, id }) => {
+  async ({ fileName, profile, id }) => {
     const formData = new FormData();
     formData.append(fileName, profile);
 
-    await axiosAPI({
+    const res = await axiosAPI({
       method: "post",
       url: `/image_user/${id}/${fileName}/`,
       data: formData,
       headers: { "Content-Type": "multipart/form-data" },
     });
 
-    return { id, profile: base64Profile };
+    return { id, profile: res.data.profile };
   }
 );
 

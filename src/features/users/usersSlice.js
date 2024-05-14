@@ -116,11 +116,11 @@ const usersSlice = createSlice({
     });
     builder.addCase(addImageUser.fulfilled, (state, action) => {
       const { id, profile } = action.payload;
-      state.isLoading = false;
       state.profileUsers = [
         ...state.profileUsers.filter((p) => p.id !== id),
         { id, profile },
       ];
+      state.isLoading = false;
     });
     builder.addCase(addImageUser.rejected, (state) => {
       state.isLoading = false;

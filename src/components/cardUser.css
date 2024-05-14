@@ -60,6 +60,13 @@
   background-color: #fff;
   padding: 4px;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+.card-user-icon:hover {
+  background-color: #ffffff50;
+}
+.card-user-icon:active {
+  background-color: #ffffff50;
 }
 .card-user-icon-more {
   color: #fff;

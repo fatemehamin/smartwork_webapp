@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import AppBar from "../components/appBar";
 import CheckBox from "../components/checkBox";
 import SettingBar from "../components/settingBar";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
 import { Translate } from "../features/i18n/translate";
@@ -23,6 +23,7 @@ const LocationUser = () => {
   const { users, isLoading } = useSelector((state) => state.users);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [openSnackbar] = useSnackbar();
 
@@ -68,9 +69,11 @@ const LocationUser = () => {
     [userLocation]
   );
 
+  const navigateLocation = () => navigate("/location/1");
+
   return (
     <div className="status-member">
-      <AppBar label={Translate("location", language)} type="back" />
+      <AppBar label="location" type="back" />
 
       <div className="section-container">
         <SettingBar
@@ -96,6 +99,11 @@ const LocationUser = () => {
                   {Translate("notExistLocation", language)}
                 </div>
               )}
+              <div onClick={navigateLocation} className="addLocation">
+                <p className="addLocationText">
+                  {Translate("addNewLocation", language)}
+                </p>
+              </div>
             </div>
           )}
         />

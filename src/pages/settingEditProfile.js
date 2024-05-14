@@ -1,49 +1,51 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "react-simple-snackbar";
 import { Translate } from "../features/i18n/translate";
 import { EmailOutlined, PersonOutlineRounded } from "@mui/icons-material";
 import { phoneNumberCheck } from "../features/auth/action";
-import { editUsers } from "../features/users/action";
+import { addImageUser, editUsers } from "../features/users/action";
 import { updateUser } from "../features/auth/authSlice";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Input from "../components/input";
-import Button from "../components/button";
 import msgError from "../utils/msgError";
 import UploadProfile from "../components/uploadProfile";
 import AppBar from "../components/appBar";
-import "./settingEditProfile.css";
+import "./profileSetting.css";
 
 const EditProfile = () => {
-  const { currentId } = useParams();
+  const { id } = useParams();
 
   const { language } = useSelector((state) => state.i18n);
+  const { error, userInfo } = useSelector((state) => state.auth);
   const { isLoading, users, profileUsers } = useSelector(
     (state) => state.users
   );
-  const { error, userInfo } = useSelector((state) => state.auth);
 
-  const userCurrent = users.filter((user) => user.id == currentId)[0];
-  const profileUser = profileUsers.find((p) => p.id == currentId)?.profile;
+  const user = useMemo(() => users.find((user) => user.id == id), [id, users]);
 
-  const [errorPhone, setErrorPhone] = useState(null);
-  const [firstName, setFirstName] = useState(userCurrent.first_name);
-  const [lastName, setLastName] = useState(userCurrent.last_name);
-  const [email, setEmail] = useState(userCurrent.email);
-  const [phoneNumber, setPhoneNumber] = useState(userCurrent.phone_number);
-  const [country, setCountry] = useState(userCurrent.calling_code.slice(0, 2));
-  const [isEdit, setIsEdit] = useState(false);
-  const [callingCode, setCallingCode] = useState(
-    userCurrent.calling_code.slice(2)
+  const profileUser = useMemo(
+    () => profileUsers.find((p) => p.id == id)?.profile,
+    [profileUsers, id]
   );
 
+  const [profile, setProfile] = useState({ base64: profileUser, file: null });
+  const [firstName, setFirstName] = useState(user.first_name);
+  const [lastName, setLastName] = useState(user.last_name);
+  const [email, setEmail] = useState(user.email);
+  const [phoneNumber, setPhoneNumber] = useState(user.phone_number);
+  const [country, setCountry] = useState(user.calling_code.slice(0, 2));
+  const [callingCode, setCallingCode] = useState(user.calling_code.slice(2));
+  const [errorPhone, setErrorPhone] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
+
+  const dispatch = useDispatch();
+  const navigator = useNavigate();
   const [openSnackbar] = useSnackbar();
 
   const lastNameInputRef = useRef(null);
   const emailInputRef = useRef(null);
   const phoneInputRef = useRef(null);
-
-  const dispatch = useDispatch();
 
   const disableEdit = !(
     firstName.trim() &&
@@ -51,7 +53,7 @@ const EditProfile = () => {
     phoneNumber.trim() &&
     errorPhone === null &&
     (!email || !msgError.email(email)) &&
-    isEdit
+    !isLoading
   );
 
   useEffect(() => {
@@ -59,62 +61,27 @@ const EditProfile = () => {
   }, []);
 
   useEffect(() => {
-    // check phoneNumber realtime
-    phoneNumber !== userCurrent.phone_number &&
+    if (phoneNumber !== user.phone_number) {
+      // check phoneNumber realtime
       dispatch(phoneNumberCheck(phoneNumber))
         .unwrap()
         .then(() => setErrorPhone(null));
 
-    error != null &&
-      phoneNumber !== userCurrent.phone_number &&
-      setErrorPhone(error);
-
-    setIsEdit(
-      firstName !== userCurrent.first_name ||
-        lastName !== userCurrent.last_name ||
-        email !== userCurrent.email ||
-        phoneNumber !== userCurrent.phone_number ||
-        country + callingCode !== userCurrent.calling_code
-    );
-  }, [firstName, lastName, email, phoneNumber, callingCode, error]);
-
-  const handelEditInfo = () => {
-    const args = {
-      first_name: firstName,
-      last_name: lastName,
-      email,
-      callingCode,
-      country,
-      old_phone_number: userCurrent.phone_number,
-      new_phone_number: phoneNumber,
-    };
-
-    const _then = (res) => {
-      if (userInfo.phoneNumber === userCurrent.phone_number) {
-        dispatch(
-          updateUser({
-            country,
-            callingCode,
-            phoneNumber,
-            first_name: firstName,
-            last_name: lastName,
-            email: email,
-          })
-        );
+      if (error != null) {
+        setErrorPhone(error);
       }
-      setIsEdit(false);
-    };
+    }
+  }, [phoneNumber, error]);
 
-    const _error = (error) => {
-      openSnackbar(
-        error.code === "ERR_NETWORK"
-          ? Translate("connectionFailed", language)
-          : error.message
-      );
-    };
-
-    dispatch(editUsers(args)).unwrap().then(_then).catch(_error);
-  };
+  useEffect(() => {
+    setIsEdit(
+      firstName !== user.first_name ||
+        lastName !== user.last_name ||
+        email !== user.email ||
+        phoneNumber !== user.phone_number ||
+        country + callingCode !== user.calling_code
+    );
+  }, [firstName, lastName, email, phoneNumber, callingCode]);
 
   const onKeyDownFirstName = (e) => {
     if (e.keyCode === 13) {
@@ -134,17 +101,80 @@ const EditProfile = () => {
     }
   };
 
-  const onKeyDownPhone = (e) => {
-    if (e.keyCode === 13 && !disableEdit) {
-      handelEditInfo();
+  const handelSave = () => {
+    if (!disableEdit) {
+      const args = {
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        callingCode,
+        country,
+        old_phone_number: user.phone_number,
+        new_phone_number: phoneNumber,
+      };
+
+      const _then = (res) => {
+        const isYou = userInfo.phoneNumber === user.phone_number;
+        const isEditProfile = !!profile.file;
+
+        if (isEditProfile) {
+          const args = {
+            base64Profile: profile.base64,
+            profile: profile.file,
+            fileName: profile.file.name,
+            id: parseInt(id),
+          };
+
+          dispatch(addImageUser(args)).then((res) => navigator(-1));
+        } else {
+          navigator(-1);
+        }
+
+        if (isYou) {
+          dispatch(
+            updateUser({
+              country,
+              callingCode,
+              phoneNumber,
+              first_name: firstName,
+              last_name: lastName,
+              email: email,
+            })
+          );
+        }
+        setIsEdit(false);
+      };
+
+      const _error = (error) => {
+        openSnackbar(
+          error.code === "ERR_NETWORK"
+            ? Translate("connectionFailed", language)
+            : error.message
+        );
+      };
+
+      dispatch(editUsers(args)).unwrap().then(_then).catch(_error);
     }
   };
 
   return (
     <>
-      <AppBar label={Translate("editProfile", language)} type="back" />
+      <AppBar
+        label="editProfile"
+        type="back"
+        RightHeader={() =>
+          (isEdit || !!profile.file) && (
+            <div onClick={handelSave}>
+              <p className={disableEdit ? "saveDisable" : ""}>
+                {Translate("save", language)}
+              </p>
+            </div>
+          )
+        }
+      />
+
       <div className="edit-profile-container">
-        <UploadProfile id={userCurrent.id} img={profileUser} />
+        <UploadProfile setImg={setProfile} img={profile.base64} />
 
         <div className="edit-profile-form">
           <Input
@@ -172,9 +202,7 @@ const EditProfile = () => {
             Icon={EmailOutlined}
             ref={emailInputRef}
             onKeyDown={onKeyDownEmail}
-            msgError={
-              isEdit && email && Translate(msgError.email(email), language)
-            }
+            msgError={email && Translate(msgError.email(email), language)}
           />
           <Input
             value={phoneNumber}
@@ -186,21 +214,12 @@ const EditProfile = () => {
             callingCode={callingCode}
             setCallingCode={setCallingCode}
             ref={phoneInputRef}
-            onKeyDown={onKeyDownPhone}
             disabled
             msgError={
               errorPhone === "phoneNumberExists"
                 ? Translate("phoneNumberExists", language)
                 : errorPhone
             }
-          />
-
-          <Button
-            label={Translate("save", language)}
-            customStyle={{ margin: "30px 0px" }}
-            isLoading={isLoading}
-            onClick={handelEditInfo}
-            disabled={disableEdit}
           />
         </div>
       </div>

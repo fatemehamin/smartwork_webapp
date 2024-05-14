@@ -10,6 +10,7 @@
   border-radius: 80px;
   fill: #1a8de6;
   object-fit: cover;
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.12);
 }
 .user-avatar-edit {
   color: #1a8de650;
@@ -18,6 +19,7 @@
   border-radius: 150px;
   background-color: #1a8de610;
   fill: #1a8de6;
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.12);
 }
 .camera-icon {
   width: 30px;
@@ -31,4 +33,31 @@
   position: absolute;
   bottom: 2px;
   right: 20px;
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.32);
+}
+.appBar {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 5px;
+  min-height: 56px;
+}
+.titleAppBar {
+  flex: 1;
+  text-align: center;
+}
+.icon {
+  padding: 8px;
+  font-size: 30px !important;
+}
+.cropContainer {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.canvas {
+  display: none;
 }
