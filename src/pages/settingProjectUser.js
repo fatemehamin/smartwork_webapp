@@ -19,7 +19,7 @@ import {
 } from "../features/users/action";
 
 const ProjectUser = () => {
-  const { currentId } = useParams();
+  const { id } = useParams();
 
   const { language } = useSelector((state) => state.i18n);
   const { projects } = useSelector((state) => state.projects);
@@ -30,8 +30,8 @@ const ProjectUser = () => {
   const [openSnackbar] = useSnackbar();
 
   const { phone_number, project_list } = useMemo(
-    () => users.filter((user) => user.id == currentId)[0],
-    [users, currentId]
+    () => users.filter((user) => user.id == id)[0],
+    [users, id]
   );
 
   useEffect(() => {

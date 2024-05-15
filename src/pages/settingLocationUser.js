@@ -16,7 +16,7 @@ import {
 } from "../features/users/action";
 
 const LocationUser = () => {
-  const { currentId } = useParams();
+  const { id } = useParams();
 
   const { language } = useSelector((state) => state.i18n);
   const { locations } = useSelector((state) => state.locations);
@@ -28,8 +28,8 @@ const LocationUser = () => {
   const [openSnackbar] = useSnackbar();
 
   const { phone_number, location: userLocation } = useMemo(
-    () => users.filter((user) => user.id == currentId)[0],
-    [users, currentId]
+    () => users.filter((user) => user.id == id)[0],
+    [users, id]
   );
 
   useEffect(() => {

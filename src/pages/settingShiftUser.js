@@ -15,7 +15,7 @@ import {
 } from "@mui/icons-material";
 
 const ShiftUser = () => {
-  const { currentId } = useParams();
+  const { id } = useParams();
 
   const { language } = useSelector((state) => state.i18n);
   const { shift } = useSelector((state) => state.shift);
@@ -26,8 +26,8 @@ const ShiftUser = () => {
   const [openSnackbar] = useSnackbar();
 
   const userCurrent = useMemo(
-    () => users.filter((user) => user.id == currentId)[0],
-    [users, currentId]
+    () => users.filter((user) => user.id == id)[0],
+    [users, id]
   );
 
   useEffect(() => {

@@ -12,6 +12,7 @@ import msgError from "../utils/msgError";
 import UploadProfile from "../components/uploadProfile";
 import AppBar from "../components/appBar";
 import "./profileSetting.css";
+import Spinner from "../components/spinner";
 
 const EditProfile = () => {
   const { id } = useParams();
@@ -119,9 +120,8 @@ const EditProfile = () => {
 
         if (isEditProfile) {
           const args = {
-            base64Profile: profile.base64,
             profile: profile.file,
-            fileName: profile.file.name,
+            fileName: profile.fileName,
             id: parseInt(id),
           };
 
@@ -159,13 +159,14 @@ const EditProfile = () => {
 
   return (
     <>
+      <Spinner isLoading={isLoading} />
       <AppBar
         label="editProfile"
         type="back"
         RightHeader={() =>
           (isEdit || !!profile.file) && (
             <div onClick={handelSave}>
-              <p className={disableEdit ? "saveDisable" : ""}>
+              <p className={disableEdit ? "saveDisable" : "save"}>
                 {Translate("save", language)}
               </p>
             </div>

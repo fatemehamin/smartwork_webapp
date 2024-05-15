@@ -23,7 +23,7 @@ import {
 } from "@mui/icons-material";
 
 const ProfileSetting = () => {
-  const { currentId } = useParams();
+  const { id } = useParams();
 
   const [isLoadingExcel, setIsLoadingExcel] = useState(false);
   const [isLoadingAutoExit, setIsLoadingAutoExit] = useState(false);
@@ -42,14 +42,15 @@ const ProfileSetting = () => {
   const [openSnackbar] = useSnackbar();
 
   const userCurrent = useMemo(
-    () => users.filter((user) => user.id == currentId)[0],
-    [users, currentId]
+    () => users.filter((user) => user.id == id)[0],
+    [users, id]
   );
 
   const profileUser = useMemo(
-    () => profileUsers.find((p) => p.id == currentId)?.profile,
-    [profileUsers, currentId]
+    () => profileUsers.find((p) => p.id == id)?.profile,
+    [profileUsers, id]
   );
+
   const BossOrYou =
     phoneNumber === userCurrent.phone_number || userCurrent.is_boss;
 
@@ -105,23 +106,23 @@ const ProfileSetting = () => {
   );
 
   const handelEditProfile = useCallback(
-    () => navigate(`/statusMember/${currentId}/editProfile`),
-    [currentId]
+    () => navigate(`/statusMember/${id}/editProfile`),
+    [id]
   );
 
   const handelLocationUser = useCallback(
-    () => navigate(`/statusMember/${currentId}/locationUser`),
-    [currentId]
+    () => navigate(`/statusMember/${id}/locationUser`),
+    [id]
   );
 
   const handelProjectUser = useCallback(
-    () => navigate(`/statusMember/${currentId}/projectUser`),
-    [currentId]
+    () => navigate(`/statusMember/${id}/projectUser`),
+    [id]
   );
 
   const handleShiftUser = useCallback(
-    () => navigate(`/statusMember/${currentId}/shiftUser`),
-    [currentId]
+    () => navigate(`/statusMember/${id}/shiftUser`),
+    [id]
   );
 
   const checkExcel = BossOrYou || userCurrent.financial_group;
@@ -169,7 +170,7 @@ const ProfileSetting = () => {
 
       <div className="display-flex-center direction section-container">
         <AvatarProfile img={profileUser} />
-        <p className="profile-name">{userCurrent.full_name}</p>
+        <p className="profile-name text-align">{userCurrent.full_name}</p>
       </div>
 
       <div className="section-container">

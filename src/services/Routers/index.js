@@ -103,23 +103,23 @@ const Routers = () => {
           element={mainElement(ExportExcel, financial)}
         />
         <Route
-          path="/statusMember/:currentId"
+          path="/statusMember/:id"
           element={mainElement(ProfileSetting, admin)}
         />
         <Route
-          path="/statusMember/:currentId/editProfile"
+          path="/statusMember/:id/editProfile"
           element={mainElement(EditProfile, admin)}
         />
         <Route
-          path="/statusMember/:currentId/locationUser"
+          path="/statusMember/:id/locationUser"
           element={mainElement(LocationUser, admin)}
         />
         <Route
-          path="/statusMember/:currentId/projectUser"
+          path="/statusMember/:id/projectUser"
           element={mainElement(ProjectUser, admin)}
         />
         <Route
-          path="/statusMember/:currentId/shiftUser"
+          path="/statusMember/:id/shiftUser"
           element={mainElement(ShiftUser, admin)}
         />
       </Routes>

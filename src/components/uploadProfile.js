@@ -4,6 +4,7 @@ import { AppBar, Button, Dialog, Typography } from "@mui/material";
 import { CheckRounded, Close, PhotoCameraOutlined } from "@mui/icons-material";
 import { Translate } from "../features/i18n/translate";
 import { useSelector } from "react-redux";
+import { useSnackbar } from "react-simple-snackbar";
 import AvatarProfile from "./avatarProfile";
 import "./uploadProfile.css";
 import "react-image-crop/dist/ReactCrop.css";
@@ -15,6 +16,8 @@ const UploadProfile = ({ img, setImg }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [imgSrc, setImgSrc] = useState(undefined);
   const [imgName, setImgName] = useState("");
+
+  const [openSnackbar] = useSnackbar();
 
   const { language } = useSelector((state) => state.i18n);
 
@@ -64,54 +67,54 @@ const UploadProfile = ({ img, setImg }) => {
     const image = imgRef.current;
     const previewCanvas = previewCanvasRef.current;
     if (!image || !previewCanvas || !completedCrop) {
-      throw new Error("Crop canvas does not exist");
-    }
+      openSnackbar(Translate("noImage", language));
+    } else {
+      // This will size relative to the uploaded image
+      // size. If you want to size according to what they
+      // are looking at on screen, remove scaleX + scaleY
+      const scaleX = image.naturalWidth / image.width;
+      const scaleY = image.naturalHeight / image.height;
 
-    // This will size relative to the uploaded image
-    // size. If you want to size according to what they
-    // are looking at on screen, remove scaleX + scaleY
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
+      const offscreen = new OffscreenCanvas(
+        completedCrop.width * scaleX,
+        completedCrop.height * scaleY
+      );
 
-    const offscreen = new OffscreenCanvas(
-      completedCrop.width * scaleX,
-      completedCrop.height * scaleY
-    );
+      const ctx = offscreen.getContext("2d");
 
-    const ctx = offscreen.getContext("2d");
+      if (!ctx) {
+        throw new Error("No 2d context");
+      }
 
-    if (!ctx) {
-      throw new Error("No 2d context");
-    }
+      ctx.drawImage(
+        previewCanvas,
+        0,
+        0,
+        previewCanvas.width,
+        previewCanvas.height,
+        0,
+        0,
+        offscreen.width,
+        offscreen.height
+      );
 
-    ctx.drawImage(
-      previewCanvas,
-      0,
-      0,
-      previewCanvas.width,
-      previewCanvas.height,
-      0,
-      0,
-      offscreen.width,
-      offscreen.height
-    );
-
-    const blob = await offscreen.convertToBlob({
-      type: "image/png",
-    });
-
-    if (blobUrlRef.current) {
-      URL.revokeObjectURL(blobUrlRef.current);
-    }
-
-    blobUrlRef.current = URL.createObjectURL(blob);
-
-    fetch(blobUrlRef.current)
-      .then((response) => response.blob())
-      .then((blob) => {
-        setImg({ base64: blobUrlRef.current, fileName: imgName, file: blob });
-        handleClose();
+      const blob = await offscreen.convertToBlob({
+        type: "image/png",
       });
+
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+      }
+
+      blobUrlRef.current = URL.createObjectURL(blob);
+
+      fetch(blobUrlRef.current)
+        .then((response) => response.blob())
+        .then((blob) => {
+          setImg({ base64: blobUrlRef.current, fileName: imgName, file: blob });
+          handleClose();
+        });
+    }
   };
 
   const canvasPreview = async (image, canvas, crop) => {

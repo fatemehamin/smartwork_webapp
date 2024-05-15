@@ -95,4 +95,11 @@
 }
 .saveDisable {
   color: #ffffff50;
+  font-size: 13px;
+  font-weight: bold;
+}
+.save {
+  color: #fff;
+  font-size: 13px;
+  font-weight: bold;
 }
