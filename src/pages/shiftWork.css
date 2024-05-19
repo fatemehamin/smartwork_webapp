@@ -13,7 +13,6 @@
 .SW-tab-days {
   display: flex;
   flex-wrap: nowrap;
-  justify-content: center;
   overflow-x: scroll;
   word-break: normal;
   background-color: #269cd9;
@@ -142,4 +141,9 @@
 }
 .SW-mt10 {
   margin-top: 10px;
+}
+.SW_btn_row {
+  justify-content: space-evenly;
+  align-self: stretch;
+  display: flex;
 }

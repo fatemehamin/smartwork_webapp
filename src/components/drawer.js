@@ -24,14 +24,14 @@ import {
 } from "@mui/material";
 import {
   Dns,
-  FmdGood,
-  TaskAlt,
-  ChatBubble,
-  Folder,
-  Home,
-  Language,
-  ExitToAppOutlined,
-  AccessTime,
+  FmdGoodRounded,
+  TaskAltRounded,
+  ChatBubbleRounded,
+  FolderRounded,
+  HomeRounded,
+  LanguageRounded,
+  ExitToAppRounded,
+  AccessTimeFilledRounded,
 } from "@mui/icons-material";
 
 const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
@@ -85,7 +85,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
   const alert = {
     language: {
       description: "languageDescription",
-      Icon: () => <Language color="secondary" fontSize="large" />,
+      Icon: () => <LanguageRounded color="secondary" fontSize="large" />,
     },
     logout: {
       title: "logout",
@@ -116,20 +116,20 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
             {admin && (
               <Item
                 label="home"
-                Icon={Home}
+                Icon={HomeRounded}
                 onClick={() => navigate("/manager")}
                 CurrentLabel={CurrentLabel}
               />
             )}
             <Item
               label={admin ? "myTasks" : "home"}
-              Icon={admin ? TaskAlt : Home}
+              Icon={admin ? TaskAltRounded : HomeRounded}
               onClick={() => navigate("/myTasks")}
               CurrentLabel={CurrentLabel}
             />
             <Item
               label="myReport"
-              Icon={ChatBubble}
+              Icon={ChatBubbleRounded}
               onClick={() => navigate("/myReport")}
               CurrentLabel={CurrentLabel}
             />
@@ -138,13 +138,13 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
                 {/* <Item label="List of projects" Icon={Dns}  onClick={() => navigate("/listOfProjects")}  /> */}
                 <Item
                   label="location"
-                  Icon={FmdGood}
+                  Icon={FmdGoodRounded}
                   onClick={() => navigate("/location/0")}
                   CurrentLabel={CurrentLabel}
                 />
                 <Item
                   label="shiftWork"
-                  Icon={AccessTime}
+                  Icon={AccessTimeFilledRounded}
                   onClick={() => navigate("/shiftWork")}
                   CurrentLabel={CurrentLabel}
                 />
@@ -153,7 +153,7 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
             {(position === "financial" || admin) && (
               <Item
                 label="exportExcel"
-                Icon={Folder}
+                Icon={FolderRounded}
                 onClick={() => navigate("/exportExcel")}
                 CurrentLabel={CurrentLabel}
               />
@@ -161,13 +161,13 @@ const Drawer = ({ openDrawer, setOpenDrawer, CurrentLabel = "Smart Work" }) => {
             <Divider />
             <Item
               label="language"
-              Icon={Language}
+              Icon={LanguageRounded}
               onClick={openAlertChangeLanguage}
               CurrentLabel={CurrentLabel}
             />
             <Item
               label="logout"
-              Icon={ExitToAppOutlined}
+              Icon={ExitToAppRounded}
               onClick={openAlertLogout}
               CurrentLabel={CurrentLabel}
             />
@@ -207,16 +207,14 @@ const Item = ({ label, Icon, onClick, CurrentLabel }) => {
         CurrentLabel === label ? "drawer-indicator" : ""
       }`}
     >
-      <ListItemButton
-        onClick={onClick}
-        className="direction"
-        style={{ alignItems: "stretch" }}
-      >
+      <ListItemButton onClick={onClick} className="direction">
         <ListItemIcon style={styles.itemIcon}>
           <Icon
-            size="small"
+            style={{ fontSize: 20 }}
             className={
-              CurrentLabel === label ? "drawer-item-icon-indicator" : ""
+              CurrentLabel === label
+                ? "drawer-item-icon-indicator"
+                : "drawer-item-icon"
             }
           />
         </ListItemIcon>

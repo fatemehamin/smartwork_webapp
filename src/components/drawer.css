@@ -17,6 +17,7 @@
   width: 100%;
   top: 150px;
   padding-left: 10px;
+  box-sizing: border-box;
 }
 .drawer-item {
   border-radius: 5px;
@@ -39,6 +40,11 @@
 }
 .drawer-item-icon-indicator {
   color: #f6921e;
+  padding: 0px 5px;
+}
+.drawer-item-icon {
+  color: #666;
+  padding: 0px 5px;
 }
 .drawer-p5 {
   padding: 5px;

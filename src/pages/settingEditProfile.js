@@ -125,7 +125,9 @@ const EditProfile = () => {
             id: parseInt(id),
           };
 
-          dispatch(addImageUser(args)).then((res) => navigator(-1));
+          dispatch(addImageUser(args))
+            .then((res) => navigator(-1))
+            .catch(_error);
         } else {
           navigator(-1);
         }

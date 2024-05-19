@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Translate } from "../features/i18n/translate";
 import { useSelector } from "react-redux";
-import { PersonAddAltOutlined, NoteAddOutlined } from "@mui/icons-material";
+import { PersonAddAlt1Rounded, NoteAddRounded } from "@mui/icons-material";
 import "./floatingButton.css";
 import {
   Box,
@@ -28,16 +28,16 @@ const FloatingButton = ({
 
   const actions = [
     {
-      icon: <PersonAddAltOutlined />,
-      name: Translate("addUser", language),
+      icon: <PersonAddAlt1Rounded />,
+      name: <p className="tooltipText">{Translate("addUser", language)}</p>,
       onClick: () => {
         handleClose();
         setModalVisibleUser(true);
       },
     },
     {
-      icon: <NoteAddOutlined />,
-      name: Translate("addProject", language),
+      icon: <NoteAddRounded />,
+      name: <p className="tooltipText">{Translate("addProject", language)}</p>,
       onClick: () => {
         handleClose();
         setModalVisibleProject(true);

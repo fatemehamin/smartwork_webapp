@@ -2,6 +2,7 @@
   background-color: #17608520;
   display: flex;
   padding: 0px 15px;
+  border-radius: 10px;
 }
 .TE_textReportDefault {
   color: #000;

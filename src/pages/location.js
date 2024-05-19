@@ -13,6 +13,7 @@ import Input from "../components/input";
 import Icon from "../assets/images/marker-icon-2x-gold.png";
 import L from "leaflet";
 import LocateControl from "../utils/locatecontrol";
+// import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
 import "./location.css";
 import {
   addLocation,
@@ -119,6 +120,168 @@ const Location = () => {
       </>
     );
   };
+
+  // const SearchField = () => {
+  //   const map = useMap();
+
+  //   // ایجاد یک متغیر ref برای ذخیره searchControl
+  //   const searchControlRef = useRef(null);
+
+  //   // ...
+
+  //   useEffect(() => {
+  //     const provider = new OpenStreetMapProvider();
+  //     // ایجاد یک instance از GeoSearchControl با استفاده از متغیر ref
+  //     searchControlRef.current = new GeoSearchControl({
+  //       provider,
+  //       style: "bar",
+  //       autoComplete: true,
+  //       showMarker: true,
+  //       showPopup: false,
+  //       autoClose: true,
+  //       searchLabel: Translate("search", language),
+  //     });
+
+  //     map.addControl(searchControlRef.current);
+
+  //     // افزودن listener به نتایج جستجو
+  //     searchControlRef.current._provider.on("results", (data) => {
+  //       if (data?.length > 0) {
+  //         const firstResult = data[0];
+  //         const { x, y } = firstResult?.location || {};
+
+  //         if (x && y) {
+  //           const latLng = L.latLng(y, x);
+
+  //           if (map) {
+  //             map.setView(latLng, map.getZoom());
+  //           }
+  //         }
+  //       }
+  //     });
+
+  //     // حذف Control در هنگام unmount کامپوننت
+  //     return () => {
+  //       if (searchControlRef.current) {
+  //         map.removeControl(searchControlRef.current);
+  //         searchControlRef.current._provider.off("results");
+  //       }
+  //     };
+  //   }, [map, language]);
+
+  //   // const form = document.querySelector("form");
+  //   // const input = form.querySelector('input[type="text"]');
+
+  //   // form.addEventListener("submit", async (event) => {
+  //   //   event.preventDefault();
+
+  //   //   const results = await provider.search({ query: input.value });
+  //   //   console.log(results); // » [{}, {}, {}, ...]
+  //   // });
+
+  //   // const searchControl = new GeoSearchControl({
+  //   //   provider,
+  //   //   showMarker: true, // optional: true|false  - default true
+  //   //   showPopup: false, // optional: true|false  - default false
+  //   //   marker: {
+  //   //     // optional: L.Marker    - default L.Icon.Default
+  //   //     icon: new L.Icon.Default(),
+  //   //     draggable: false,
+  //   //   },
+  //   //   popupFormat: ({ query, result }) => result.label, // optional: function    - default returns result label,
+  //   //   resultFormat: ({ result }) => result.label, // optional: function    - default returns result label
+  //   //   maxMarkers: 1, // optional: number      - default 1
+  //   //   retainZoomLevel: false, // optional: true|false  - default false
+  //   //   animateZoom: true, // optional: true|false  - default true
+  //   //   autoClose: false, // optional: true|false  - default false
+  //   //   searchLabel: "Enter address", // optional: string      - default 'Enter address'
+  //   //   keepResult: false, // optional: true|false  - default false
+  //   //   updateMap: true, // optional: true|false  - default true
+  //   // });
+
+  //   // const [inputValue, setInputValue] = useState("");
+  //   // const provider = new MapBoxProvider({
+  //   // params: {
+  //   //   access_token: apiKey,
+  //   // },
+  //   // });
+  //   // const t = async () => {
+  //   //   const results = await provider.search({ query: inputValue });
+  //   //   console.log(results);
+  //   // };
+  //   // console.log(
+  //   //   "fff",
+  //   //   (document.getElementsByClassName("glass").value = "میدان ولیعصر")
+  //   // );
+  //   // const results =  provider.search({ query: input.value });
+  //   // const searchControl = new GeoSearchControl({
+  //   // provider,
+  //   // style: "bar",
+  //   // autoComplete: true,
+  //   // showMarker: true,
+  //   // showPopup: false,
+  //   // autoClose: true,
+  //   // searchLabel: Translate("search", language),
+  //   //   style: "bar",
+  //   //   position: "topright",
+  //   //   showMarker: false,
+  //   //   showPopup: false,
+  //   //   autoClose: false,
+  //   //   retainZoomLevel: false,
+  //   //   animateZoom: true,
+  //   //   keepResult: false,
+  //   //   searchLabel: "Enter Address",
+  //   // });
+
+  //   // var marker = L.marker([51.5, -0.09]).addTo(map);
+
+  //   // افزودن سرچ باکس با استفاده از Leaflet-Search
+  //   // const searchControl = new L.Control.Search({
+  //   //   layer: marker, // افزودن لایه برای جستجو
+  //   //   propertyName: "name", // فیلد جستجو
+  //   //   marker: false, // غیرفعال کردن نمایش مارکرها
+  //   // });
+  //   // var searchControl = new L.Control.Search({
+  //   //   position: "topright",
+  //   //   // layer: L.geoJSON(yourData), // لایه GeoJSON که جستجو در آن انجام می‌شود
+  //   //   propertyName: "name", // نام ویژگی جستجویی
+  //   //   marker: false, // نمایش مارکر برای نتایج یا خیر
+  //   // });
+
+  //   // searchControl.on("search:locationfound", function (e) {
+  //   //   // عملیاتی که باید برای یک موقعیت یافت شده انجام شود
+  //   //   // مثلاً مرکز نقشه را به موقعیت یافته تنظیم کنید
+  //   //   map.setView(e.latlng, map.getZoom());
+  //   // });
+
+  //   // useEffect(() => {
+  //   //   map.addControl(searchControl);
+  //   //   return () => map.removeControl(searchControl);
+  //   // }, []);
+
+  //   // useEffect(() => {
+  //   // searchControl._provider.on("results", (data) => {
+  //   //   if (data?.length > 0) {
+  //   //     const firstResult = data[0]; // در اینجا اولین نتیجه را در نظر می‌گیریم
+  //   //     const { x, y } = firstResult?.location || {};
+  //   //     if (x && y) {
+  //   //       // x به معنای longitude و y به معنای latitude است
+  //   //       console.log("Latitude:", y);
+  //   //       console.log("Longitude:", x);
+  //   //       // می‌توانید این مختصات را برای هر کاری که نیاز دارید، مانند نشان دادن مارکر در نقشه، استفاده کنید.
+  //   //     }
+  //   //   }
+  //   // });
+
+  //   // console.log("ffff", t());
+
+  //   // map.addControl(searchControl);
+
+  //   // return () => map.removeControl(searchControl);
+  //   // }, [modalVisible, map, language]);
+
+  //   return null;
+  // };
 
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
@@ -231,6 +394,12 @@ const Location = () => {
     ],
   };
 
+  // const mapOptions = {
+  //   searchControl: {
+  //     provider: "OpenStreetMap", // یا هر سرویس نقشه‌ای که استفاده می‌کنید
+  //   },
+  // };
+
   return (
     <>
       <AppBar label="location" type={parseInt(isBack) ? "Back" : "Menu"} />
@@ -243,10 +412,23 @@ const Location = () => {
       >
         <SettingMap />
         <LocateControl />
+        {/* <SearchField /> */}
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        {/* <SearchControl options={mapOptions.searchControl} /> */}
+        {/* <SearchField apiKey={"AIzaSyDQmrTGz3Vf2pPHPs0cDCScBAasVhmp6zw"} /> */}
+        {/* <SearchControl
+          position="topleft"
+          provider="OpenStreetMap"
+          showMarker={true}
+          showPopup={false}
+          retainZoomLevel={false}
+          animateZoom={true}
+          autoClose={false}
+          searchLabel="Enter address"
+        /> */}
         {locations.length > 0 &&
           locations.map((coordinate, index) => (
             <Marker

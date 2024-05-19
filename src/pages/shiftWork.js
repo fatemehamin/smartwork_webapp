@@ -377,7 +377,7 @@ const ShiftWork = () => {
         {!shiftDay?.holiday &&
           (isEditDay ? (
             <div className="SW-define-container">
-              <div className="display-flex-center container_btn_row direction SW-mt10">
+              <div className="display-flex-center SW_btn_row direction SW-mt10">
                 <TimeBox
                   title="startTime"
                   className="SW-fill-box"
@@ -466,7 +466,7 @@ const ShiftWork = () => {
                 </div>
               </Collapse>
 
-              <div className="container_btn_row direction SW-btn-container">
+              <div className="SW_btn_row direction SW-btn-container">
                 <AcceptIcon className="SW-icon-btn" onClick={handleAccept} />
                 <RejectIcon className="SW-icon-btn" onClick={toggleIsEditDay} />
               </div>
