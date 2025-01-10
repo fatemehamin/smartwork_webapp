@@ -17,9 +17,9 @@ const Login = () => {
   const { language } = useSelector((state) => state.i18n);
 
   const [password, setPassword] = useState("");
-  const [country, setCountry] = useState(userInfo.country);
-  const [callingCode, setCallingCode] = useState(userInfo.callingCode);
-  const [phoneNumber, setPhoneNumber] = useState(userInfo.phoneNumber);
+  const [country, setCountry] = useState(userInfo?.country);
+  const [callingCode, setCallingCode] = useState(userInfo?.callingCode);
+  const [phoneNumber, setPhoneNumber] = useState(userInfo?.phoneNumber);
 
   const [openSnackbar] = useSnackbar();
 

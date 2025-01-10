@@ -221,5 +221,9 @@
   "accessAdmin": "دسترسی ادمین",
   "accessAdminDescription": "مشاهده، ویرایش و حذف لیست اعضا، پروژه، شیفت و غیره ",
   "admin": "ادمین",
-  "boss": "مدیر"
+  "boss": "مدیر",
+  "noImage": "تصویری وجود ندارد.",
+  "personalRequest": "درخواست شخصی",
+  "userRequest": "درخواست کاربران",
+  "search": "جستجو"
 }
